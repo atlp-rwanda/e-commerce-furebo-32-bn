@@ -2,7 +2,7 @@
   "name": "e-commerce-furebo-bn",
   "version": "1.0.0",
   "description": "E-Commerce is a team project by the Geeklord team from cohort 32, with Furebo leading the charge as the Team Lead (TTL). The goal is to revolutionize online shopping by leveraging the latest technology, ensuring ease of use for everyone, providing a wide variety of products for potential customers, and enabling sellers to sell on our platform.",
-  "main": "index.js",
+  "main": "server.ts",
   "repository": "https://github.com/atlp-rwanda/e-commerce-furebo-32-bn.git",
   "author": "“mugishaj092” <mugishajoseph092@gmail.com>",
   "license": "MIT",
@@ -13,7 +13,7 @@
   },
   "scripts": {
     "dev": "nodemon server.ts",
-    "start": "ts-node index.ts",
+    "start": "ts-node server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
   },
