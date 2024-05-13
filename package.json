@@ -9,6 +9,9 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.0",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
     "ts-node": "^10.9.2"
   },
   "scripts": {
@@ -19,6 +22,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.11",
+    "@types/sequelize": "^4.28.20",
     "typescript": "^5.4.5"
   }
 }
