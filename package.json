@@ -25,6 +25,7 @@
     "@types/node": "^20.12.11",
     "chai": "^5.1.1",
     "codeclimate-test-reporter": "^0.5.1",
+    "hound": "^1.0.5",
     "mocha": "^10.4.0",
     "typescript": "^5.4.5"
   }
