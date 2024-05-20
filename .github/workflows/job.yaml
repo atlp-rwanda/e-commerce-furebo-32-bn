@@ -1,4 +1,4 @@
-name: My brand ci
+name: e-commerce-furebo-32-bn.
 
 on:
   pull_request:
