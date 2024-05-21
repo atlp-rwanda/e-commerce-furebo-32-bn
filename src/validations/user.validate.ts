@@ -52,13 +52,6 @@ export const validateUser = async(
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.body;
-  const user = await UserService.getUserByEmail(email);
-  if (user) {
-    return res.status(409).json({
-      message: "User already exists. Please login again",
-    });
-  }
   const { error } = usersValidation.validate(req.body, { abortEarly: false });
   if (error) {
     return res.status(400).json({
@@ -66,6 +59,18 @@ export const validateUser = async(
       data: {
         message: error.details[0].message,
       },
+    });
+  }
+  const { email } = req.body;
+  if(email===undefined){
+    return res.status(400).json({
+      message: "Email address is required",
+    });
+  }
+  const user = await UserService.getUserByEmail(email);
+  if (user) {
+    return res.status(409).json({
+      message: "User already exists. Please login again",
     });
   }
   next();

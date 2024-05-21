@@ -4,17 +4,19 @@ import pg from 'pg';
 
 dotenv.config();
 
-const database = process.env.DEV_DB_NAME ?? 'default_db';
-const username = process.env.DEV_DB_USER ?? 'default_user';
-const password = process.env.DEV_DB_PASS ?? '';
-const host = process.env.DEV_DB_HOST ?? 'localhost';
+const databaseUrl = process.env.DB_URL;
 
-if (!database || !username || !host) {
-  throw new Error("Database name, username, and host must be provided");
+if (!databaseUrl) {
+  throw new Error("Database URL must be provided");
 }
 
-export const sequelize = new Sequelize(database, username, password, {
-  host: host,
+export const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
   dialectModule: pg,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false 
+    }
+  }
 });
