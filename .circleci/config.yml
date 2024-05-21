@@ -11,6 +11,9 @@ jobs:
       - checkout
       - node/install-packages
       - run:
+          name: Install dependencies
+          command: npm install
+      - run:
           name: Run tests and generate coverage report
           command: npm run test:coverage
       - run:
