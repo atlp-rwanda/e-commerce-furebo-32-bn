@@ -9,4 +9,7 @@ module.exports = {
   resetMocks: true,
   restoreMocks: true,
   clearMocks: true,
+  collectCoverage: true,
+  coverageReporters: ["lcov", "text"],
+  coverageDirectory: "coverage",
 };

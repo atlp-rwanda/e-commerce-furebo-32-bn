@@ -1,6 +1,8 @@
 version: 2.1
+
 orbs:
   node: circleci/node@4.0.0
+
 jobs:
   build:
     executor:
@@ -8,7 +10,19 @@ jobs:
     steps:
       - checkout
       - node/install-packages
-      - run: npm test
+      - run:
+          name: Run tests and generate coverage report
+          command: npm run test:coverage
+      - run:
+          name: Install CodeClimate Test Reporter
+          command: npm install -g codeclimate-test-reporter
+      - run:
+          name: Upload coverage to CodeClimate
+          command: |
+            codeclimate-test-reporter < coverage/lcov.info
+          environment:
+            CC_TEST_REPORTER_ID: $CC_TEST_REPORTER_ID
+
 workflows:
   version: 2
   build-deploy:
