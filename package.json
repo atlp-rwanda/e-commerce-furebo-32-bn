@@ -25,6 +25,7 @@
     "dev": "nodemon server.ts",
     "start": "ts-node server.ts",
     "test": "jest --detectOpenHandles --coverage",
+    "test:coverage": "jest --coverage",
     "build": "tsc",
     "migrate": "sequelize db:migrate"
   },
