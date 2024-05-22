@@ -46,7 +46,7 @@ export const userSignup = async (req: Request, res: Response) => {
 };
 
 
-
+//User Login Controller
 const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;

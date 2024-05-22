@@ -1,12 +1,12 @@
 import request from "supertest";
 import app from "../../app";
-import db from '../database/config/database.config';
+import db from "../database/config/database.config";
 
 describe("User", () => {
-  let sequelizeInstance:any;
+  let sequelizeInstance: any;
 
   beforeAll(async () => {
-    jest.setTimeout(60000); 
+    jest.setTimeout(60000);
     sequelizeInstance = await db();
     await sequelizeInstance.query('TRUNCATE TABLE users RESTART IDENTITY CASCADE;');
   });
@@ -109,6 +109,57 @@ describe("User", () => {
       const res = await request(app).post('/api/users/signup').send(newUser);
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe('Email address is required');
+    });
+  });
+
+  describe("Test user login", () => {
+    test("user logs in with correct credentials", async () => {
+      const loginUser = {
+        email: "mugisha@gmail.com",
+        password: "Walmond@123"
+      };
+      const res = await request(app).post('/api/users/login').send(loginUser);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe('Login successful');
+      expect(res.body).toHaveProperty('token');
+    });
+
+    test("user logs in with incorrect password", async () => {
+      const loginUser = {
+        email: "mugisha@gmail.com",
+        password: "wrongpassword"
+      };
+      const res = await request(app).post('/api/users/login').send(loginUser);
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Invalid email or password');
+    });
+
+    test("user logs in with non-existing email", async () => {
+      const loginUser = {
+        email: "nonexistentemail@gmail.com",
+        password: "Password@123"
+      };
+      const res = await request(app).post('/api/users/login').send(loginUser);
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Invalid email or password');
+    });
+
+    test("user logs in without email", async () => {
+      const loginUser = {
+        password: "Password@123"
+      };
+      const res = await request(app).post('/api/users/login').send(loginUser);
+      expect(res.statusCode).toBe(400);
+      expect(res.body.data.message).toBe('Email address is required');
+    });
+
+    test("user logs in without password", async () => {
+      const loginUser = {
+        email: "mugisha@gmail.com"
+      };
+      const res = await request(app).post('/api/users/login').send(loginUser);
+      expect(res.statusCode).toBe(400);
+      expect(res.body.data.message).toBe('Password is required.');
     });
   });
 });

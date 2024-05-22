@@ -118,6 +118,63 @@ const options = {
             }
           }
         }
+      },
+
+      //User Login Route Documentation
+      '/api/users/login': {
+        post: {
+          summary: 'Login with Email and Password',
+          tags: ['Authentication'],
+          security: [],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+
+                    email: {
+                      type: 'string',
+                      example: 'test@gmail.com'
+                    },
+                    password: {
+                      type: 'string',
+                      example: 'Test@123'
+                    }
+                  },
+                  required: ['email', 'password']
+                }
+              }
+            }
+          },
+          responses: {
+            201: {
+              description: 'OK',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+    
+                      email: { type: 'string' },
+                      password: { type: 'string' },
+                      
+                    },
+                    required: [
+                      
+                      'email',
+                      'password',
+                      
+                    ]
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Bad Request'
+            }
+          }
+        }
       }
     }
   },
