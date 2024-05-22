@@ -4,9 +4,15 @@ dotenv.config();
 
 module.exports = {
   development: {
-    url: `postgres://${process.env.DEV_DB_USER}:${process.env.DEV_DB_PASS}@${process.env.DEV_DB_HOST}/${process.env.DEV_DB_NAME}`,
+    url: `${process.env.DB_URL}`,
     dialect: 'postgres',
     dialectModule: pg,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
   },
   test: {
     url: `postgres://${process.env.TEST_DB_USER}:${process.env.TEST_DB_PASS}@${process.env.TEST_DB_HOST}/${process.env.TEST_DB_NAME}`,

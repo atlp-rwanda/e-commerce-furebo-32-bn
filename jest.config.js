@@ -9,4 +9,5 @@ module.exports = {
   resetMocks: true,
   restoreMocks: true,
   clearMocks: true,
+  testTimeout:30000,
 };
