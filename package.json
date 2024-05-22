@@ -22,7 +22,7 @@
     "dev": "nodemon server.ts",
     "start": "ts-node server.ts",
     "test": "jest --detectOpenHandles --coverage",
-    "test:coverage": "jest --coverage && codeclimate-test-reporter < coverage/lcov.info",
+    "test:coverage": "npm run test:coverage",
     "build": "tsc"
   },
   "devDependencies": {
