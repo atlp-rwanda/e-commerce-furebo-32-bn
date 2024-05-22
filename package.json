@@ -7,7 +7,7 @@
   "author": "“mugishaj092” <mugishajoseph092@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.7.1",
+    "axios": "^1.7.0",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.0",
     "pg": "^8.11.5",
@@ -22,6 +22,7 @@
     "dev": "nodemon server.ts",
     "start": "ts-node server.ts",
     "test": "jest --detectOpenHandles --coverage",
+    "test:coverage": "jest --coverage && codeclimate-test-reporter < coverage/lcov.info",
     "build": "tsc"
   },
   "devDependencies": {
