@@ -6,6 +6,7 @@ For specific files, we will be using dot notation with `element.action.ts`. For 
 - Services: `element.service.ts (Example: user.services.ts)`
 - Routes: `element.route.ts (Example: user.route.ts)`
 - Test: `element.test.ts(Example: user.test.ts)`
+- Utils: `element.utils.ts(Example: password.utils.ts)`
 
 ### MODEL: FOR MODEL NAMING
 - Model should be named as Entity in singular, models we will use dot notation eg. user.model.ts.
