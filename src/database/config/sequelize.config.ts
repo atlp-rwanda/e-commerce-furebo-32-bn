@@ -1,6 +1,6 @@
-import { Sequelize } from 'sequelize';
-import dotenv from 'dotenv';
-import pg from 'pg';
+import { Sequelize } from "sequelize";
+import dotenv from "dotenv";
+import pg from "pg";
 
 dotenv.config();
 
@@ -11,12 +11,12 @@ if (!databaseUrl) {
 }
 
 export const sequelize = new Sequelize(databaseUrl, {
-  dialect: 'postgres',
+  dialect: "postgres",
   dialectModule: pg,
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: false 
-    }
-  }
+      rejectUnauthorized: false,
+    },
+  },
 });
