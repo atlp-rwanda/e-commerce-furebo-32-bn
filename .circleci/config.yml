@@ -9,7 +9,7 @@ jobs:
       name: node/default
     steps:
       - checkout
-      - node/install-packages
+      # - node/install-packages
       - run:
           name: Install dependencies
           command: npm install
