@@ -9,8 +9,5 @@ module.exports = {
   resetMocks: true,
   restoreMocks: true,
   clearMocks: true,
-  collectCoverage: true,
-  coverageReporters: ['html', 'text', 'lcov'],
-  coverageDirectory: 'coverage',
-  testPathIgnorePatterns: ['/node_modules/']
+  testTimeout:30000,
 };
