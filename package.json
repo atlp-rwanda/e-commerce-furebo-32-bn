@@ -32,6 +32,8 @@
     "@types/pg": "^8.11.6",
     "@types/sequelize": "^4.28.20",
     "@types/supertest": "^6.0.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "chai": "^5.1.1",
     "codeclimate-test-reporter": "^0.5.1",
     "hound": "^1.0.5",
@@ -39,8 +41,6 @@
     "mocha": "^10.4.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.2",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.6",
     "typescript": "^5.4.5"
   }
 }

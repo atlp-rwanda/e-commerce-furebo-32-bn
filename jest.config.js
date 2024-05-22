@@ -10,6 +10,7 @@ module.exports = {
   restoreMocks: true,
   clearMocks: true,
   collectCoverage: true,
-  coverageReporters: ["lcov", "text"],
-  coverageDirectory: "coverage",
+  coverageReporters: ['html', 'text', 'lcov'],
+  coverageDirectory: 'coverage',
+  testPathIgnorePatterns: ['/node_modules/']
 };
