@@ -10,15 +10,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export function sendVerificationEmail(email: any) {
-  const verificationLink = `http://yourdomain.com/verify-email?token=token}`;
-
+export function sendVerificationEmail(
+  email: any,
+  subject: string,
+  text: string,
+  html: string
+) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Email Verification",
-    text: `Please verify your email by clicking on the following link: ${verificationLink}`,
-    html: `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`,
+    subject: subject,
+    text: text,
+    html: html,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
