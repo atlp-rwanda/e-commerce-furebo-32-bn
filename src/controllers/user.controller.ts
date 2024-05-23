@@ -3,9 +3,13 @@ import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
 import { hashPassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
-import { sendVerificationEmail } from "../services/email.services";
+import { sendVerificationEmail } from "../utils/email.utils";
 
 export const userSignup = async (req: Request, res: Response) => {
+  const subject = "Email Verification";
+  const text = `Please verify your email by clicking on the following link:`;
+  const html = `<p>Please verify your email by clicking on the following link:</p><a href="">Verify Email</a>`;
+
   try {
     const hashedpassword: any = await hashPassword(req.body.password);
 
@@ -23,7 +27,7 @@ export const userSignup = async (req: Request, res: Response) => {
 
     const createdUser = await UserService.register(user);
     const token = await generateToken(createdUser);
-    sendVerificationEmail(user.email);
+    sendVerificationEmail(user.email, subject, text, html);
 
     return res.status(200).json({
       status: "success",
