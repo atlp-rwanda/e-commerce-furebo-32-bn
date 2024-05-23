@@ -50,5 +50,9 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.1.2",
     "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
+
 }
