@@ -3,6 +3,7 @@ version: 2.1
 
 orbs:
   node: circleci/node@4.0.0
+  coveralls: coveralls/coveralls@2.1.0
 
 jobs:
   build:
@@ -11,6 +12,7 @@ jobs:
     steps:
       - checkout
       # - node/install-packages
+      - run: npm install
       - run:
           name: Run Tests
           command: npm test
