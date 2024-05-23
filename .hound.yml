@@ -1,6 +1,4 @@
 # Example .hound.yml for a Node.js, Express, Postgres, and React on our e-commerce project
-
-
 eslint:
   enabled: true
   config_file: .eslintrc.json
