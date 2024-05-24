@@ -10,13 +10,14 @@ if (!databaseUrl) {
   throw new Error("Database URL must be provided");
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export const sequelize = new Sequelize(databaseUrl, {
   dialect: "postgres",
   dialectModule: pg,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
+  // dialectOptions: {
+  //   ssl: {
+  //     require: true,
+  //     rejectUnauthorized: false,
+  //   },
+  // },
 });

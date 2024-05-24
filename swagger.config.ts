@@ -1,5 +1,5 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import dotenv from 'dotenv';
+import swaggerJsdoc from "swagger-jsdoc";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -7,121 +7,203 @@ const port = process.env.PORT || 3000;
 
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'E-Commerce APIs Documentation',
-      version: '1.0.0',
-      description: 'APIs for E-Commerce Team Project',
+      title: "E-Commerce APIs Documentation",
+      version: "1.0.0",
+      description: "APIs for E-Commerce Team Project",
       license: {
-        name: 'ISC'
-      }
+        name: "ISC",
+      },
     },
     servers: [
       {
         url: `http://localhost:${port}`,
-        description: 'Local Development Server for Swagger'
-      }
+        description: "Local Development Server for Swagger",
+      },
     ],
     tags: [
       {
-        name: 'Authentication',
-        description: 'Endpoints for user registration, login, and user management.'
+        name: "Authentication",
+        description:
+          "Endpoints for user registration, login, and user management.",
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
     },
     security: [
       {
-        bearerAuth: []
-      }
+        bearerAuth: [],
+      },
     ],
-    basePath: '/api',
-    schemes: ['http'],
+    basePath: "/api",
+    schemes: ["http"],
     paths: {
-      '/api/users/signup': {
+      "/api/users/signup": {
         post: {
-          summary: 'Create an account',
-          tags: ['Authentication'],
+          summary: "Create an account",
+          tags: ["Authentication"],
           security: [],
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
                     firstName: {
-                      type: 'string',
-                      example: 'Mugisha'
+                      type: "string",
+                      example: "Mugisha",
                     },
                     lastName: {
-                      type: 'string',
-                      example: 'Walmond'
+                      type: "string",
+                      example: "Walmond",
                     },
                     email: {
-                      type: 'string',
-                      example: 'mu@gmail.com'
+                      type: "string",
+                      example: "mu@gmail.com",
                     },
                     password: {
-                      type: 'string',
-                      example: 'Walmond@123'
+                      type: "string",
+                      example: "Walmond@123",
                     },
                     role: {
-                      type: 'string',
-                      example: 'buyer'
+                      type: "string",
+                      example: "buyer",
                     },
                     phone: {
-                      type: 'string',
-                      example: '+250792418795'
-                    }
+                      type: "string",
+                      example: "+250792418795",
+                    },
                   },
-                  required: ['firstName', 'lastName', 'email', 'password', 'role', 'phone']
-                }
-              }
-            }
+                  required: [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "password",
+                    "role",
+                    "phone",
+                  ],
+                },
+              },
+            },
           },
           responses: {
             201: {
-              description: 'OK',
+              description: "OK",
               content: {
-                'application/json': {
+                "application/json": {
                   schema: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      firstName: { type: 'string' },
-                      lastName: { type: 'string' },
-                      email: { type: 'string' },
-                      password: { type: 'string' },
-                      role: { type: 'string' },
-                      phone: { type: 'string' }
+                      firstName: { type: "string" },
+                      lastName: { type: "string" },
+                      email: { type: "string" },
+                      password: { type: "string" },
+                      role: { type: "string" },
+                      phone: { type: "string" },
                     },
                     required: [
-                      'firstName',
-                      'lastName',
-                      'email',
-                      'password',
-                      'role',
-                      'phone'
-                    ]
-                  }
-                }
-              }
+                      "firstName",
+                      "lastName",
+                      "email",
+                      "password",
+                      "role",
+                      "phone",
+                    ],
+                  },
+                },
+              },
             },
             400: {
-              description: 'Bad Request'
-            }
-          }
-        }
-      }
-    }
+              description: "Bad Request",
+            },
+          },
+        },
+      },
+      "/api/users/request-reset-password": {
+        post: {
+          summary: "Request password reset",
+          tags: ["Authentication"],
+          security: [],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    email: {
+                      type: "string",
+                      example: "mu@gmail.com",
+                    },
+                  },
+                  required: ["email"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      email: { type: "string" },
+                    },
+                    required: ["email"],
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+          },
+        },
+      },
+      "/api/users/reset-password": {
+        post: {
+          summary: "Reset Password",
+          tags: ["Authentication"],
+          security: [],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    newPassword: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
+                  },
+                  required: ["newPassword"],
+                },
+              },
+            },
+          },
+          parameters: [
+            {
+              in: "query",
+              name: "token",
+              schema: {
+                type: "string",
+              },
+            },
+          ],
+        },
+      },
+    },
   },
-  apis: ['./src/routes/*.ts']
+  apis: ["./src/routes/*.ts"],
 };
 
 const specs = swaggerJsdoc(options);
