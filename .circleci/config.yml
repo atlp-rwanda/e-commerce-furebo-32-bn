@@ -17,6 +17,9 @@ jobs:
       - checkout
       - run: npm install
       - run:
+          name: Install TypeScript
+          command: npm install typescript
+      - run:
           name: Install Code Climate test reporter
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
