@@ -33,7 +33,7 @@ jobs:
       - run:
           name: Upload Coverage Report to Code Climate
           command: |
-            ./cc-test-reporter format-coverage coverage.lcov -t lcov -o coverage/codeclimate.json
+            ./cc-test-reporter format-coverage coverage.lcov --input-type lcov -o coverage/codeclimate.json
             ./cc-test-reporter upload-coverage
 
   deploy:
