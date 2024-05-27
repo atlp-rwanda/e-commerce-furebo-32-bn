@@ -17,8 +17,13 @@ jobs:
       - checkout
       - run: npm install
       - run:
+          name: Install Code Climate test reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: Initialize Code Climate test reporter
-          command: cc-test-reporter before-build
+          command: ./cc-test-reporter before-build
       - run:
           name: Run Tests with Coverage
           command: npm run test:coverage
@@ -28,8 +33,8 @@ jobs:
       - run:
           name: Upload Coverage Report to Code Climate
           command: |
-            cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.json coverage.lcov
-            cc-test-reporter upload-coverage
+            ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.json coverage.lcov
+            ./cc-test-reporter upload-coverage
 
   deploy:
     executor: node-executor
