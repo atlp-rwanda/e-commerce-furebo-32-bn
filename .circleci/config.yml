@@ -45,7 +45,7 @@ jobs:
       - checkout
       - run:
           name: Install TypeScript
-          command: npm install -g typescript
+          command: sudo npm install -g typescript
       - run:
           name: Build Project
           command: npx tsc
