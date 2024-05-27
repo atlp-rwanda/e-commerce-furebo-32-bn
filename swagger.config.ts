@@ -121,6 +121,52 @@ const options = {
       }
     }
   },
+  '/api/users/logout': {
+    post: {
+      summary: 'Logout a user',
+      tags: ['Authentication'],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ],
+      responses: {
+        200: {
+          description: 'Logout successful',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', example: 'success' },
+                  message: { type: 'string', example: 'Logout successful' }
+                }
+              }
+            }
+          }
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', example: 'fail' },
+                  message: { type: 'string', example: 'Token has been blacklisted. Please log in again.' }
+                }
+              }
+            }
+          }
+        },
+        500: {
+          description: 'Internal Server Error'
+        }
+      }
+    }
+  },
+
+
   apis: ['./src/routes/*.ts']
 };
 
