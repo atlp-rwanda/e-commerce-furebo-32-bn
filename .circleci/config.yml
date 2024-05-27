@@ -27,6 +27,11 @@ jobs:
       - run:
           name: Build Project
           command: tsc
+      - run:
+          name: Compile TypeScript
+          command: ./node_modules/.bin/tsc
+          
+      
 
 workflows:
   version: 2

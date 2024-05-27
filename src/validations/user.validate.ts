@@ -75,3 +75,30 @@ export const validateUser = async(
   }
   next();
 };
+
+
+const loginValidation = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address",
+      "any.required": "Email address is required",
+    }),
+  password: Joi.string().required().messages({
+    "any.required": "Password is required.",
+  }),
+});
+
+export const validateUserLogin = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = loginValidation.validate(req.body, { abortEarly: false });
+  if (error) {
+    return res.status(400).json({
+      status: "fail",
+      data: {
+        message: error.details.map(detail => detail.message).join(", "),
+      },
+    });
+  }
+  next();
+};
