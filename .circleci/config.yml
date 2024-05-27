@@ -34,7 +34,6 @@ jobs:
           name: Upload Coverage Report to Code Climate
           command : ./cc-test-reporter after-build -t lcov
           when: always
-                # Upload results
       - store_artifacts: # upload test coverage as artifact
           path: ./coverage/lcov.info
          
@@ -45,7 +44,7 @@ jobs:
       - checkout
       - run:
           name: Build Project
-          command: tsc
+          command: npx tsc
 
 workflows:
   version: 2
