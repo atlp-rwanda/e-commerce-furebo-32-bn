@@ -1,5 +1,4 @@
 version: 2.1
-
 orbs:
   node: circleci/node@4.0.0
 
@@ -19,8 +18,8 @@ jobs:
       - run:
           name: Install Code Climate test reporter
           command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 >./cc-test-reporter
+            chmod +x./cc-test-reporter
       - run:
           name: Initialize Code Climate test reporter
           command: ./cc-test-reporter before-build
@@ -32,8 +31,9 @@ jobs:
           command: npx nyc report --reporter=text-lcov > coverage.lcov
       - run:
           name: Upload Coverage Report to Code Climate
-          command: ./cc-test-reporter after-build -t lcov
-          when: always
+          command: |
+           ./cc-test-reporter format-coverage coverage.lcov --input-type lcov --prefix. --output coverage/codeclimate.json --debug
+           ./cc-test-reporter upload-coverage --debug
   deploy:
     executor: node-executor
     steps:
