@@ -42,7 +42,9 @@ jobs:
   deploy:
     executor: node-executor
     steps:
+      
       - checkout
+      - run: npm install
       - run:
           name: Install TypeScript
           command: sudo npm install -g typescript
