@@ -26,10 +26,10 @@ jobs:
           command: ./cc-test-reporter before-build
       - run:
           name: Run Tests with Coverage
-          command: npm run test:coverage
+          command: npx nyc npm run test:coverage
       - run:
           name: Format Coverage Report
-          command: nyc report --reporter=text-lcov > coverage.lcov
+          command: npx nyc report --reporter=text-lcov > coverage.lcov
       - run:
           name: Upload Coverage Report to Code Climate
           command: |
