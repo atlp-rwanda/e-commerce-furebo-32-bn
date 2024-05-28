@@ -70,5 +70,10 @@
       "eslint --fix",
       "npm test -- --debug"
     ]
+  },
+    "jest": {
+    "coverageDirectory": "./coverage",
+    "collectCoverage": true,
+    "coverageReporters": ["lcov", "text"]
   }
 }
