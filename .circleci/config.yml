@@ -50,7 +50,16 @@ jobs:
           command: sudo npm install -g typescript
       - run:
           name: Build Project
+
           command: npx tsc
+
+        
+      - run:
+          name: Compile TypeScript
+          command: ./node_modules/.bin/tsc
+          
+      
+
 
 workflows:
   version: 2
