@@ -26,7 +26,7 @@ const options = {
       {
         name: 'Authentication',
         description: 'Endpoints for user registration, login, and user management.'
-      },
+      }
     ],
     components: {
       securitySchemes: {
@@ -88,7 +88,7 @@ const options = {
           },
           responses: {
             201: {
-              description: 'OK',
+              description: 'Account created successfully',
               content: {
                 'application/json': {
                   schema: {
@@ -97,18 +97,9 @@ const options = {
                       firstName: { type: 'string' },
                       lastName: { type: 'string' },
                       email: { type: 'string' },
-                      password: { type: 'string' },
                       role: { type: 'string' },
                       phone: { type: 'string' }
-                    },
-                    required: [
-                      'firstName',
-                      'lastName',
-                      'email',
-                      'password',
-                      'role',
-                      'phone'
-                    ]
+                    }
                   }
                 }
               }
@@ -135,13 +126,6 @@ const options = {
               description: 'User ID'
             }
           ],
-
-      //User Login Route Documentation
-      '/api/users/login': {
-        post: {
-          summary: 'Login with Email and Password',
-          tags: ['Authentication'],
-          security: [],
           requestBody: {
             content: {
               'application/json': {
@@ -153,18 +137,7 @@ const options = {
                       example: 'admin'
                     }
                   },
-                  required: ['role'],
-
-                    email: {
-                      type: 'string',
-                      example: 'test@gmail.com'
-                    },
-                    password: {
-                      type: 'string',
-                      example: 'Test@123'
-                    }
-                  },
-                  required: ['email', 'password']
+                  required: ['role']
                 }
               }
             }
@@ -179,18 +152,7 @@ const options = {
                     properties: {
                       id: { type: 'string' },
                       role: { type: 'string' }
-                    },
-    
-                      email: { type: 'string' },
-                      password: { type: 'string' },
-                      
-                    },
-                    required: [
-                      
-                      'email',
-                      'password',
-                      
-                    ]
+                    }
                   }
                 }
               }
@@ -203,6 +165,70 @@ const options = {
             },
             404: {
               description: 'User not found'
+            }
+          }
+        }
+      },
+      '/api/users/login': {
+        post: {
+          summary: 'User Login',
+          tags: ['Authentication'],
+          security: [],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    email: {
+                      type: 'string',
+                      example: 'mugishajoseph0923@gmail.com'
+                    },
+                    password: {
+                      type: 'string',
+                      example: 'walmond@123'
+                    }
+                  },
+                  required: ['email', 'password']
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Successful login',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      token: {
+                        type: 'string',
+                        description: 'JWT token for authentication'
+                      },
+                      type: {
+                        type: 'string',
+                        description: 'Authentication type (e.g., Bearer)'
+                      },
+                      name: {
+                        type: 'string',
+                        description: "User's full name"
+                      },
+                      email: {
+                        type: 'string',
+                        description: "User's email address"
+                      },
+                      role: {
+                        type: 'string',
+                        description: "User's role or access level"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Bad Request'
             }
           }
         }

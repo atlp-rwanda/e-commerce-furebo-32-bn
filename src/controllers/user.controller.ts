@@ -5,7 +5,6 @@ import { hashPassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
 
-
 import { comparePassword } from "../utils/password.utils";
 
 export const userSignup = async (req: Request, res: Response) => {
@@ -45,17 +44,17 @@ export const userSignup = async (req: Request, res: Response) => {
   }
 };
 
-export const updateRole=async (req: Request, res: Response)=>{
-  const id=req.params.id;
-  const role=req.body.role;
-  const user=await UserService.getUserByid(id);
-  if(!user){
+export const updateRole = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const role = req.body.role;
+  const user = await UserService.getUserByid(id);
+  if (!user) {
     return res.status(404).json({
       status: "fail",
       message: "User not found",
     });
   }
-  user.role=role;
+  user.role = role;
   user?.save();
   res.status(201).json({
     status: "success",
@@ -63,11 +62,13 @@ export const updateRole=async (req: Request, res: Response)=>{
     data: {
       user: user,
     },
-  })
-}
+  });
+};
 
 //User Login Controller
-const userLogin = async (req: Request, res: Response) => {
+export const userLogin = async (req: Request, res: Response) => {
+  console.log("===============================================");
+  
   try {
     const { email, password } = req.body;
 
@@ -106,4 +107,63 @@ const userLogin = async (req: Request, res: Response) => {
   }
 };
 
-export default userLogin;
+export const changeAccountStatus = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  let subject: string;
+  let activationReason: string;
+
+  const user = await UserService.getUserByid(id);
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+
+  if (user.isActive && !req.body.activationReason) {
+    return res.status(403).json({
+      status: "fail",
+      message: "Activation reason is required",
+    });
+  }
+
+  if (user.isActive) {
+    subject = "Account Enabled";
+    activationReason = "You are allowed to login again";
+  } else {
+    subject = "Account Disabled";
+    activationReason = req.body.activationReason;
+  }
+
+  const emailBody = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+      <p style="font-size: 16px; color: #444;">Dear ${user.firstName + " " + user.lastName},</p>
+      <p style="font-size: 16px; color: #444;">
+        Your account associated with the email 
+        <strong style="color: #000;">${user.email}</strong> 
+        has been 
+        <strong style="color: ${!user.isActive ? '#28a745' : '#dc3545'};">
+          ${!user.isActive ? "activated" : "disabled"}
+        </strong>.
+      </p>
+      <p style="font-size: 16px; color: #444;">
+        Reason: 
+        <span style="color: #007bff;">${activationReason}</span>
+      </p>
+      <p style="font-size: 16px; color: #444;">
+        If you have any questions or need further assistance, please do not hesitate to contact our support team.
+      </p>
+      <p style="font-size: 16px; color: #444;">Best regards,</p>
+      <p style="font-size: 16px; color: #444;">Your Company Name</p>
+    </div>
+  `;
+  sendVerificationEmail(user.email, subject, "text", emailBody);
+
+  user.isActive = !user.isActive
+  await user.save();
+  res.status(201).json({
+    message: "Account status updated successfully",
+    reason:activationReason
+  });
+};
