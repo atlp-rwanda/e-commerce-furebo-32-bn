@@ -46,6 +46,26 @@ export const userSignup = async (req: Request, res: Response) => {
   }
 };
 
+export const updateRole=async (req: Request, res: Response)=>{
+  const id=req.params.id;
+  const role=req.body.role;
+  const user=await UserService.getUserByid(id);
+  if(!user){
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+  user.role=role;
+  user?.save();
+  res.status(201).json({
+    status: "success",
+    message: "User role updated successfully",
+    data: {
+      user: user,
+    },
+  })
+}
 
 //User Login Controller
 const userLogin = async (req: Request, res: Response) => {

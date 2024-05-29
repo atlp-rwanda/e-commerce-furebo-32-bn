@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   postgresdb:
@@ -27,5 +27,5 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_PORT=${POSTGRESDB_LOCAL_PORT}
 
-volumes: 
+volumes:
   db_data:
