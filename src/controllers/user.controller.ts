@@ -4,9 +4,10 @@ import { UserService } from "../services/user.services";
 import { hashPassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
-
+import dotenv from 'dotenv';
 
 import { comparePassword } from "../utils/password.utils";
+import { Client } from "pg";
 
 export const userSignup = async (req: Request, res: Response) => {
   const subject = "Email Verification";
@@ -86,4 +87,45 @@ const userLogin = async (req: Request, res: Response) => {
   }
 };
 
+
+
+
+//user Logout Functionality
+
+dotenv.config();
+
+export const userLogout = async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Authorization token is missing',
+      });
+    }
+
+    const client = new Client({
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: Number(process.env.DB_PORT),
+    });
+
+    await client.connect();
+    await client.query('INSERT INTO blacklisted_tokens (token) VALUES ($1)', [token]);
+    await client.end();
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'Logout successful',
+    });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'An error occurred during logout',
+    });
+  }
+};
 export default userLogin;

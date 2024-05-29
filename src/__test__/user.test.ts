@@ -1,6 +1,10 @@
 import request from "supertest";
 import app from "../../app";
 import db from "../database/config/database.config";
+import { Client } from "pg";
+
+
+let authToken: string;
 
 describe("User", () => {
   let sequelizeInstance: any;
@@ -46,7 +50,7 @@ describe("User", () => {
       expect(res.body.message).toBe('User already exists. Please login again');
     });
 
-    test("user makes registration without using phone number", async () => {
+   test("user makes registration without using phone number", async () => {
       const newUser = {
         firstName: "Mugisha",
         lastName: "Walmond",
@@ -111,6 +115,7 @@ describe("User", () => {
       expect(res.body.data.message).toBe('Email address is required');
     });
   });
+  });
 
   describe("Test user login", () => {
     test("user logs in with correct credentials", async () => {
@@ -122,6 +127,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.message).toBe('Login successful');
       expect(res.body).toHaveProperty('token');
+      authToken = res.body.token; 
     });
 
     test("user logs in with incorrect password", async () => {
@@ -134,6 +140,7 @@ describe("User", () => {
       expect(res.body.message).toBe('Invalid email or password');
     });
 
+    
     test("user logs in with non-existing email", async () => {
       const loginUser = {
         email: "nonexistentemail@gmail.com",
@@ -162,16 +169,82 @@ describe("User", () => {
       expect(res.body.data.message).toBe('Password is required.');
     });
   });
-});
 
-describe("Testing endpoint", () => {
-  test('Not found for site 404', async () => {
-    const res = await request(app).get('/wrong-endpoint');
-    expect(res.statusCode).toBe(404);
+  describe("Test user logout", () => {
+    test("user logs out successfully", async () => {
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', `Bearer ${authToken}`); 
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe('Logout successful');
+    });
+
+    test("user tries to logout without a token", async () => {
+      const res = await request(app)
+        .post('/api/users/logout');
+      expect(res.statusCode).toBe(400); 
+      expect(res.body.status).toBe('fail');
+      expect(res.body.message).toBe('Authorization token is missing');
+    });
+
+    test("user tries to logout with an invalid token", async () => {
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', 'Bearer invalidToken');
+      expect(res.statusCode).toBe(401); 
+    });
+
+    test("user tries to logout with an invalid token", async () => {
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', 'Bearer invalidToken');
+      expect(res.statusCode).toBe(401); 
+    });
+
+    test("user logout with valid token should blacklist token in database", async () => {
+      const token = 'validToken';
+      const client = new Client({
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: Number(process.env.DB_PORT),
+      });
+      await client.connect();
+    
+      await client.query('INSERT INTO blacklisted_tokens (token) VALUES ($1)', [token]);
+      await client.end();
+      
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.statusCode).toBe(200);
+      
+     
+      const clientCheck = new Client({
+        user: process.env.DB_USER,
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        password: process.env.DB_PASSWORD,
+        port: Number(process.env.DB_PORT),
+      });
+      await clientCheck.connect();
+      const result = await clientCheck.query('SELECT * FROM blacklisted_tokens WHERE token = $1', [token]);
+      await clientCheck.end();
+      
+      expect(result.rows.length).toBe(1);
+    });
   });
 
-  test('Check root route', async () => {
-    const res = await request(app).get('/');
-    expect(res.statusCode).toBe(200);
+  describe("Testing endpoint", () => {
+    test('Not found for site 404', async () => {
+      const res = await request(app).get('/wrong-endpoint');
+      expect(res.statusCode).toBe(404);
+    });
+
+    test('Check root route', async () => {
+      const res = await request(app).get('/');
+      expect(res.statusCode).toBe(200);
+    });
   });
-});
+

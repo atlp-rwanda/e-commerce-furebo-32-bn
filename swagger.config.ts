@@ -13,19 +13,19 @@ const options = {
       version: '1.0.0',
       description: 'APIs for E-Commerce Team Project',
       license: {
-        name: 'ISC'
-      }
+        name: 'ISC',
+      },
     },
     servers: [
       {
         url: `http://localhost:${port}`,
-        description: 'Local Development Server for Swagger'
-      }
+        description: 'Local Development Server for Swagger',
+      },
     ],
     tags: [
       {
         name: 'Authentication',
-        description: 'Endpoints for user registration, login, and user management.'
+        description: 'Endpoints for user registration, login, logout, and user management.',
       },
     ],
     components: {
@@ -33,14 +33,14 @@ const options = {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
+          bearerFormat: 'JWT',
+        },
+      },
     },
     security: [
       {
-        bearerAuth: []
-      }
+        bearerAuth: [],
+      },
     ],
     basePath: '/api',
     schemes: ['http'],
@@ -56,71 +56,46 @@ const options = {
                 schema: {
                   type: 'object',
                   properties: {
-                    firstName: {
-                      type: 'string',
-                      example: 'Mugisha'
-                    },
-                    lastName: {
-                      type: 'string',
-                      example: 'Walmond'
-                    },
-                    email: {
-                      type: 'string',
-                      example: 'mu@gmail.com'
-                    },
-                    password: {
-                      type: 'string',
-                      example: 'Walmond@123'
-                    },
-                    role: {
-                      type: 'string',
-                      example: 'buyer'
-                    },
-                    phone: {
-                      type: 'string',
-                      example: '+250792418795'
-                    }
+                    firstName: { type: 'string', example: 'Mugisha' },
+                    lastName: { type: 'string', example: 'Walmond' },
+                    email: { type: 'string', example: 'mu@gmail.com' },
+                    password: { type: 'string', example: 'Walmond@123' },
+                    role: { type: 'string', example: 'buyer' },
+                    phone: { type: 'string', example: '+250792418795' },
                   },
-                  required: ['firstName', 'lastName', 'email', 'password', 'role', 'phone']
-                }
-              }
-            }
+                  required: ['firstName', 'lastName', 'email', 'password', 'role', 'phone'],
+                },
+              },
+            },
           },
           responses: {
             201: {
-              description: 'OK',
+              description: 'User created successfully',
               content: {
                 'application/json': {
                   schema: {
                     type: 'object',
                     properties: {
-                      firstName: { type: 'string' },
-                      lastName: { type: 'string' },
-                      email: { type: 'string' },
-                      password: { type: 'string' },
-                      role: { type: 'string' },
-                      phone: { type: 'string' }
+                      status: { type: 'string' },
+                      message: { type: 'string' },
+                      token: { type: 'string' },
+                      data: {
+                        type: 'object',
+                        properties: {
+                          user: { type: 'object' },
+                        },
+                      },
                     },
-                    required: [
-                      'firstName',
-                      'lastName',
-                      'email',
-                      'password',
-                      'role',
-                      'phone'
-                    ]
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             400: {
-              description: 'Bad Request'
-            }
-          }
-        }
+              description: 'Bad Request',
+            },
+          },
+        },
       },
-
-      //User Login Route Documentation
       '/api/users/login': {
         post: {
           summary: 'Login with Email and Password',
@@ -132,53 +107,73 @@ const options = {
                 schema: {
                   type: 'object',
                   properties: {
-
-                    email: {
-                      type: 'string',
-                      example: 'test@gmail.com'
-                    },
-                    password: {
-                      type: 'string',
-                      example: 'Test@123'
-                    }
+                    email: { type: 'string', example: 'test@gmail.com' },
+                    password: { type: 'string', example: 'Test@123' },
                   },
-                  required: ['email', 'password']
-                }
-              }
-            }
+                  required: ['email', 'password'],
+                },
+              },
+            },
           },
           responses: {
-            201: {
-              description: 'OK',
+            200: {
+              description: 'Login successful',
               content: {
                 'application/json': {
                   schema: {
                     type: 'object',
                     properties: {
-    
-                      email: { type: 'string' },
-                      password: { type: 'string' },
-                      
+                      status: { type: 'string' },
+                      message: { type: 'string' },
+                      token: { type: 'string' },
+                      data: {
+                        type: 'object',
+                        properties: {
+                          user: { type: 'object' },
+                        },
+                      },
                     },
-                    required: [
-                      
-                      'email',
-                      'password',
-                      
-                    ]
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             400: {
-              description: 'Bad Request'
-            }
-          }
-        }
-      }
-    }
+              description: 'Bad Request',
+            },
+            401: {
+              description: 'Invalid email or password',
+            },
+          },
+        },
+      },
+      '/api/users/logout': {
+        post: {
+          summary: 'Logout user',
+          tags: ['Authentication'],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          responses: {
+            200: {
+              description: 'User logged out successfully',
+           
+            },
+            400: {
+              description: 'Authorization token is missing',
+            
+            },
+            500: {
+              description: 'An error occurred during logout',
+          
+            },
+          },
+        },
+      },
+    },
   },
-  apis: ['./src/routes/*.ts']
+  apis: ['./src/routes/*.ts'],
 };
 
 const specs = swaggerJsdoc(options);
