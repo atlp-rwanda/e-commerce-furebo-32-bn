@@ -6,6 +6,10 @@ export class UserService {
     return await User.create(user);
   }
   static async getUserByEmail(email:string) {
-    return await User.findOne({ where: { email: email } });
+    return  await User.findOne({ where: { email: email } });
+  }
+
+  static async getUserByid(id:string) {
+    return await User.findOne({ where: { id: id } });
   }
 }
