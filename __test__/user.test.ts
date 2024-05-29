@@ -260,7 +260,90 @@ describe("User", () => {
       expect(res.body.data.message).toBe("Password is required.");
     });
   });
+
+  describe("Update user password", () => {
+    test("update password without login", async () => {
+      const res = await request(app)
+        .patch(`/api/users/${userId}/updatepassword`)
+        .send({
+          oldPassword: process.env.TEST_USER_PASS,
+          newPassword: "newPassword123",
+          confirmNewPassword: "newPassword123",
+        });
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Authorization header missing");
+    });
+  
+    test("update password with invalid token", async () => {
+      const res = await request(app)
+        .patch(`/api/users/${userId}/updatepassword`)
+        .set("Authorization", `Bearer invalidToken`)
+        .send({
+          oldPassword: process.env.TEST_USER_PASS,
+          newPassword: "newPassword123",
+          confirmNewPassword: "newPassword123",
+        });
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Unauthorized request, Try again");
+    });
+  
+    test("update password with incorrect old password", async () => {
+      const res = await request(app)
+        .patch(`/api/users/${userId}/updatepassword`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          oldPassword: "wrongPassword@123",
+          newPassword: "newPassword@123",
+          confirmNewPassword: "newPassword@123",
+        });
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Enter correct old password");
+    });
+  
+    test("update password with mismatched new passwords", async () => {
+      const res = await request(app)
+        .patch(`/api/users/${userId}/updatepassword`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          oldPassword: process.env.TEST_USER_PASS,
+          newPassword: "newPassword123@123",
+          confirmNewPassword: "differentPassword@123",
+        });
+      expect(res.statusCode).toBe(400);
+      expect(res.body.message).toBe("New password and confirm password do not match");
+    });
+  
+    test("update password successfully", async () => {
+      const res = await request(app)
+        .patch(`/api/users/${userId}/updatepassword`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          oldPassword: process.env.TEST_USER_PASS,
+          newPassword: "newPassword@123",
+          confirmNewPassword: "newPassword@123",
+        });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Password updated successfully");
+    });
+  
+    test("update password and user not found", async () => {
+      const res = await request(app)
+        .patch(`/api/users/nonexistentuser/updatepassword`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({
+          oldPassword: process.env.TEST_USER_PASS,
+          newPassword: "newPassword@123",
+          confirmNewPassword: "newPassword@123",
+        });
+      expect(res.statusCode).toBe(500);
+      expect(res.body.message).toBe("An error occurred while updating the password");
+    });
+  });
+  
+
 });
+
+
 
 describe("Testing endpoint", () => {
   test("Not found for site 404", async () => {

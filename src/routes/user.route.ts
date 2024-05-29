@@ -4,9 +4,10 @@ import {
   userSignup,
   userLogin,
   changeAccountStatus,
+  updatePassword
 } from "../controllers/user.controller";
 import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
-import { validateUser, validateUserLogin } from "../validations/user.validate";
+import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 
 const userRoutes = express.Router();
@@ -20,5 +21,6 @@ userRoutes.patch(
   changeAccountStatus
 );
 
-userRoutes.post("/login", validateUserLogin, userLogin);
+userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 export default userRoutes;

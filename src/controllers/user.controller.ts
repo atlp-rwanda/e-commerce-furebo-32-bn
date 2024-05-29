@@ -147,3 +147,54 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
     reason: activationReason,
   });
 };
+export const updatePassword = async (req: Request, res: Response) => {
+  try {
+    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+    const id = req.params.id;
+
+    // Fetch the user by ID
+    const user = await UserService.getUserByid(id);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    // Validate the old password
+    const isPasswordValid = await comparePassword(oldPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Enter correct old password",
+      });
+    }
+
+    // Check if new password and confirm password match
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({
+        status: "fail",
+        message: "New password and confirm password do not match",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Respond with success
+    return res.status(200).json({
+      status: "success",
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while updating the password",
+    });
+  }
+};
