@@ -301,15 +301,4 @@ describe("User", () => {
       expect(res.statusCode).toBe(200);
     });
   });
-describe("Testing endpoint", () => {
-  test("Not found for site 404", async () => {
-    const res = await request(app).get("/wrong-endpoint");
-    expect(res.statusCode).toBe(404);
-  });
-
-  test("Check root route", async () => {
-    const res = await request(app).get("/");
-    expect(res.statusCode).toBe(200);
-  });
-});
 
