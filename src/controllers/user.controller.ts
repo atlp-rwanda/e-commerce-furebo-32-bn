@@ -6,6 +6,12 @@ import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
 
 import { comparePassword } from "../utils/password.utils";
+import {
+  ACCOUNT_ENABLED_SUBJECT,
+  ACCOUNT_DISABLED_SUBJECT,
+  DEFAULT_ACTIVATION_REASON,
+} from "../utils/variable.utils";
+import { sendReasonEmail } from "../utils/sendReason.util";
 
 export const userSignup = async (req: Request, res: Response) => {
   const subject = "Email Verification";
@@ -68,7 +74,7 @@ export const updateRole = async (req: Request, res: Response) => {
 //User Login Controller
 export const userLogin = async (req: Request, res: Response) => {
   console.log("===============================================");
-  
+
   try {
     const { email, password } = req.body;
 
@@ -109,8 +115,6 @@ export const userLogin = async (req: Request, res: Response) => {
 
 export const changeAccountStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
-  let subject: string;
-  let activationReason: string;
 
   const user = await UserService.getUserByid(id);
 
@@ -128,42 +132,20 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
     });
   }
 
-  if (user.isActive) {
-    subject = "Account Enabled";
-    activationReason = "You are allowed to login again";
-  } else {
-    subject = "Account Disabled";
-    activationReason = req.body.activationReason;
-  }
+  const subject = !user.isActive
+    ? ACCOUNT_ENABLED_SUBJECT
+    : ACCOUNT_DISABLED_SUBJECT;
+  const activationReason = !user.isActive
+    ? DEFAULT_ACTIVATION_REASON
+    : req.body.activationReason;
 
-  const emailBody = `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-      <p style="font-size: 16px; color: #444;">Dear ${user.firstName + " " + user.lastName},</p>
-      <p style="font-size: 16px; color: #444;">
-        Your account associated with the email 
-        <strong style="color: #000;">${user.email}</strong> 
-        has been 
-        <strong style="color: ${!user.isActive ? '#28a745' : '#dc3545'};">
-          ${!user.isActive ? "activated" : "disabled"}
-        </strong>.
-      </p>
-      <p style="font-size: 16px; color: #444;">
-        Reason: 
-        <span style="color: #007bff;">${activationReason}</span>
-      </p>
-      <p style="font-size: 16px; color: #444;">
-        If you have any questions or need further assistance, please do not hesitate to contact our support team.
-      </p>
-      <p style="font-size: 16px; color: #444;">Best regards,</p>
-      <p style="font-size: 16px; color: #444;">Your Company Name</p>
-    </div>
-  `;
-  sendVerificationEmail(user.email, subject, "text", emailBody);
+  sendReasonEmail(user, subject, activationReason, user.isActive);
 
-  user.isActive = !user.isActive
+  user.isActive = !user.isActive;
   await user.save();
+
   res.status(201).json({
     message: "Account status updated successfully",
-    reason:activationReason
+    reason: activationReason,
   });
 };
