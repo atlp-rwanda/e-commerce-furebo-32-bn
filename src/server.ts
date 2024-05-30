@@ -1,5 +1,5 @@
 import app from './app';
-import connectToDatabase from './src/database/config/database.config';
+import connectToDatabase from './database/config/database.config';
 import dotenv from 'dotenv';
 
 dotenv.config();

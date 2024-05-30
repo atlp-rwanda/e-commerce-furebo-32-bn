@@ -1,10 +1,7 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import dotenv from 'dotenv';
-
 dotenv.config();
-
 const port = process.env.PORT || 3000;
-
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -119,7 +116,23 @@ const options = {
           }
         }
       },
-
+      '/api/users/{id}': {
+        patch: {
+          summary: 'Change user role',
+          tags: ['Authentication'],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: 'id',
+              in: 'path',
+              required: true,
+              schema: {
+                type: 'string'
+              },
+              description: 'User ID'
+            }
+          ],
+      //User Login Route Documentation
       '/api/users/login': {
         post: {
           summary: 'Login with Email and Password',
@@ -131,6 +144,12 @@ const options = {
                 schema: {
                   type: 'object',
                   properties: {
+                    role: {
+                      type: 'string',
+                      example: 'admin'
+                    }
+                  },
+                  required: ['role'],
                     email: {
                       type: 'string',
                       example: 'test@gmail.com'
@@ -147,25 +166,37 @@ const options = {
           },
           responses: {
             201: {
-              description: 'OK',
+              description: 'Role updated successfully',
               content: {
                 'application/json': {
                   schema: {
                     type: 'object',
                     properties: {
+                      id: { type: 'string' },
+                      role: { type: 'string' }
+                    },
                       email: { type: 'string' },
                       password: { type: 'string' },
                     },
-                    required: ['email', 'password'],
-                  },
-                },
-              },
+                    required: [
+                      'email',
+                      'password',
+                    ]
+                  }
+                }
+              }
             },
             400: {
-              description: 'Bad Request',
+              description: 'Bad Request'
             },
-          },
-        },
+            403: {
+              description: 'Forbidden'
+            },
+            404: {
+              description: 'User not found'
+            }
+          }
+        }
       },
 
       // New path for logout
@@ -190,14 +221,23 @@ const options = {
             },
             401: {
               description: 'Unauthorized',
+            400: {
+              description: 'Bad Request'
+            },
+            403: {
+              description: 'Forbidden'
+            },
+            404: {
+              description: 'User not found'
             }
           }
         }
-      },
-    },
-  },
-  apis: ['./src/routes/*.ts']
+      
+      }
+    }
+  }
+},
+apis: ['./src/routes/*.ts']
 };
-
 const specs = swaggerJsdoc(options);
 export default specs;
