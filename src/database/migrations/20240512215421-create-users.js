@@ -1,5 +1,3 @@
-'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -23,28 +21,28 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      password:{
+      password: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      phone:{
+      phone: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      profileURL:{
+      profileURL: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      verified:{
+      verified: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      birthDate:{
+      birthDate: {
         type: Sequelize.DATE,
         allowNull: true
       },
-      role:{
+      role: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: ''
@@ -54,11 +52,11 @@ module.exports = {
         allowNull: false,
         defaultValue: true
       },
-      createdAt:{
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false
       },
-      updatedAt:{
+      updatedAt: {
         type: Sequelize.DATE,
         allowNull: true
       }

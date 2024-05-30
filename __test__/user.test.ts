@@ -1,6 +1,6 @@
 import request from "supertest";
-import app from "../../app";
-import db from "../database/config/database.config";
+import app from "../src/app";
+import db from "../src/database/config/database.config";
 
 let userId: any;
 let token: any;

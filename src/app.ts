@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
-import userRoutes from "./src/routes/user.route";
+import userRoutes from "./routes/user.route";
 import swaggerUi from 'swagger-ui-express';
-import specs from './swagger.config';
+import specs from '../swagger.config';
 import morgan from "morgan";
 
 const app = express();

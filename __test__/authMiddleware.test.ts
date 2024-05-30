@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
+import { protectRoute, restrictTo } from "../src/middlewares/auth.middleware";
 // import jwt from "jsonwebtoken";
 
 type Headers = {
