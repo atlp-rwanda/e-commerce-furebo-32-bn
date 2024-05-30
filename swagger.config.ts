@@ -120,7 +120,6 @@ const options = {
         }
       },
 
-      //User Login Route Documentation
       '/api/users/login': {
         post: {
           summary: 'Login with Email and Password',
@@ -132,7 +131,6 @@ const options = {
                 schema: {
                   type: 'object',
                   properties: {
-
                     email: {
                       type: 'string',
                       example: 'test@gmail.com'
@@ -155,28 +153,48 @@ const options = {
                   schema: {
                     type: 'object',
                     properties: {
-    
                       email: { type: 'string' },
                       password: { type: 'string' },
-                      
                     },
-                    required: [
-                      
-                      'email',
-                      'password',
-                      
-                    ]
+                    required: ['email', 'password'],
+                  },
+                },
+              },
+            },
+            400: {
+              description: 'Bad Request',
+            },
+          },
+        },
+      },
+
+      // New path for logout
+      '/api/users/logout': {
+        post: {
+          summary: 'Logout from the application',
+          tags: ['Authentication'],
+          security: [{ bearerAuth: [] }], // Require bearer token for authentication
+          responses: {
+            200: {
+              description: 'Logout successful',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: { type: 'string' },
+                    }
                   }
                 }
               }
             },
-            400: {
-              description: 'Bad Request'
+            401: {
+              description: 'Unauthorized',
             }
           }
         }
-      }
-    }
+      },
+    },
   },
   apis: ['./src/routes/*.ts']
 };

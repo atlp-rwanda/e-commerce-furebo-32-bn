@@ -162,6 +162,41 @@ describe("User", () => {
       expect(res.body.data.message).toBe('Password is required.');
     });
   });
+
+  describe("Test user logout", () => {
+    test("user logs out successfully with valid token", async () => {
+      // Login first to get a valid token
+      const loginUser = {
+        email: "mugisha@gmail.com",
+        password: "Walmond@123"
+      };
+      const loginRes = await request(app).post('/api/users/login').send(loginUser);
+      const token = loginRes.body.token;
+
+      // Logout using the obtained token
+      const logoutRes = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(logoutRes.statusCode).toBe(200);
+      expect(logoutRes.body.message).toBe('Logout successful');
+    });
+
+    test("user cannot logout without providing a token", async () => {
+      const res = await request(app).post('/api/users/logout');
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Access denied. No token provided.');
+    });
+
+    test("user cannot logout with an invalid token", async () => {
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', 'Bearer invalid_token');
+    
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Invalid token.');
+    });
+  });
 });
 
 describe("Testing endpoint", () => {
