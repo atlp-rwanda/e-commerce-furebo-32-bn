@@ -16,7 +16,15 @@ const options = {
     servers: [
       {
         url: `http://localhost:${port}`,
+        
         description: 'Local Development Server for Swagger'
+
+        description: "Local Development Server for Swagger",
+      },
+      {
+        url: "https://e-commerce-furebo-32-bn-1.onrender.com",
+        description: "Production server (HTTPS)"
+
       }
     ],
     tags: [
