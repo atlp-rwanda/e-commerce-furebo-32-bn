@@ -6,8 +6,9 @@ import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
 import { addToBlacklist } from '../utils/tokenBlacklist';
 
-
 import { comparePassword } from "../utils/password.utils";
+import { AccountStatusMessages } from "../utils/variable.utils";
+import { sendReasonEmail } from "../utils/sendReason.util";
 
 export const userSignup = async (req: Request, res: Response) => {
   const subject = "Email Verification";
@@ -32,13 +33,15 @@ export const userSignup = async (req: Request, res: Response) => {
     const createdUser = await UserService.register(user);
     const token = await generateToken(createdUser);
     sendVerificationEmail(user.email, subject, text, html);
+    const userWithoutPassword = { ...createdUser.dataValues };
+    delete userWithoutPassword.password;
 
     return res.status(200).json({
       status: "success",
       message: "User created successfully",
       token: token,
       data: {
-        user: createdUser,
+        user: userWithoutPassword,
       },
     });
   } catch (error) {
@@ -46,17 +49,17 @@ export const userSignup = async (req: Request, res: Response) => {
   }
 };
 
-export const updateRole=async (req: Request, res: Response)=>{
-  const id=req.params.id;
-  const role=req.body.role;
-  const user=await UserService.getUserByid(id);
-  if(!user){
+export const updateRole = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const role = req.body.role;
+  const user = await UserService.getUserByid(id);
+  if (!user) {
     return res.status(404).json({
       status: "fail",
       message: "User not found",
     });
   }
-  user.role=role;
+  user.role = role;
   user?.save();
   res.status(201).json({
     status: "success",
@@ -64,11 +67,11 @@ export const updateRole=async (req: Request, res: Response)=>{
     data: {
       user: user,
     },
-  })
-}
+  });
+};
 
 //User Login Controller
-const userLogin = async (req: Request, res: Response) => {
+export const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -89,13 +92,15 @@ const userLogin = async (req: Request, res: Response) => {
     }
 
     const token = await generateToken(user);
+    const userWithoutPassword = { ...user.dataValues };
+    delete userWithoutPassword.password;
 
     return res.status(200).json({
       status: "success",
       message: "Login successful",
       token: token,
       data: {
-        user,
+        user: userWithoutPassword,
       },
     });
   } catch (error) {
@@ -131,4 +136,40 @@ export const userLogout = (req: Request, res: Response) => {
       message: "An error occurred during logout",
     });
   }
+};
+export const changeAccountStatus = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const user = await UserService.getUserByid(id);
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+
+  if (user.isActive && !req.body.activationReason) {
+    return res.status(403).json({
+      status: "fail",
+      message: "Activation reason is required",
+    });
+  }
+
+  const subject = !user.isActive
+    ? AccountStatusMessages.ACCOUNT_ENABLED_SUBJECT
+    : AccountStatusMessages.ACCOUNT_DISABLED_SUBJECT;
+  const activationReason = !user.isActive
+    ? AccountStatusMessages.DEFAULT_ACTIVATION_REASON
+    : req.body.activationReason;
+
+  sendReasonEmail(user, subject, activationReason, user.isActive);
+
+  user.isActive = !user.isActive;
+  await user.save();
+
+  res.status(201).json({
+    message: "Account status updated successfully",
+    reason: activationReason,
+  });
 };

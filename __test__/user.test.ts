@@ -39,7 +39,7 @@ describe("User", () => {
         lastName: "Walmond",
         email: "mugisha@gmail.com",
         password: process.env.TEST_USER_PASS,
-        role: "seller",
+        role: "admin",
         phone: "+13362851038",
       };
       const res = await request(app).post("/api/users/signup").send(newUser);
@@ -166,26 +166,70 @@ describe("User", () => {
     });
   });
 
+  describe("Change account status", () => {
+    test("Change account status without login", async () => {
+      const res = await request(app).patch(
+        `/api/users/change-account-status/${userId}`
+      );
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Authorization header missing");
+    });
+    test("Change account status with invalid token", async () => {
+      const res = await request(app)
+        .patch(`/api/users/change-account-status/${userId}`)
+        .set("Authorization", `Bearer kdekefiwfgj`);
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Unauthorized request, Try again");
+    });
+    test("Change acount status without specifing reason", async () => {
+      const res = await request(app)
+        .patch(`/api/users/change-account-status/${userId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({});
+      expect(res.statusCode).toBe(403);
+      expect(res.body.message).toBe("Activation reason is required");
+    });
+    test("Change acount status was successful", async () => {
+      const res = await request(app)
+        .patch(`/api/users/change-account-status/${userId}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ activationReason: "Violetion" });
+      expect(res.statusCode).toBe(201);
+      expect(res.body.message).toBe("Account status updated successfully");
+    });
+    test("Change acount status and user not found", async () => {
+      const res = await request(app)
+        .patch(
+          `/api/users/change-account-status/${"21c2e6b1-eb05-4dde-b7bb-25bad784c296"}`
+        )
+        .set("Authorization", `Bearer ${token}`)
+        .send({ activationReason: "Violetion" });
+      expect(res.statusCode).toBe(404);
+      expect(res.body.message).toBe("User not found");
+    });
+  });
+
+
   describe("Test user login", () => {
     test("user logs in with correct credentials", async () => {
       const loginUser = {
         email: "mugisha@gmail.com",
         password: process.env.TEST_USER_PASS,
       };
-      const res = await request(app).post('/api/users/login').send(loginUser);
+      const res = await request(app).post("/api/users/login").send(loginUser);
       expect(res.statusCode).toBe(200);
-      expect(res.body.message).toBe('Login successful');
-      expect(res.body).toHaveProperty('token');
+      expect(res.body.message).toBe("Login successful");
+      expect(res.body).toHaveProperty("token");
     });
 
     test("user logs in with incorrect password", async () => {
       const loginUser = {
         email: "mugisha@gmail.com",
-        password:process.env.TEST_USER_WRONG_PASS,
+        password: process.env.TEST_USER_WRONG_PASS,
       };
-      const res = await request(app).post('/api/users/login').send(loginUser);
+      const res = await request(app).post("/api/users/login").send(loginUser);
       expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('Invalid email or password');
+      expect(res.body.message).toBe("Invalid email or password");
     });
 
     test("user logs in with non-existing email", async () => {
@@ -193,27 +237,27 @@ describe("User", () => {
         email: "nonexistentemail@gmail.com",
         password: process.env.TEST_USER_PASS,
       };
-      const res = await request(app).post('/api/users/login').send(loginUser);
+      const res = await request(app).post("/api/users/login").send(loginUser);
       expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('Invalid email or password');
+      expect(res.body.message).toBe("Invalid email or password");
     });
 
     test("user logs in without email", async () => {
       const loginUser = {
-        password: process.env.TEST_USER_PASS
+        password: process.env.TEST_USER_PASS,
       };
-      const res = await request(app).post('/api/users/login').send(loginUser);
+      const res = await request(app).post("/api/users/login").send(loginUser);
       expect(res.statusCode).toBe(400);
-      expect(res.body.data.message).toBe('Email address is required');
+      expect(res.body.data.message).toBe("Email address is required");
     });
 
     test("user logs in without password", async () => {
       const loginUser = {
-        email: "mugisha@gmail.com"
+        email: "mugisha@gmail.com",
       };
-      const res = await request(app).post('/api/users/login').send(loginUser);
+      const res = await request(app).post("/api/users/login").send(loginUser);
       expect(res.statusCode).toBe(400);
-      expect(res.body.data.message).toBe('Password is required.');
+      expect(res.body.data.message).toBe("Password is required.");
     });
   });
 
@@ -264,4 +308,3 @@ describe("Testing endpoint", () => {
     expect(res.statusCode).toBe(200);
   });
 });
-

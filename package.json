@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "joi": "^17.13.1",
@@ -44,21 +45,21 @@
     "@types/supertest": "^6.0.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
-    "chai": "^5.1.1",
-    "codeclimate-test-reporter": "^0.5.1",
-    "hound": "^1.0.5",
-    "jest": "^29.7.0",
-    "mocha": "^10.4.0",
-    "supertest": "^7.0.0",
-    "ts-jest": "^29.1.2",
-    "typescript": "^5.4.5",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "^7.9.0",
+    "chai": "^5.1.1",
+    "codeclimate-test-reporter": "^0.5.1",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.29.1",
+    "hound": "^1.0.5",
     "husky": "^9.0.11",
-    "lint-staged": "^15.2.2"
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.2",
+    "mocha": "^10.4.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.4.5"
   },
   "engines": {
     "node": ">=14.0.0"
@@ -74,5 +75,4 @@
       "npm test -- --debug"
     ]
   }
-
 }
