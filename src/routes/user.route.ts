@@ -6,10 +6,9 @@ import {
   changeAccountStatus,
   userLogout,
 } from "../controllers/user.controller";
-import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
+import { protectRoute, restrictTo,verifyToken } from "../middlewares/auth.middleware";
 import { validateUser, validateUserLogin } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
-import { verifyToken } from "../middleware/authMiddleware";
 
 const userRoutes = express.Router();
 
