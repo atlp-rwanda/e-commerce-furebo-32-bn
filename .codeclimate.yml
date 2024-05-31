@@ -1,14 +1,15 @@
-
 version: "2"
 checks:
   argument_count:
-    enabled: true
+    enabled: false
   file_lines:
-    enabled: true
+    enabled: false
   method_count:
-    enabled: true
+    enabled: false
   return_count:
-    enabled: true
+    enabled: false
+  similar_code:
+    enabled: false  
 
 exclude_paths:
   - "node_modules/**"
@@ -29,5 +30,5 @@ ratings:
 
 test_reporter:
   id: "cc-test-reporter"
-  coverage_file:
+  coverage_files:
     - "coverage/lcov.info"

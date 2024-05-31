@@ -6,11 +6,7 @@ import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
 
 import { comparePassword } from "../utils/password.utils";
-import {
-  ACCOUNT_ENABLED_SUBJECT,
-  ACCOUNT_DISABLED_SUBJECT,
-  DEFAULT_ACTIVATION_REASON,
-} from "../utils/variable.utils";
+import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
 
 export const userSignup = async (req: Request, res: Response) => {
@@ -36,13 +32,15 @@ export const userSignup = async (req: Request, res: Response) => {
     const createdUser = await UserService.register(user);
     const token = await generateToken(createdUser);
     sendVerificationEmail(user.email, subject, text, html);
+    const userWithoutPassword = { ...createdUser.dataValues };
+    delete userWithoutPassword.password;
 
     return res.status(200).json({
       status: "success",
       message: "User created successfully",
       token: token,
       data: {
-        user: createdUser,
+        user: userWithoutPassword,
       },
     });
   } catch (error) {
@@ -73,8 +71,6 @@ export const updateRole = async (req: Request, res: Response) => {
 
 //User Login Controller
 export const userLogin = async (req: Request, res: Response) => {
-  console.log("===============================================");
-
   try {
     const { email, password } = req.body;
 
@@ -95,13 +91,15 @@ export const userLogin = async (req: Request, res: Response) => {
     }
 
     const token = await generateToken(user);
+    const userWithoutPassword = { ...user.dataValues };
+    delete userWithoutPassword.password;
 
     return res.status(200).json({
       status: "success",
       message: "Login successful",
       token: token,
       data: {
-        user,
+        user: userWithoutPassword,
       },
     });
   } catch (error) {
@@ -133,10 +131,10 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
   }
 
   const subject = !user.isActive
-    ? ACCOUNT_ENABLED_SUBJECT
-    : ACCOUNT_DISABLED_SUBJECT;
+    ? AccountStatusMessages.ACCOUNT_ENABLED_SUBJECT
+    : AccountStatusMessages.ACCOUNT_DISABLED_SUBJECT;
   const activationReason = !user.isActive
-    ? DEFAULT_ACTIVATION_REASON
+    ? AccountStatusMessages.DEFAULT_ACTIVATION_REASON
     : req.body.activationReason;
 
   sendReasonEmail(user, subject, activationReason, user.isActive);

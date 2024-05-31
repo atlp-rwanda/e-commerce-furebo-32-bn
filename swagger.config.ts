@@ -299,10 +299,9 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
-                    status: {
+                    activationReason: {
                       type: "string",
-                      example: "active",
-                      enum: ["active", "inactive", "banned"],
+                      example: "Violation",
                     },
                   },
                   required: ["status"],
