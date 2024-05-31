@@ -29,16 +29,21 @@ export const userSignup = async (req: Request, res: Response) => {
     }
 
     const createdUser = await UserService.register(user);
+    //@ts-ignore
+    const profile = await UserService.createProfileServices(createdUser!.dataValues!.id,user)
     const token = await generateToken(createdUser);
     sendVerificationEmail(user.email, subject, text, html);
+
+    const newUser = await UserService.getUserByEmail(createdUser.email)
 
     return res.status(200).json({
       status: "success",
       message: "User created successfully",
       token: token,
       data: {
-        user: createdUser,
+        user: newUser,
       },
+      profile
     });
   } catch (error) {
     console.log(error, "Error in creating account");

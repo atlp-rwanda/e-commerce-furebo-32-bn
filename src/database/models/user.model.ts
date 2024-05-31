@@ -1,6 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/sequelize.config";
 import { UserAttributes, UserSignupAttributes } from '../../types/user.types'
+import Profile from "./Profile";
 const currentDate = new Date();
 const userPasswordValidityPeriod = new Date(currentDate);
 userPasswordValidityPeriod.setMonth(currentDate.getMonth() + 3);
@@ -114,5 +115,10 @@ User.init(
     tableName: "users"
   }
 );
+
+ User.hasOne(Profile, {
+   foreignKey: "userId",
+   as: "profile",
+ });
 
 export default User;
