@@ -139,7 +139,7 @@ const options = {
               description: 'User ID'
             }
           ],
-      //User Login Route Documentation
+     
       '/api/users/login': {
         post: {
           summary: 'Login with Email and Password',
