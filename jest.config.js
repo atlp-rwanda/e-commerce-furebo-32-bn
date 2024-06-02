@@ -8,7 +8,6 @@ module.exports = {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
-  clearMocks: true,
   testTimeout: 60000,
   coverageReporters: ['html', 'text', 'lcov'],
   coverageDirectory: 'coverage',

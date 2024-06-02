@@ -102,3 +102,31 @@ export const validateUserLogin = (req: Request, res: Response, next: NextFunctio
   }
   next();
 };
+
+
+
+const updatePasswordValidation = Joi.object({
+
+  oldPassword: Joi.string().required().messages({
+    "any.required": "Old Password is required.",
+  }),
+  newPassword: Joi.string().required().messages({
+    "any.required": "new Password is required.",
+  }),
+  confirmNewPassword: Joi.string().required().messages({
+    "any.required": "Confirm Password is required.",
+  }),
+});
+
+export const validateUserUpdatePassword = (req: Request, res: Response, next: NextFunction) => {
+  const { error } = updatePasswordValidation.validate(req.body, { abortEarly: false });
+  if (error) {
+    return res.status(400).json({
+      status: "fail",
+      data: {
+        message: error.details.map(detail => detail.message).join(", "),
+      },
+    });
+  }
+  next();
+};

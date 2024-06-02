@@ -5,8 +5,9 @@ import { hashPassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
 
-
 import { comparePassword } from "../utils/password.utils";
+import { AccountStatusMessages } from "../utils/variable.utils";
+import { sendReasonEmail } from "../utils/sendReason.util";
 
 export const userSignup = async (req: Request, res: Response) => {
   const subject = "Email Verification";
@@ -33,6 +34,8 @@ export const userSignup = async (req: Request, res: Response) => {
     const profile = await UserService.createProfileServices(createdUser!.dataValues!.id,user)
     const token = await generateToken(createdUser);
     sendVerificationEmail(user.email, subject, text, html);
+    const userWithoutPassword = { ...createdUser.dataValues };
+    delete userWithoutPassword.password;
 
     const newUser = await UserService.getUserByEmail(createdUser.email)
 
@@ -50,17 +53,17 @@ export const userSignup = async (req: Request, res: Response) => {
   }
 };
 
-export const updateRole=async (req: Request, res: Response)=>{
-  const id=req.params.id;
-  const role=req.body.role;
-  const user=await UserService.getUserByid(id);
-  if(!user){
+export const updateRole = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const role = req.body.role;
+  const user = await UserService.getUserByid(id);
+  if (!user) {
     return res.status(404).json({
       status: "fail",
       message: "User not found",
     });
   }
-  user.role=role;
+  user.role = role;
   user?.save();
   res.status(201).json({
     status: "success",
@@ -68,11 +71,11 @@ export const updateRole=async (req: Request, res: Response)=>{
     data: {
       user: user,
     },
-  })
-}
+  });
+};
 
 //User Login Controller
-const userLogin = async (req: Request, res: Response) => {
+export const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -93,13 +96,15 @@ const userLogin = async (req: Request, res: Response) => {
     }
 
     const token = await generateToken(user);
+    const userWithoutPassword = { ...user.dataValues };
+    delete userWithoutPassword.password;
 
     return res.status(200).json({
       status: "success",
       message: "Login successful",
       token: token,
       data: {
-        user,
+        user: userWithoutPassword,
       },
     });
   } catch (error) {
@@ -111,4 +116,90 @@ const userLogin = async (req: Request, res: Response) => {
   }
 };
 
-export default userLogin;
+export const changeAccountStatus = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const user = await UserService.getUserByid(id);
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+
+  if (user.isActive && !req.body.activationReason) {
+    return res.status(403).json({
+      status: "fail",
+      message: "Activation reason is required",
+    });
+  }
+
+  const subject = !user.isActive
+    ? AccountStatusMessages.ACCOUNT_ENABLED_SUBJECT
+    : AccountStatusMessages.ACCOUNT_DISABLED_SUBJECT;
+  const activationReason = !user.isActive
+    ? AccountStatusMessages.DEFAULT_ACTIVATION_REASON
+    : req.body.activationReason;
+
+  sendReasonEmail(user, subject, activationReason, user.isActive);
+
+  user.isActive = !user.isActive;
+  await user.save();
+
+  res.status(201).json({
+    message: "Account status updated successfully",
+    reason: activationReason,
+  });
+};
+export const updatePassword = async (req: Request, res: Response) => {
+  try {
+    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+    const id = req.params.id;
+
+    // Fetch the user by ID
+    const user = await UserService.getUserByid(id);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    // Validate the old password
+    const isPasswordValid = await comparePassword(oldPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Enter correct old password",
+      });
+    }
+
+    // Check if new password and confirm password match
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({
+        status: "fail",
+        message: "New password and confirm password do not match",
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Respond with success
+    return res.status(200).json({
+      status: "success",
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while updating the password",
+    });
+  }
+};

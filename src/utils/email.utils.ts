@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
@@ -13,8 +14,8 @@ const transporter = nodemailer.createTransport({
 export function sendVerificationEmail(
   email: any,
   subject: string,
-  text: string,
-  html: string
+  text?: string,
+  html?: string
 ) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
