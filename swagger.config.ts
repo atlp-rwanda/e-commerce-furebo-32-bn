@@ -21,12 +21,15 @@ const options = {
         url: `http://localhost:${port}`,
         description: "Local Development Server for Swagger",
       },
+      {
+        url: "https://e-commerce-furebo-32-bn-1.onrender.com",
+        description: "Production server (HTTPS)"
+      }
     ],
     tags: [
       {
         name: "Authentication",
-        description:
-          "Endpoints for user registration, login, and user management.",
+        description: "Endpoints for user registration, login, and user management.",
       },
     ],
     components: {
@@ -96,7 +99,7 @@ const options = {
           },
           responses: {
             201: {
-              description: "OK",
+              description: "User created successfully",
               content: {
                 "application/json": {
                   schema: {
@@ -105,18 +108,10 @@ const options = {
                       firstName: { type: "string" },
                       lastName: { type: "string" },
                       email: { type: "string" },
-                      password: { type: "string" },
                       role: { type: "string" },
                       phone: { type: "string" },
                     },
-                    required: [
-                      "firstName",
-                      "lastName",
-                      "email",
-                      "password",
-                      "role",
-                      "phone",
-                    ],
+                    required: ["firstName", "lastName", "email", "role", "phone"],
                   },
                 },
               },
@@ -127,9 +122,11 @@ const options = {
           },
         },
       },
-      "/api/users/request-reset-password": {
+
+      // User Login Route Documentation
+      "/api/users/login": {
         post: {
-          summary: "Request password reset",
+          summary: "Login with Email and Password",
           tags: ["Authentication"],
           security: [],
           requestBody: {
@@ -142,23 +139,26 @@ const options = {
                       type: "string",
                       example: "mu@gmail.com",
                     },
+                    password: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
                   },
-                  required: ["email"],
+                  required: ["email", "password"],
                 },
               },
             },
           },
           responses: {
             200: {
-              description: "OK",
+              description: "User logged in successfully",
               content: {
                 "application/json": {
                   schema: {
                     type: "object",
                     properties: {
-                      email: { type: "string" },
+                      token: { type: "string" },
                     },
-                    required: ["email"],
                   },
                 },
               },
@@ -166,30 +166,210 @@ const options = {
             400: {
               description: "Bad Request",
             },
+            401: {
+              description: "Unauthorized",
+            },
           },
         },
       },
-      "/api/users/reset-password": {
-        post: {
-          summary: "Reset Password",
+
+      "/api/users/{id}": {
+        patch: {
+          summary: "Change user role",
           tags: ["Authentication"],
-          security: [],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
           requestBody: {
             content: {
               "application/json": {
                 schema: {
                   type: "object",
                   properties: {
-                    newPassword: {
+                    role: {
                       type: "string",
-                      example: "Walmond@123",
+                      example: "admin",
                     },
                   },
-                  required: ["newPassword"],
+                  required: ["role"],
                 },
               },
             },
           },
+          responses: {
+            200: {
+              description: "Role updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            404: {
+              description: "User not found",
+            },
+          },
+        },
+      },
+
+      "/api/users/{id}/updatepassword": {
+        patch: {
+          summary: "User updating his/her password",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    oldPassword: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
+                    newPassword: {
+                      type: "string",
+                      example: "Test@123",
+                    },
+                    confirmNewPassword: {
+                      type: "string",
+                      example: "Test@123",
+                    },
+                  },
+                  required: ["oldPassword", "newPassword", "confirmNewPassword"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Password updated successfully",
+            },
+            400: {
+              description: "New password and confirm password do not match",
+            },
+            401: {
+              description: "Incorrect old password",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description: "An error occurred while updating the password",
+            },
+          },
+        },
+      },
+
+      // Change Account Status Endpoint
+      "/api/users/change-account-status/{id}": {
+        patch: {
+          summary: "Change user account status",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    activationReason: {
+                      type: "string",
+                      example: "Violation",
+                    },
+                  },
+                  required: ["status"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Account status updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description: "An error occurred while updating the account status",
+            },
+          },
+        },
+      },
+      "/api/users/request-reset-password": {
+        post: {
+          summary: "Request to reset password",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    email: {
+                      type: "string",
+                    },
+                  },
+                  // required: ["status"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Successfuly updated password",
+            },
+          },
+          400: {
+            description: "Bad Request",
+          },
+        },
+       
+      },
+      "/api/users/reset-password":{
+        patch: {
+          summary: "Rest user password",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
           parameters: [
             {
               in: "query",
@@ -199,8 +379,30 @@ const options = {
               },
             },
           ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    newPassword: {
+                      type: "string",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "success",
+            },
+            400: {
+              description: "Bad Request",
+            },
+          },
         },
-      },
+      }
     },
   },
   apis: ["./src/routes/*.ts"],
