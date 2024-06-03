@@ -1,6 +1,10 @@
 import request from "supertest";
 import app from "../src/app";
 import db from "../src/database/config/database.config";
+import { userLogout } from "../src/controllers/user.controller";
+import { Request, Response } from "express"; 
+
+import * as tokenUtils from '../src/utils/tokenBlacklist';
 
 let userId: any;
 let token: any;
@@ -374,7 +378,38 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body).toHaveProperty("message");
     });
+    
+    
+test("Error during logout", async () => {
+  // Mocking the request and response objects
+  const req: Request = {} as Request;
+  const res: Response = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  } as unknown as Response;
 
+  // Mocking the error
+  const error = new Error("Test error");
+
+  // Mocking the addToBlacklist function to throw an error
+  jest.spyOn(tokenUtils, 'addToBlacklist').mockImplementationOnce(() => {
+    throw error;
+  });
+
+  // Calling the userLogout controller function
+  await userLogout(req, res);
+
+  // Expecting the response to have status 500 and contain the error message
+  expect(res.status).toHaveBeenCalledWith(500);
+  expect(res.json).toHaveBeenCalledWith({
+    status: "error",
+    message: "An error occurred during logout",
+  });
+
+  // Restoring the original implementation after the test
+  jest.restoreAllMocks();
+});
+    
   });
 });
 

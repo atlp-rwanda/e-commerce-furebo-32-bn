@@ -1,4 +1,7 @@
-import express from "express";
+import express from 'express';
+import { protectRoute, restrictTo } from '../middlewares/auth.middleware';
+import { verifyEmail } from '../controllers/verifyUser.controller';
+import { verifyTokenMiddleware } from '../middlewares/verifyToken.middleware';
 import {
   updateRole,
   userSignup,
@@ -25,4 +28,5 @@ userRoutes.patch(
 userRoutes.post('/login', validateUserLogin, userLogin);
 userRoutes.post('/logout', verifyToken, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
+userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;
