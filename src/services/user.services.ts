@@ -5,10 +5,15 @@ export class UserService {
   static async register(user: UserSignupAttributes) {
     return await User.create(user);
   }
+  
+  static async updateUser(user: User) {
+    return await user.save();
+  }
+
   static async getUserByEmail(email:string) {
     return  await User.findOne({ where: { email: email } });
   }
-
+  
   static async getUserByid(id:string) {
     return await User.findOne({ where: { id: id } });
   }
