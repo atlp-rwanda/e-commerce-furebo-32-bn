@@ -4,6 +4,7 @@ import { UserService } from "../services/user.services";
 import { hashPassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendVerificationEmail } from "../utils/email.utils";
+import { addToBlacklist } from '../utils/tokenBlacklist';
 
 import { comparePassword } from "../utils/password.utils";
 import { AccountStatusMessages } from "../utils/variable.utils";
@@ -111,6 +112,31 @@ export const userLogin = async (req: Request, res: Response) => {
   }
 };
 
+export default userLogin;
+
+//Logout Functionality
+
+export const userLogout = (req: Request, res: Response) => {
+  try {
+    const authHeader = req.header('Authorization');
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token) {
+      addToBlacklist(token); 
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.error("Error during logout:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred during logout",
+    });
+  }
+};
 export const changeAccountStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
 

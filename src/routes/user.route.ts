@@ -3,10 +3,11 @@ import {
   updateRole,
   userSignup,
   userLogin,
+  userLogout,
   changeAccountStatus,
   updatePassword
 } from "../controllers/user.controller";
-import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
+import { protectRoute, restrictTo,verifyToken } from "../middlewares/auth.middleware";
 import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 
@@ -22,5 +23,6 @@ userRoutes.patch(
 );
 
 userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.post('/logout', verifyToken, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 export default userRoutes;

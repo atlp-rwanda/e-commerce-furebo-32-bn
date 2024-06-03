@@ -1,7 +1,8 @@
 import swaggerJsdoc from "swagger-jsdoc";
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 dotenv.config();
+
 
 const port = process.env.PORT || 3000;
 
@@ -121,7 +122,6 @@ const options = {
         },
       },
 
-      // User Login Route Documentation
       "/api/users/login": {
         post: {
           summary: "Login with Email and Password",
@@ -280,7 +280,6 @@ const options = {
         },
       },
 
-      // Change Account Status Endpoint
       "/api/users/change-account-status/{id}": {
         patch: {
           summary: "Change user account status",
@@ -332,9 +331,45 @@ const options = {
           },
         },
       },
-    },
+
+      // New path for logout
+      '/api/users/logout': {
+        post: {
+          summary: 'Logout from the application',
+          tags: ['Authentication'],
+          security: [{ bearerAuth: [] }], // Require bearer token for authentication
+          responses: {
+            200: {
+              description: 'Logout successful',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      message: { type: 'string' },
+                    }
+                  }
+                }
+              }
+            },
+            400: {
+              description: 'Bad Request'
+            },
+            401: {
+              description: 'Unauthorized',
+            },
+            403: {
+              description: 'Forbidden'
+            },
+            404: {
+              description: 'User not found'
+            }
+          }
+        }
+      }
+    }
   },
-  apis: ["./src/routes/*.ts"],
+  apis: ['./src/routes/*.ts']
 };
 
 const specs = swaggerJsdoc(options);

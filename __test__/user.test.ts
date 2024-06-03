@@ -339,8 +339,43 @@ describe("User", () => {
       expect(res.body.message).toBe("An error occurred while updating the password");
     });
   });
-  
 
+  describe("Logout Functionality", () => {
+    test("successful logout", async () => {
+      const res = await request(app)
+        .post("/api/users/logout")
+        .set("Authorization", `Bearer ${token}`);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Logout successful");
+    });
+    test("user cannot logout without providing a token", async () => {
+      const res = await request(app).post('/api/users/logout');
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Access denied. No token provided.');
+    });
+
+    test("user cannot logout with an invalid token", async () => {
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', 'Bearer invalid_token');
+    
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Invalid token.');
+    });
+    test("Unauthorized Logout", async () => {
+      const res = await request(app).post("/api/users/logout");
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    });
+    test("Token Missing in Authorization Header", async () => {
+      const res = await request(app)
+        .post("/api/users/logout")
+        .set("Authorization", "Bearer");
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    });
+
+  });
 });
 
 
