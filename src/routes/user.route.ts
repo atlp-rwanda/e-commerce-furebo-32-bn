@@ -1,5 +1,5 @@
 import express from 'express';
-import { protectRoute, restrictTo } from '../middlewares/auth.middleware';
+import { protectRoute, restrictTo, verifyToken } from '../middlewares/auth.middleware';
 import { verifyEmail } from '../controllers/verifyUser.controller';
 import { verifyTokenMiddleware } from '../middlewares/verifyToken.middleware';
 import {
@@ -10,7 +10,7 @@ import {
   changeAccountStatus,
   updatePassword
 } from "../controllers/user.controller";
-import { protectRoute, restrictTo,verifyToken } from "../middlewares/auth.middleware";
+
 import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 

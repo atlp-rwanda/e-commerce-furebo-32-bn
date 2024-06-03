@@ -3,10 +3,10 @@ import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
 import { hashPassword, comparePassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
-import { sendVerificationEmail } from "../utils/email.utils";
+
 import { addToBlacklist } from '../utils/tokenBlacklist';
 
-import { comparePassword } from "../utils/password.utils";
+
 import { sendEmail } from "../utils/email.utils";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
