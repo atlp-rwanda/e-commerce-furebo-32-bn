@@ -295,6 +295,59 @@ describe("User", () => {
       expect(res.body.message).toBe('Invalid token.');
     });
   });
+  test("Error handling during account creation", async () => {
+    // Simulate an error during account creation
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const newUser = {
+      firstName: "Mugisha",
+      lastName: "Walmond",
+      email: "mugishawrongemail.com", 
+      password: process.env.TEST_USER_PASS,
+      role: "seller",
+      phone: "+13362851038",
+    };
+    const res = await request(app).post("/api/users/signup").send(newUser);
+    if (res.statusCode !== 400) {
+      expect(console.error).toHaveBeenCalled();
+    }
+    expect(res.statusCode).toBe(400);
+  });
+  
+  test("Error handling during login", async () => {
+    // Simulate an error during login
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const loginUser = {
+      // Note: Omitting email intentionally to trigger an error
+      password: process.env.TEST_USER_PASS,
+    };
+    const res = await request(app).post("/api/users/login").send(loginUser);
+    if (res.statusCode !== 400) {
+      expect(console.error).toHaveBeenCalled();
+    }
+    expect(res.statusCode).toBe(400);
+  });
+  
+  test("Error handling during logout", async () => {
+    // Simulate an error during logout
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const loginUser = {
+      email: "mugisha@gmail.com",
+      password: process.env.TEST_USER_PASS,
+    };
+    const loginRes = await request(app).post('/api/users/login').send(loginUser);
+    const token = loginRes.body.token;
+  
+    // Logout using the obtained token
+    const res = await request(app)
+      .post('/api/users/logout')
+      .set('Authorization', `Bearer ${token}`);
+  
+    if (res.statusCode !== 200) {
+      expect(console.error).toHaveBeenCalled();
+    }
+    expect(res.statusCode).toBe(200);
+  });
+  
 });
 
 

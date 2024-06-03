@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { protectRoute, restrictTo } from "../src/middlewares/auth.middleware";
-// import jwt from "jsonwebtoken";
-
+/* import jwt from "jsonwebtoken";
+ */
 type Headers = {
   authorization?: string;
 };
@@ -92,4 +92,98 @@ describe("restrictTo middleware", () => {
 
     expect(next).toHaveBeenCalled();
   });
+
+  jest.mock("jsonwebtoken");
+  jest.mock("jsonwebtoken", () => ({
+    // Mock the verify function to throw an error
+    verify: jest.fn((_token, _secret, callback) => {
+      callback(new Error("Internal Server Error"));
+    })
+  }));
+describe("protectRoute middleware", () => {
+  test("should return 401 if token is blacklisted", async () => {
+    const req = mockRequest({
+      authorization: "Bearer blacklisted.token.here",
+    });
+    const res = mockResponse();
+    const next = mockNext();
+
+    // Mock isBlacklisted function to return true for blacklisted token
+    jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
+
+    await protectRoute(req as Request, res as Response, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Token has been invalidated.",
+    });
+  });
+});
+
+test("should return 403 if user role is not permitted", async () => {
+  const req = mockRequest();
+  const res = mockResponse();
+  const next = mockNext();
+
+  // Setting up a user with a role that is not permitted
+  req.user = { role: "user" };
+
+  // Simulating middleware for admin role
+  const middleware = restrictTo("admin");
+  middleware(req as Request, res as Response, next);
+
+  expect(res.status).toHaveBeenCalledWith(403);
+  expect(res.json).toHaveBeenCalledWith({ message: "You are not authorized to perform this action" });
+});
+
+test("should return 401 if token is blacklisted", async () => {
+  const req = mockRequest({
+    authorization: "Bearer blacklisted.token.here",
+  });
+  const res = mockResponse();
+  const next = mockNext();
+
+  // Mocking isBlacklisted function to return true for blacklisted token
+  jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
+
+  await protectRoute(req as Request, res as Response, next);
+
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({ message: "Token has been invalidated." });
+});
+test("should return 401 if token is blacklisted", async () => {
+  const req = mockRequest({
+    authorization: "Bearer blacklisted.token.here",
+  });
+  const res = mockResponse();
+  const next = mockNext();
+
+  
+  jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
+
+  await protectRoute(req as Request, res as Response, next);
+
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({ message: "Token has been invalidated." });
+});
+test("should return 401 if token is blacklisted", async () => {
+
+  const req = mockRequest({
+    authorization: "Bearer blacklisted.token.here",
+  });
+  const res = mockResponse(); 
+  const next = mockNext(); 
+
+  
+  jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
+
+ 
+  await protectRoute(req as Request, res as Response, next);
+
+  
+  expect(res.status).toHaveBeenCalledWith(401);
+  expect(res.json).toHaveBeenCalledWith({
+    message: "Token has been invalidated.",
+  });
+});
 });
