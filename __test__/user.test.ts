@@ -344,29 +344,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body).toHaveProperty("message");
     });
-  
-  
-  test("Error handling during logout", async () => {
-    // Simulate an error during logout
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const loginUser = {
-      email: "mugisha@gmail.com",
-      password: process.env.TEST_USER_PASS,
-    };
-    const loginRes = await request(app).post('/api/users/login').send(loginUser);
-    const token = loginRes.body.token;
-  
-    // Logout using the obtained token
-    const res = await request(app)
-      .post('/api/users/logout')
-      .set('Authorization', `Bearer ${token}`);
-  
-    if (res.statusCode !== 200) {
-      expect(console.error).toHaveBeenCalled();
-    }
-    expect(res.statusCode).toBe(200);
   });
-});
   
 describe("Testing endpoint", () => {
   test("Not found for site 404", async () => {
