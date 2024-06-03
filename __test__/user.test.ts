@@ -2,6 +2,10 @@ import request from "supertest";
 import app from "../src/app";
 import db from "../src/database/config/database.config";
 
+
+
+
+
 let userId: any;
 let token: any;
 
@@ -128,6 +132,24 @@ describe("User", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe("Email address is required");
     });
+    
+  test("Error handling during account creation", async () => {
+    
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const newUser = {
+      firstName: "Mugisha",
+      lastName: "Walmond",
+      email: "mugishawrongemail.com", 
+      password: process.env.TEST_USER_PASS,
+      role: "seller",
+      phone: "+13362851038",
+    };
+    const res = await request(app).post("/api/users/signup").send(newUser);
+    if (res.statusCode !== 400) {
+      expect(console.error).toHaveBeenCalled();
+    }
+    expect(res.statusCode).toBe(400);
+  });
   });
 
   describe("Update user role", () => {
@@ -259,11 +281,27 @@ describe("User", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe("Password is required.");
     });
+    
+  test("Error handling during login", async () => {
+   
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const loginUser = {
+      
+      password: process.env.TEST_USER_PASS,
+    };
+    const res = await request(app).post("/api/users/login").send(loginUser);
+    if (res.statusCode !== 400) {
+      expect(console.error).toHaveBeenCalled();
+    }
+    expect(res.statusCode).toBe(400);
+  });
   });
 
   describe("Test user logout", () => {
+    
+  
     test("user logs out successfully with valid token", async () => {
-      // Login first to get a valid token
+   
       const loginUser = {
         email: "mugisha@gmail.com",
         password: "Walmond@123"
@@ -271,7 +309,7 @@ describe("User", () => {
       const loginRes = await request(app).post('/api/users/login').send(loginUser);
       const token = loginRes.body.token;
 
-      // Logout using the obtained token
+      
       const logoutRes = await request(app)
         .post('/api/users/logout')
         .set('Authorization', `Bearer ${token}`);
@@ -294,62 +332,45 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe('Invalid token.');
     });
-  });
-  test("Error handling during account creation", async () => {
-    // Simulate an error during account creation
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const newUser = {
-      firstName: "Mugisha",
-      lastName: "Walmond",
-      email: "mugishawrongemail.com", 
-      password: process.env.TEST_USER_PASS,
-      role: "seller",
-      phone: "+13362851038",
-    };
-    const res = await request(app).post("/api/users/signup").send(newUser);
-    if (res.statusCode !== 400) {
-      expect(console.error).toHaveBeenCalled();
-    }
-    expect(res.statusCode).toBe(400);
+    test("Unauthorized Logout", async () => {
+      const res = await request(app).post("/api/users/logout");
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    })
+    test("Token Missing in Authorization Header", async () => {
+      const res = await request(app)
+        .post("/api/users/logout")
+        .set("Authorization", "Bearer");
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    });
+    test("Error handling during logout", async () => {
+      // Simulate an error during logout
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+      const loginUser = {
+        email: "mugisha@gmail.com",
+        password: process.env.TEST_USER_PASS,
+      };
+      const loginRes = await request(app).post('/api/users/login').send(loginUser);
+      const token = loginRes.body.token;
+    
+      // Logout using the obtained token
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', `Bearer ${token}`);
+    
+      if (res.statusCode !== 200) {
+        expect(console.error).toHaveBeenCalled();
+      }
+      expect(res.statusCode).toBe(200);
+    });
   });
   
-  test("Error handling during login", async () => {
-    // Simulate an error during login
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const loginUser = {
-      // Note: Omitting email intentionally to trigger an error
-      password: process.env.TEST_USER_PASS,
-    };
-    const res = await request(app).post("/api/users/login").send(loginUser);
-    if (res.statusCode !== 400) {
-      expect(console.error).toHaveBeenCalled();
-    }
-    expect(res.statusCode).toBe(400);
   });
-  test("Error handling during logout", async () => {
-    // Simulate an error during logout
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const loginUser = {
-      email: "mugisha@gmail.com",
-      password: process.env.TEST_USER_PASS,
-    };
-    const loginRes = await request(app).post('/api/users/login').send(loginUser);
-    const token = loginRes.body.token;
+    
+    
+
   
-    // Logout using the obtained token
-    const res = await request(app)
-      .post('/api/users/logout')
-      .set('Authorization', `Bearer ${token}`);
-  
-    if (res.statusCode !== 200) {
-      expect(console.error).toHaveBeenCalled();
-    }
-    expect(res.statusCode).toBe(200);
-  });
-});
-
-
-
 describe("Testing endpoint", () => {
   test("Not found for site 404", async () => {
     const res = await request(app).get("/wrong-endpoint");
@@ -361,3 +382,5 @@ describe("Testing endpoint", () => {
     expect(res.statusCode).toBe(200);
   });
 });
+
+
