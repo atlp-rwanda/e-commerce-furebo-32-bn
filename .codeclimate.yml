@@ -1,0 +1,34 @@
+version: "2"
+checks:
+  argument_count:
+    enabled: false
+  file_lines:
+    enabled: false
+  method_count:
+    enabled: false
+  return_count:
+    enabled: false
+  similar_code:
+    enabled: false  
+
+exclude_paths:
+  - "node_modules/**"
+  - "coverage/**"
+
+engines:
+  eslint:
+    enabled: true
+    config:
+      extensions:
+      - .js
+      - .jsx
+
+ratings:
+  paths:
+  - "**.js"
+  - "**.jsx"
+
+test_reporter:
+  id: "cc-test-reporter"
+  coverage_files:
+    - "coverage/lcov.info"
