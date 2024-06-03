@@ -326,7 +326,6 @@ describe("User", () => {
     }
     expect(res.statusCode).toBe(400);
   });
-  
   test("Error handling during logout", async () => {
     // Simulate an error during logout
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -347,7 +346,6 @@ describe("User", () => {
     }
     expect(res.statusCode).toBe(200);
   });
-  
 });
 
 
