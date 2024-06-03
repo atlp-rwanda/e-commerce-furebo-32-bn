@@ -367,10 +367,6 @@ describe("User", () => {
     expect(res.statusCode).toBe(200);
   });
 });
-
-    
-    
-
   
 describe("Testing endpoint", () => {
   test("Not found for site 404", async () => {
