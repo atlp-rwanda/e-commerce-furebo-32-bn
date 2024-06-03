@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import userRoutes from "./routes/user.route";
+import productRoutes from "./routes/product.routes";
 import swaggerUi from 'swagger-ui-express';
 import specs from '../swagger.config';
 import morgan from "morgan";
@@ -16,7 +17,8 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 app.use('/api/users', userRoutes);
-
+// Use the product routes
+app.use('/api/product', productRoutes);
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 

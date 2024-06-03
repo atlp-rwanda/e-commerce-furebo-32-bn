@@ -23,13 +23,14 @@ const options = {
       },
       {
         url: "https://e-commerce-furebo-32-bn-1.onrender.com",
-        description: "Production server (HTTPS)"
-      }
+        description: "Production server (HTTPS)",
+      },
     ],
     tags: [
       {
         name: "Authentication",
-        description: "Endpoints for user registration, login, and user management.",
+        description:
+          "Endpoints for user registration, login, and user management.",
       },
     ],
     components: {
@@ -109,7 +110,13 @@ const options = {
                       role: { type: "string" },
                       phone: { type: "string" },
                     },
-                    required: ["firstName", "lastName", "email", "role", "phone"],
+                    required: [
+                      "firstName",
+                      "lastName",
+                      "email",
+                      "role",
+                      "phone",
+                    ],
                   },
                 },
               },
@@ -255,7 +262,11 @@ const options = {
                       example: "Test@123",
                     },
                   },
-                  required: ["oldPassword", "newPassword", "confirmNewPassword"],
+                  required: [
+                    "oldPassword",
+                    "newPassword",
+                    "confirmNewPassword",
+                  ],
                 },
               },
             },
@@ -327,7 +338,212 @@ const options = {
               description: "User not found",
             },
             500: {
-              description: "An error occurred while updating the account status",
+              description:
+                "An error occurred while updating the account status",
+            },
+          },
+        },
+      },
+      "/api/product/create": {
+        post: {
+          summary: "Create a new product",
+          tags: ["Products"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: {
+                      type: "string",
+                      example: "Product Name",
+                    },
+                    description: {
+                      type: "string",
+                      example: "Product Description",
+                    },
+                    price: {
+                      type: "number",
+                      example: 10.99,
+                    },
+                    stock: {
+                      type: "number",
+                      example: 100,
+                    },
+                    expireDate: {
+                      type: "string",
+                      format: "date",
+                      example: "2024-12-31",
+                    },
+                  },
+                  required: [
+                    "name",
+                    "description",
+                    "price",
+                    "stock",
+                    "expireDate",
+                  ],
+                },
+              },
+            },
+          },
+          responses: {
+            201: {
+              description: "Product created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      status: { type: "string" },
+                      message: { type: "string" },
+                      data: {
+                        type: "object",
+                        properties: {
+                          product: {
+                            type: "object",
+                            properties: {
+                              id: { type: "number" },
+                              name: { type: "string" },
+                              description: { type: "string" },
+                              price: { type: "number" },
+                              stock: { type: "number" },
+                              expireDate: { type: "string", format: "date" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal Server Error",
+            },
+          },
+        },
+      },
+      "/api/product/all": {
+        get: {
+          summary: "Retrieve all products",
+          tags: ["Products"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "A list of products",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "number" },
+                        name: { type: "string" },
+                        description: { type: "string" },
+                        price: { type: "number" },
+                        stock: { type: "number" },
+                        available: { type: "boolean" },
+                        expireDate: { type: "string", format: "date" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            400: { description: "Bad Request" },
+            500: { description: "Internal Server Error" },
+          },
+        },
+      },
+
+      "/api/product/update/{id}": {
+        patch: {
+          summary: "Update product details",
+          tags: ["Products"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    stock: {
+                      type: "number",
+                      example: 50,
+                    },
+                    available: {
+                      type: "boolean",
+                      example: true,
+                    },
+                    expireDate: {
+                      type: "string",
+                      format: "date",
+                      example: "2025-12-31",
+                    },
+                  },
+                  required: [
+                    "stock",
+                    "available",
+                    "expireDate",
+                  ],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Product details updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      status: { type: "string" },
+                      message: { type: "string" },
+                      data: {
+                        type: "object",
+                        properties: {
+                          product: {
+                            type: "object",
+                            properties: {
+                              id: { type: "number" },
+                              stock: { type: "number" },
+                              available: { type: "boolean" },
+                              expireDate: { type: "string", format: "date" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            404: {
+              description: "Product not found",
+            },
+            500: {
+              description: "Internal Server Error",
             },
           },
         },
