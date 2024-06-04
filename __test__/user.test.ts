@@ -209,7 +209,6 @@ describe("User", () => {
     });
   });
 
-
   describe("Test user login", () => {
     test("user logs in with correct credentials", async () => {
       const loginUser = {
@@ -273,7 +272,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Authorization header missing");
     });
-  
+
     test("update password with invalid token", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -286,7 +285,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Unauthorized request, Try again");
     });
-  
+
     test("update password with incorrect old password", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -299,7 +298,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Enter correct old password");
     });
-  
+
     test("update password with mismatched new passwords", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -310,9 +309,11 @@ describe("User", () => {
           confirmNewPassword: "differentPassword@123",
         });
       expect(res.statusCode).toBe(400);
-      expect(res.body.message).toBe("New password and confirm password do not match");
+      expect(res.body.message).toBe(
+        "New password and confirm password do not match"
+      );
     });
-  
+
     test("update password successfully", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -325,7 +326,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.message).toBe("Password updated successfully");
     });
-  
+
     test("update password and user not found", async () => {
       const res = await request(app)
         .patch(`/api/users/nonexistentuser/updatepassword`)
@@ -336,14 +337,12 @@ describe("User", () => {
           confirmNewPassword: "newPassword@123",
         });
       expect(res.statusCode).toBe(500);
-      expect(res.body.message).toBe("An error occurred while updating the password");
+      expect(res.body.message).toBe(
+        "An error occurred while updating the password"
+      );
     });
   });
-  
-
 });
-
-
 
 describe("Testing endpoint", () => {
   test("Not found for site 404", async () => {
