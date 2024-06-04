@@ -1,5 +1,5 @@
 import express from 'express';
-import { protectRoute, restrictTo, verifyToken } from '../middlewares/auth.middleware';
+import { protectRoute, restrictTo } from '../middlewares/auth.middleware';
 import { verifyEmail } from '../controllers/verifyUser.controller';
 import { verifyTokenMiddleware } from '../middlewares/verifyToken.middleware';
 import {
@@ -26,7 +26,7 @@ userRoutes.patch(
 );
 
 userRoutes.post('/login', validateUserLogin, userLogin);
-userRoutes.post('/logout', verifyToken,protectRoute, userLogout);
+userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;

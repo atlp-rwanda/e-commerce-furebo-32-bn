@@ -170,6 +170,46 @@ const options = {
           },
         },
       },
+  
+      "/api/users/logout": {
+        "post": {
+          "summary": "Logout from the application",
+          "tags": ["Authentication"],
+          "security": [{ "bearerAuth": [] }],
+          "responses": {
+            "200": {
+              "description": "Logout successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      
+    
+  },
+
+
+
 
       "/api/users/{id}": {
         patch: {
@@ -331,44 +371,11 @@ const options = {
           },
         },
       },
-
-      // New path for logout
-      '/api/users/logout': {
-        post: {
-          summary: 'Logout from the application',
-          tags: ['Authentication'],
-          security: [{ bearerAuth: [] }], // Require bearer token for authentication
-          responses: {
-            200: {
-              description: 'Logout successful',
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      message: { type: 'string' },
-                    }
-                  }
-                }
-              }
-            },
-            400: {
-              description: 'Bad Request'
-            },
-            401: {
-              description: 'Unauthorized',
-            },
-            403: {
-              description: 'Forbidden'
-            },
-            404: {
-              description: 'User not found'
-            }
-          }
-        }
-      }
-    }
+    },
   },
+  
+
+      
   apis: ['./src/routes/*.ts']
 };
 

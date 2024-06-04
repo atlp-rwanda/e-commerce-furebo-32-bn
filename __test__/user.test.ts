@@ -355,17 +355,18 @@ describe("User", () => {
     test("user cannot logout without providing a token", async () => {
       const res = await request(app).post('/api/users/logout');
       expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('Access denied. No token provided.');
+      expect(res.body.message).toBe('Authorization header missing');
     });
-
+    
     test("user cannot logout with an invalid token", async () => {
       const res = await request(app)
         .post('/api/users/logout')
         .set('Authorization', 'Bearer invalid_token');
     
       expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('Invalid token.');
+      expect(res.body.message).toBe('Unauthorized request, Try again');
     });
+    
     test("Unauthorized Logout", async () => {
       const res = await request(app).post("/api/users/logout");
       expect(res.statusCode).toBe(401);
