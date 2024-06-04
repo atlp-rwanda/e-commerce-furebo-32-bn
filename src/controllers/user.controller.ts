@@ -1,18 +1,14 @@
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
-import { hashPassword } from "../utils/password.utils";
 import { generateToken,generateResetToken,decodeToken } from "../utils/tokenGenerator.utils";
-import { sendVerificationEmail } from "../utils/email.utils";
-
-import { comparePassword } from "../utils/password.utils";
+// import { sendEmaill } from "../utils/email.utils";
+import { hashPassword, comparePassword } from "../utils/password.utils";
+import { sendEmail } from "../utils/email.utils";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
 
 export const userSignup = async (req: Request, res: Response) => {
-  const subject = "Email Verification";
-  const text = `Please verify your email by clicking on the following link:`;
-  const html = `<p>Please verify your email by clicking on the following link:</p><a href="">Verify Email</a>`;
 
   try {
     const hashedpassword: any = await hashPassword(req.body.password);
@@ -30,8 +26,14 @@ export const userSignup = async (req: Request, res: Response) => {
     }
 
     const createdUser = await UserService.register(user);
-    const token = await generateToken(createdUser);
-    sendVerificationEmail(user.email, subject, text, html);
+    const token = await generateToken(createdUser, "1h");
+
+    const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+    const subject = "Email Verification";
+    const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+    const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+    sendEmail(user.email, subject, text, html);
+   
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
 
@@ -218,7 +220,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     const text = `Please reset your password by clicking on the following link: ${resetLink}`;
     const html = `<p>Please reset your password by clicking on the following link:</p><a href="${resetLink}">Reset Password</a>`;
 
-    await sendVerificationEmail(email, subject, text, html);
+    await sendEmail(email, subject, text, html);
 
     return res.status(200).json({
       status: "success",

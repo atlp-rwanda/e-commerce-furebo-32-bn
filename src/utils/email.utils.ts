@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export function sendVerificationEmail(
+export function sendEmail(
   email: any,
   subject: string,
   text?: string,

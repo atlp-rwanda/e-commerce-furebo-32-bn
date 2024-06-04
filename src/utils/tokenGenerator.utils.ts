@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const generateToken = async (user: UserAttributes) => {
+const generateToken = async (user: UserAttributes, expiresIn: string = "30d") => {
   return jwt.sign(
     {
       role: user.role,
@@ -13,7 +13,7 @@ const generateToken = async (user: UserAttributes) => {
     },
     process.env.JWT_SECRET || "",
     {
-      expiresIn: "24h",
+      expiresIn: expiresIn,
     }
   );
 };

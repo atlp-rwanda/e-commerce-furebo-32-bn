@@ -1,4 +1,7 @@
-import express from "express";
+import express from 'express';
+import { protectRoute, restrictTo } from '../middlewares/auth.middleware';
+import { verifyEmail } from '../controllers/verifyUser.controller';
+import { verifyTokenMiddleware } from '../middlewares/verifyToken.middleware';
 import {
   updateRole,
   userSignup,
@@ -8,7 +11,6 @@ import {
   requestPasswordReset,
   resetPassword
 } from "../controllers/user.controller";
-import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
 import { validateUser, validateUserLogin,validateUserUpdatePassword} from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 
@@ -27,4 +29,5 @@ userRoutes.post('/login', validateUserLogin, userLogin);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 userRoutes.post("/requestpasswordreset", requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
+userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;
