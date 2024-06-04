@@ -26,7 +26,7 @@ userRoutes.patch(
 );
 
 userRoutes.post('/login', validateUserLogin, userLogin);
-userRoutes.post('/logout', verifyToken, userLogout);
+userRoutes.post('/logout', verifyToken,protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;

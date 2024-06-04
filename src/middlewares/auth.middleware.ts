@@ -25,10 +25,13 @@ export const protectRoute = async (
     if (!jwt_secret) {
       return res.status(401).json({ message: "JWT_SECRET is missing" });
     }
-
     if (isBlacklisted(token)) {
-      return res.status(401).json({ message: "Token has been invalidated." });
-    }
+      return res.status(401).json({
+        status: "error",
+        message: "Token has been invalidated.",
+      });
+    } 
+
 
     jwt.verify(token, jwt_secret, async (err, user) => {
       if (err) {
@@ -68,12 +71,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     });
   }
 
-  if (isBlacklisted(token)) {
-    return res.status(401).json({
-      status: "error",
-      message: "Token has been invalidated.",
-    });
-  }
+  
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret');
