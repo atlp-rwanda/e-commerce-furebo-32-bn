@@ -107,18 +107,20 @@ describe("protectRoute middleware", () => {
     });
     const res = mockResponse();
     const next = mockNext();
-
-    // Mock isBlacklisted function to return true for blacklisted token
+  
+    
     jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
-
+  
     await protectRoute(req as Request, res as Response, next);
-
+  
+   
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
+      status: "error",
       message: "Token has been invalidated.",
     });
-    
   });
+  
 });
 
 test("should return 403 if user role is not permitted", async () => {
@@ -126,10 +128,10 @@ test("should return 403 if user role is not permitted", async () => {
   const res = mockResponse();
   const next = mockNext();
 
-  // Setting up a user with a role that is not permitted
+ 
   req.user = { role: "user" };
 
-  // Simulating middleware for admin role
+
   const middleware = restrictTo("admin");
   middleware(req as Request, res as Response, next);
 
@@ -144,12 +146,12 @@ test("should return 500 and log the error on internal server error", async () =>
   const res = mockResponse();
   const next = mockNext();
 
-  // Mock jwt.verify to throw an error
+
   jest.spyOn(jwt, "verify").mockImplementationOnce(() => {
     throw new Error("Some internal error");
   });
 
-  // Spy on console.log
+
   const consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
   await protectRoute(req as Request, res as Response, next);
@@ -164,63 +166,6 @@ test("should return 500 and log the error on internal server error", async () =>
 });
 
 
-test("should return 401 if token is blacklisted", async () => {
-  const req = mockRequest({
-    authorization: "Bearer blacklisted.token.here",
-  });
-  const res = mockResponse();
-  const next = mockNext();
-
-  // Mocking isBlacklisted function to return true for blacklisted token
-  jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
-
-  await protectRoute(req as Request, res as Response, next);
-
-  expect(res.status).toHaveBeenCalledWith(401);
-  expect(res.json).toHaveBeenCalledWith({ message: "Token has been invalidated." });
-});
-test("should return 401 if token is blacklisted", async () => {
-  const req = mockRequest({
-    authorization: "Bearer blacklisted.token.here",
-  });
-  const res = mockResponse();
-  const next = mockNext();
-
-  
-  jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
-
-  await protectRoute(req as Request, res as Response, next);
-
-  expect(res.status).toHaveBeenCalledWith(401);
-  expect(res.json).toHaveBeenCalledWith({ message: "Token has been invalidated." });
-});
-test("should return 401 if token is blacklisted", async () => {
-
-  const req = mockRequest({
-    authorization: "Bearer blacklisted.token.here",
-  });
-  const res = mockResponse(); 
-  const next = mockNext(); 
-
-  
-  jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
-
- 
-  await protectRoute(req as Request, res as Response, next);
-
-  
-  expect(res.status).toHaveBeenCalledWith(401);
-  expect(res.json).toHaveBeenCalledWith({
-    message: "Token has been invalidated.",
-  });
-});
-
-// Additional mocks and tests for handling JWT verification errors
-jest.mock("jsonwebtoken", () => ({
-  verify: jest.fn((_token, _secret, callback) => {
-    callback(new Error("Internal Server Error"));
-  }),
-}));
 
 describe("protectRoute middleware with additional cases", () => {
   test("should return 401 if token is blacklisted", async () => {
@@ -229,16 +174,19 @@ describe("protectRoute middleware with additional cases", () => {
     });
     const res = mockResponse();
     const next = mockNext();
-
+  
+   
     jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
-
+  
     await protectRoute(req as Request, res as Response, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({
+      status: "error",
       message: "Token has been invalidated.",
     });
   });
+  
 });
 
 test("should return 401 if token is blacklisted", async () => {
@@ -248,13 +196,17 @@ test("should return 401 if token is blacklisted", async () => {
   const res = mockResponse();
   const next = mockNext();
 
+
   jest.spyOn(require("../src/utils/tokenBlacklist"), "isBlacklisted").mockReturnValue(true);
 
   await protectRoute(req as Request, res as Response, next);
 
+
   expect(res.status).toHaveBeenCalledWith(401);
   expect(res.json).toHaveBeenCalledWith({
+    status: "error",
     message: "Token has been invalidated.",
   });
 });
+
 });
