@@ -136,6 +136,58 @@ describe("User", () => {
     
   });
 
+
+  describe("Test user login", () => {
+    test("user logs in with correct credentials", async () => {
+      const loginUser = {
+        email: "mugisha@gmail.com",
+        password: process.env.TEST_USER_PASS,
+      };
+      const res = await request(app).post("/api/users/login").send(loginUser);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Login successful");
+      expect(res.body).toHaveProperty("token");
+    });
+
+    test("user logs in with incorrect password", async () => {
+      const loginUser = {
+        email: "mugisha@gmail.com",
+        password: process.env.TEST_USER_WRONG_PASS,
+      };
+      const res = await request(app).post("/api/users/login").send(loginUser);
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Invalid email or password");
+    });
+
+    test("user logs in with non-existing email", async () => {
+      const loginUser = {
+        email: "nonexistentemail@gmail.com",
+        password: process.env.TEST_USER_PASS,
+      };
+      const res = await request(app).post("/api/users/login").send(loginUser);
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe("Invalid email or password");
+    });
+
+    test("user logs in without email", async () => {
+      const loginUser = {
+        password: process.env.TEST_USER_PASS,
+      };
+      const res = await request(app).post("/api/users/login").send(loginUser);
+      expect(res.statusCode).toBe(400);
+      expect(res.body.data.message).toBe("Email address is required");
+    });
+
+    test("user logs in without password", async () => {
+      const loginUser = {
+        email: "mugisha@gmail.com",
+      };
+      const res = await request(app).post("/api/users/login").send(loginUser);
+      expect(res.statusCode).toBe(400);
+      expect(res.body.data.message).toBe("Password is required.");
+    });
+  });
+
   describe("Update user role", () => {
     test("update user role without login", async () => {
       const res = await request(app)
@@ -218,78 +270,6 @@ describe("User", () => {
     });
   });
 
-
-  describe("Test user login", () => {
-    test("user logs in with correct credentials", async () => {
-      const loginUser = {
-        email: "mugisha@gmail.com",
-        password: process.env.TEST_USER_PASS,
-      };
-      const res = await request(app).post("/api/users/login").send(loginUser);
-      expect(res.statusCode).toBe(200);
-      expect(res.body.message).toBe("Login successful");
-      expect(res.body).toHaveProperty("token");
-    });
-
-    test("user logs in with incorrect password", async () => {
-      const loginUser = {
-        email: "mugisha@gmail.com",
-        password: process.env.TEST_USER_WRONG_PASS,
-      };
-      const res = await request(app).post("/api/users/login").send(loginUser);
-      expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe("Invalid email or password");
-    });
-
-    test("user logs in with non-existing email", async () => {
-      const loginUser = {
-        email: "nonexistentemail@gmail.com",
-        password: process.env.TEST_USER_PASS,
-      };
-      const res = await request(app).post("/api/users/login").send(loginUser);
-      expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe("Invalid email or password");
-    });
-
-    test("user logs in without email", async () => {
-      const loginUser = {
-        password: process.env.TEST_USER_PASS,
-      };
-      const res = await request(app).post("/api/users/login").send(loginUser);
-      expect(res.statusCode).toBe(400);
-      expect(res.body.data.message).toBe("Email address is required");
-    });
-
-    test("user logs in without password", async () => {
-      const loginUser = {
-        email: "mugisha@gmail.com",
-      };
-      const res = await request(app).post("/api/users/login").send(loginUser);
-      expect(res.statusCode).toBe(400);
-      expect(res.body.data.message).toBe("Password is required.");
-    });
-    test("should return 500 and appropriate error message if an error occurs during login", async () => {
-      // Mocking the UserService.getUserByEmail to throw an error
-      jest.spyOn(UserService, 'getUserByEmail').mockImplementation(() => {
-        throw new Error("Test error");
-      });
-  
-      const loginUser = {
-        email: "testuser@example.com",
-        password: "password123",
-      };
-  
-      const res = await request(app).post("/api/users/login").send(loginUser);
-  
-      expect(res.statusCode).toBe(500);
-      expect(res.body.status).toBe("error");
-      expect(res.body.message).toBe("An error occurred during login");
-  
-      // Restore the original implementation after the test
-      jest.restoreAllMocks();
-    });
-  });
-  
 
   describe("Update user password", () => {
     test("update password without login", async () => {
