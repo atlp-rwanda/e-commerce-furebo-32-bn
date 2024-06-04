@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { isBlacklisted } from "../utils/tokenBlacklist";
 
 declare global {
   namespace Express {
@@ -24,6 +25,14 @@ export const protectRoute = async (
     if (!jwt_secret) {
       return res.status(401).json({ message: "JWT_SECRET is missing" });
     }
+    if (isBlacklisted(token)) {
+      return res.status(401).json({
+        status: "error",
+        message: "Token has been invalidated.",
+      });
+    } 
+
+
     jwt.verify(token, jwt_secret, async (err, user) => {
       if (err) {
         return res
@@ -36,6 +45,7 @@ export const protectRoute = async (
     });
   } catch (err) {
     console.log(err, "Error occurred");
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -49,6 +59,30 @@ export const restrictTo = (...roles: any) => {
     next();
   };
 };
+
+/* export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.header('Authorization');
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({
+      status: "error",
+      message: "Access denied. No token provided.",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default_secret');
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error("Invalid token:", error);
+    return res.status(401).json({
+      status: "error",
+      message: "Invalid token.",
+    });
+  }
+}; */
 
 // export const isVerfied = (req: Request, res: Response, next: NextFunction) => {
 //   if (!req.user.verfied) {

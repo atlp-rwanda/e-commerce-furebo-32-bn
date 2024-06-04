@@ -6,6 +6,7 @@ import {
   updateRole,
   userSignup,
   userLogin,
+  userLogout,
   changeAccountStatus,
   updatePassword
 } from "../controllers/user.controller";
@@ -24,6 +25,7 @@ userRoutes.patch(
 );
 
 userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;
