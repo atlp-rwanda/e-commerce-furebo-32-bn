@@ -1,5 +1,5 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import dotenv from 'dotenv';
+import swaggerJsdoc from "swagger-jsdoc";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -7,209 +7,503 @@ const port = process.env.PORT || 3000;
 
 const options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'E-Commerce APIs Documentation',
-      version: '1.0.0',
-      description: 'APIs for E-Commerce Team Project',
+      title: "E-Commerce APIs Documentation",
+      version: "1.0.0",
+      description: "APIs for E-Commerce Team Project",
       license: {
-        name: 'ISC'
-      }
+        name: "ISC",
+      },
     },
     servers: [
       {
         url: `http://localhost:${port}`,
-        description: 'Local Development Server for Swagger'
+        description: "Local Development Server for Swagger",
+      },
+      {
+        url: "https://e-commerce-furebo-32-bn-1.onrender.com",
+        description: "Production server (HTTPS)"
       }
     ],
     tags: [
       {
-        name: 'Authentication',
-        description: 'Endpoints for user registration, login, and user management.'
+        name: "Authentication",
+        description: "Endpoints for user registration, login, and user management.",
       },
+      {
+        name:"Product",
+        description:"Endpoints for product management"
+      }
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
-      }
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
     },
     security: [
       {
-        bearerAuth: []
-      }
+        bearerAuth: [],
+      },
     ],
-    basePath: '/api',
-    schemes: ['http'],
     paths: {
-      '/api/users/signup': {
+      "/api/users/signup": {
         post: {
-          summary: 'Create an account',
-          tags: ['Authentication'],
+          summary: "Create an account",
+          tags: ["Authentication"],
           security: [],
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
                     firstName: {
-                      type: 'string',
-                      example: 'Mugisha'
+                      type: "string",
+                      example: "Mugisha",
                     },
                     lastName: {
-                      type: 'string',
-                      example: 'Walmond'
+                      type: "string",
+                      example: "Walmond",
                     },
                     email: {
-                      type: 'string',
-                      example: 'mu@gmail.com'
+                      type: "string",
+                      example: "mu@gmail.com",
                     },
                     password: {
-                      type: 'string',
-                      example: 'Walmond@123'
+                      type: "string",
+                      example: "Walmond@123",
                     },
                     role: {
-                      type: 'string',
-                      example: 'buyer'
+                      type: "string",
+                      example: "buyer",
                     },
                     phone: {
-                      type: 'string',
-                      example: '+250792418795'
-                    }
+                      type: "string",
+                      example: "+250792418795",
+                    },
                   },
-                  required: ['firstName', 'lastName', 'email', 'password', 'role', 'phone']
-                }
-              }
-            }
+                  required: [
+                    "firstName",
+                    "lastName",
+                    "email",
+                    "password",
+                    "role",
+                    "phone",
+                  ],
+                },
+              },
+            },
           },
           responses: {
             201: {
-              description: 'OK',
+              description: "User created successfully",
               content: {
-                'application/json': {
+                "application/json": {
                   schema: {
-                    type: 'object',
+                    type: "object",
                     properties: {
-                      firstName: { type: 'string' },
-                      lastName: { type: 'string' },
-                      email: { type: 'string' },
-                      password: { type: 'string' },
-                      role: { type: 'string' },
-                      phone: { type: 'string' }
+                      firstName: { type: "string" },
+                      lastName: { type: "string" },
+                      email: { type: "string" },
+                      role: { type: "string" },
+                      phone: { type: "string" },
                     },
-                    required: [
-                      'firstName',
-                      'lastName',
-                      'email',
-                      'password',
-                      'role',
-                      'phone'
-                    ]
-                  }
-                }
-              }
+                    required: ["firstName", "lastName", "email", "role", "phone"],
+                  },
+                },
+              },
             },
             400: {
-              description: 'Bad Request'
-            }
-          }
-        }
+              description: "Bad Request",
+            },
+          },
+        },
       },
-      '/api/users/{id}': {
+
+      // User Login Route Documentation
+      "/api/users/login": {
+        post: {
+          summary: "Login with Email and Password",
+          tags: ["Authentication"],
+          security: [],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    email: {
+                      type: "string",
+                      example: "mu@gmail.com",
+                    },
+                    password: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
+                  },
+                  required: ["email", "password"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "User logged in successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      token: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+          },
+        },
+      },
+
+      "/api/users/{id}": {
         patch: {
-          summary: 'Change user role',
-          tags: ['Authentication'],
+          summary: "Change user role",
+          tags: ["Authentication"],
           security: [{ bearerAuth: [] }],
           parameters: [
             {
-              name: 'id',
-              in: 'path',
+              name: "id",
+              in: "path",
               required: true,
               schema: {
-                type: 'string'
+                type: "string",
               },
-              description: 'User ID'
-            }
+              description: "User ID",
+            },
           ],
-
-      //User Login Route Documentation
-      '/api/users/login': {
-        post: {
-          summary: 'Login with Email and Password',
-          tags: ['Authentication'],
-          security: [],
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
                     role: {
-                      type: 'string',
-                      example: 'admin'
-                    }
-                  },
-                  required: ['role'],
-
-                    email: {
-                      type: 'string',
-                      example: 'test@gmail.com'
+                      type: "string",
+                      example: "admin",
                     },
-                    password: {
-                      type: 'string',
-                      example: 'Test@123'
-                    }
                   },
-                  required: ['email', 'password']
+                  required: ["role"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Role updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            404: {
+              description: "User not found",
+            },
+          },
+        },
+      },
+
+      "/api/users/{id}/updatepassword": {
+        patch: {
+          summary: "User updating his/her password",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    oldPassword: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
+                    newPassword: {
+                      type: "string",
+                      example: "Test@123",
+                    },
+                    confirmNewPassword: {
+                      type: "string",
+                      example: "Test@123",
+                    },
+                  },
+                  required: ["oldPassword", "newPassword", "confirmNewPassword"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Password updated successfully",
+            },
+            400: {
+              description: "New password and confirm password do not match",
+            },
+            401: {
+              description: "Incorrect old password",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description: "An error occurred while updating the password",
+            },
+          },
+        },
+      },
+
+      // Change Account Status Endpoint
+      "/api/users/change-account-status/{id}": {
+        patch: {
+          summary: "Change user account status",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    activationReason: {
+                      type: "string",
+                      example: "Violation",
+                    },
+                  },
+                  required: ["status"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Account status updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description: "An error occurred while updating the account status",
+            },
+          },
+        },
+      },
+      "/createCollection/{seller_id}": {
+        post: {
+          summary: "Create a new collection",
+          description: "Create a new collection with the provided name",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "seller_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Seller ID",
+            },
+          ],
+          requestBody: {
+            description: "Collection details",
+             required: true,
+             content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    CollectionName: {
+                      type: "string",
+                      description: "Name of the collection"
+                    },
+                    description: {
+                      type: "string",
+                      description: "Description of the collection"
+                    },
+                  }
                 }
               }
             }
           },
           responses: {
-            201: {
-              description: 'Role updated successfully',
+            200: {
+              description: "Collection created successfully",
               content: {
-                'application/json': {
+                "application/json": {
                   schema: {
-                    type: 'object',
+                    type:"object",
                     properties: {
-                      id: { type: 'string' },
-                      role: { type: 'string' }
+                      CollectionName: {
+                        type: "string",
+                        description: "Name of the collection"
+                      },
+                      description: {
+                        type: "string",
+                        description: "Description of the collection"
+                      },
+                      seller_id:{
+                        type:"string"
+                      }
                     },
-    
-                      email: { type: 'string' },
-                      password: { type: 'string' },
-                      
-                    },
-                    required: [
-                      
-                      'email',
-                      'password',
-                      
-                    ]
-                  }
                 }
               }
             },
             400: {
-              description: 'Bad Request'
+              description: "Bad Request"
             },
-            403: {
-              description: 'Forbidden'
-            },
-            404: {
-              description: 'User not found'
+            500: {
+              description: "Internal server error"
             }
+          }
+        }
+      }
+    },
+    "/createProduct/{collection_id}": {
+      post: {
+        summary: "Create a new Product",
+        description: "Create a new Product with in ",
+        tags: ["Product"],
+        parameters: [
+          {
+            name: "collection_id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "Collection ID",
+          },
+        ],
+        requestBody: {
+          description: "Product details",
+           required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  productName: {
+                    type: "string",
+                    description: "Name of the collection"
+                  },
+                  description: {
+                    type: "string",
+                    description: "Description of the collection"
+                  },
+                  price: {
+                    type: "number",
+                    description: "Name of the collection"
+                  },
+                  quantity: {
+                    type: "number",
+                    description: "Quantinty Of the products"
+                  },
+                  expireDate: {
+                    type: "string",
+                    description: "expiration date of the product",
+                    format:"date"
+                  },
+                  category: {
+                    type: "string",
+                    description: "Category of the product",
+                  },
+                  images: {
+                    type: "array",
+                    description: "Images",
+                    items:{
+                       type: "string",
+                       format: "binary",
+                        description: "Image file(s) of the product"
+                    },
+                  }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "Collection created successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type:"object",
+                  properties: {
+                    id:{type:"string"},
+                    productName: { type: "string" },
+                    description: { type: "string" },
+                    price: { type: "number" },
+                    quantity: { type: "number" },
+                    seller_id: { type: "string" },
+                    expireDate: { type: "string" },
+                    Collection_id: { type: "string" },
+                    images: { type: "array" },
+                    category:{type:"string"}
+                  },
+              }
+            }
+          },
+          400: {
+            description: "Bad Request"
+          },
+          500: {
+            description: "Internal server error"
           }
         }
       }
     }
   },
-  apis: ['./src/routes/*.ts']
+    },
+  },
+  apis: ["./src/routes/*.ts"],
 };
 
 const specs = swaggerJsdoc(options);
