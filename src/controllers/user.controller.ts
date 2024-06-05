@@ -86,7 +86,20 @@ export const userLogin = async (req: Request, res: Response) => {
     if (!user.isActive) {
       return res.status(403).json({
         status: "fail",
-        message: "You are Unable to login, Account is deactivated",
+        message: "oops, This Account is deactivated",
+      });
+    }
+
+    
+    if (!user.verified) {
+      const token = await generateToken(user, "1h");
+      const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+      const subject = "Email Verification";
+      const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+      const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+      sendEmail(user.email, subject, text, html);
+      return res.status(403).json({
+        message: "This user is not verified, Check your Email and verify email first",
       });
     }
 
