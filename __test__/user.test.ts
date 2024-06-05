@@ -1,6 +1,11 @@
 import request from "supertest";
 import app from "../src/app";
 import db from "../src/database/config/database.config";
+import { userLogout } from "../src/controllers/user.controller";
+import { Request, Response } from "express"; 
+
+import * as tokenUtils from '../src/utils/tokenBlacklist';
+import { UserService } from "../src/services/user.services";
 
 let userId: any;
 let token: any;
@@ -128,6 +133,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe("Email address is required");
     });
+    
   });
 
   describe("Update user role", () => {
@@ -164,6 +170,9 @@ describe("User", () => {
       expect(res.statusCode).toBe(404);
       expect(res.body.message).toBe("User not found");
     });
+
+ 
+  
   });
 
   describe("Change account status", () => {
@@ -259,7 +268,28 @@ describe("User", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe("Password is required.");
     });
+    test("should return 500 and appropriate error message if an error occurs during login", async () => {
+      // Mocking the UserService.getUserByEmail to throw an error
+      jest.spyOn(UserService, 'getUserByEmail').mockImplementation(() => {
+        throw new Error("Test error");
+      });
+  
+      const loginUser = {
+        email: "testuser@example.com",
+        password: "password123",
+      };
+  
+      const res = await request(app).post("/api/users/login").send(loginUser);
+  
+      expect(res.statusCode).toBe(500);
+      expect(res.body.status).toBe("error");
+      expect(res.body.message).toBe("An error occurred during login");
+  
+      // Restore the original implementation after the test
+      jest.restoreAllMocks();
+    });
   });
+  
 
   describe("Update user password", () => {
     test("update password without login", async () => {
@@ -338,10 +368,79 @@ describe("User", () => {
       expect(res.statusCode).toBe(500);
       expect(res.body.message).toBe("An error occurred while updating the password");
     });
-  });
-  
 
+  });
+
+  describe("Logout Functionality", () => {
+    test("successful logout", async () => {
+      const res = await request(app)
+        .post("/api/users/logout")
+        .set("Authorization", `Bearer ${token}`);
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Logout successful");
+    });
+    test("user cannot logout without providing a token", async () => {
+      const res = await request(app).post('/api/users/logout');
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Authorization header missing');
+    });
+    
+    test("user cannot logout with an invalid token", async () => {
+      const res = await request(app)
+        .post('/api/users/logout')
+        .set('Authorization', 'Bearer invalid_token');
+    
+      expect(res.statusCode).toBe(401);
+      expect(res.body.message).toBe('Unauthorized request, Try again');
+    });
+    
+    test("Unauthorized Logout", async () => {
+      const res = await request(app).post("/api/users/logout");
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    });
+    test("Token Missing in Authorization Header", async () => {
+      const res = await request(app)
+        .post("/api/users/logout")
+        .set("Authorization", "Bearer");
+      expect(res.statusCode).toBe(401);
+      expect(res.body).toHaveProperty("message");
+    });
+    
+    
+test("Error during logout", async () => {
+
+  const req: Request = {} as Request;
+  const res: Response = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  } as unknown as Response;
+
+  
+  const error = new Error("Test error");
+
+
+  jest.spyOn(tokenUtils, 'addToBlacklist').mockImplementationOnce(() => {
+    throw error;
+  });
+
+  
+  await userLogout(req, res);
+
+
+  expect(res.status).toHaveBeenCalledWith(500);
+  expect(res.json).toHaveBeenCalledWith({
+    status: "error",
+    message: "An error occurred during logout",
+  });
+
+
+  jest.restoreAllMocks();
 });
+    
+  });
+ 
+
 
 
 
@@ -355,4 +454,5 @@ describe("Testing endpoint", () => {
     const res = await request(app).get("/");
     expect(res.statusCode).toBe(200);
   });
+});
 });

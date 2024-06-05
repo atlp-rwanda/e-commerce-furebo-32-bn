@@ -29,7 +29,7 @@ const options = {
     tags: [
       {
         name: "Authentication",
-        description: "Endpoints for user registration, login, and user management.",
+        description: "Endpoints for user registration, login, logout, and user management.",
       },
     ],
     components: {
@@ -170,6 +170,41 @@ const options = {
           },
         },
       },
+      
+      "/api/users/logout": {
+        "post": {
+          "summary": "Logout from the application",
+          "tags": ["Authentication"],
+          "security": [{ "bearerAuth": [] }],
+          "responses": {
+            "200": {
+              "description": "Logout successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+  },
 
       "/api/users/{id}": {
         patch: {
