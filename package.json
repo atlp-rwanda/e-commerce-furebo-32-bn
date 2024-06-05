@@ -38,7 +38,7 @@
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^20.12.11",
+    "@types/node": "^20.14.1",
     "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.11.6",
     "@types/sequelize": "^4.28.20",

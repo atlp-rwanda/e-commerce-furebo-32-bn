@@ -6,6 +6,7 @@ import {
   updateRole,
   userSignup,
   userLogin,
+  userLogout,
   changeAccountStatus,
   updatePassword,
   requestPasswordReset,
@@ -26,6 +27,7 @@ userRoutes.patch(
 );
 
 userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 userRoutes.post("/requestpasswordreset", requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
