@@ -474,23 +474,14 @@ const options = {
           ],
           responses: {
             200: {
-              description: 'Email verified successfully',
-              content : {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      token: {
-                        type: 'string'
-                      }
-                    }
-                  }
-                }
-              }
-              
+              description: 'Email verified successfully',              
             },
             404: {
               description: 'Invalid token',
+              
+            },
+            500: {
+              description: 'Internal server error',
               
             }
           }
