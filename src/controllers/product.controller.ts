@@ -23,7 +23,7 @@ export const createProduct= async function(req:Request,res:Response){
         }
         let imageUrls=[] as string[];
         let imagePublicId=[] as string[] ;
-        const uploadedImages = await Promise.all(
+        await Promise.all(
             (files).map(
               async (file) => {
                 const result = await cloudinary.v2.uploader.upload(file.path)
@@ -36,7 +36,7 @@ export const createProduct= async function(req:Request,res:Response){
     
         const product:createProductAttributes={
              productName:req.body.productName,
-             seller_id:collection?.seller_id,
+             seller_id:req.user?.id,
              price:req.body.price,
              expireDate:req.body.expireDate,
              collection_id:req.params.collection_id,
@@ -69,7 +69,6 @@ export const createProduct= async function(req:Request,res:Response){
         return res.status(200).json({
             message:"Product is created successfully",
             Product:createdProduct,
-            uploadedImages:uploadedImages
         })
     }
     catch(error){

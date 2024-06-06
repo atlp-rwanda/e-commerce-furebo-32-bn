@@ -11,6 +11,7 @@ export interface ProductAttributes {
     description?:string;
     images?:string[];
     category?:string;
+    availability?:boolean;
     createdAt?: Date;
     updatedAt?: Date;
   }
@@ -29,6 +30,7 @@ export interface ProductAttributes {
     | "collection_id"
     |"description"
     |"category"
+    |"availability"
   > {}
 
 export interface UserOutputs extends Required<ProductAttributes> {}

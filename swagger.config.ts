@@ -23,18 +23,15 @@ const options = {
       },
       {
         url: "https://e-commerce-furebo-32-bn-1.onrender.com",
-        description: "Production server (HTTPS)"
-      }
+        description: "Production server (HTTPS)",
+      },
     ],
     tags: [
       {
         name: "Authentication",
-        description: "Endpoints for user registration, login, logout, and user management.",
+        description:
+          "Endpoints for user registration, login, logout, and user management.",
       },
-      {
-        name:"Product",
-        description:"Endpoints for product management"
-      }
     ],
     components: {
       securitySchemes: {
@@ -113,7 +110,13 @@ const options = {
                       role: { type: "string" },
                       phone: { type: "string" },
                     },
-                    required: ["firstName", "lastName", "email", "role", "phone"],
+                    required: [
+                      "firstName",
+                      "lastName",
+                      "email",
+                      "role",
+                      "phone",
+                    ],
                   },
                 },
               },
@@ -174,41 +177,41 @@ const options = {
           },
         },
       },
-      
+
       "/api/users/logout": {
-        "post": {
-          "summary": "Logout from the application",
-          "tags": ["Authentication"],
-          "security": [{ "bearerAuth": [] }],
-          "responses": {
+        post: {
+          summary: "Logout from the application",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          responses: {
             "200": {
-              "description": "Logout successful",
-              "content": {
+              description: "Logout successful",
+              content: {
                 "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": { "type": "string" }
-                    }
-                  }
-                }
-              }
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
             },
             "400": {
-              "description": "Bad request"
+              description: "Bad request",
             },
             "401": {
-              "description": "Unauthorized"
+              description: "Unauthorized",
             },
             "403": {
-              "description": "Forbidden"
+              description: "Forbidden",
             },
             "404": {
-              "description": "User not found"
-            }
-          }
-        }
-  },
+              description: "User not found",
+            },
+          },
+        },
+      },
 
       "/api/users/{id}": {
         patch: {
@@ -294,7 +297,11 @@ const options = {
                       example: "Test@123",
                     },
                   },
-                  required: ["oldPassword", "newPassword", "confirmNewPassword"],
+                  required: [
+                    "oldPassword",
+                    "newPassword",
+                    "confirmNewPassword",
+                  ],
                 },
               },
             },
@@ -366,9 +373,118 @@ const options = {
               description: "User not found",
             },
             500: {
-              description: "An error occurred while updating the account status",
+              description:
+                "An error occurred while updating the account status",
             },
           },
+        },
+      },'/api/users/requestpasswordreset': {
+        post: {
+          summary: 'Request Password Reset',
+          tags: ['Password Reset'],
+          security: [],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    email: {
+                      type: 'string',
+                      example: 'user@example.com'
+                    }
+                  },
+                  required: ['email']
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Password reset email sent',
+             
+            },
+            404: {
+              description: 'User not found',
+              
+            }
+          }
+        }
+      },
+      '/api/users/resetpassword': {
+        post: {
+          summary: 'Reset Password',
+          tags: ['Password Reset'],
+          security: [],
+          parameters: [
+            {
+              name: 'token',
+              in: 'query',
+              required: true,
+              schema: {
+                type: 'string'
+              },
+              description: 'Password reset token'
+            }
+          ],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    newPassword: {
+                      type: 'string',
+                      example: 'NewPassword@123'
+                    }
+                  },
+                  required: ['newPassword']
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Password reset successfully',
+              
+            },
+            404: {
+              description: 'Invalid or expired token',
+              
+            }
+          }
+        }
+      },
+      // Email Verification Route Documentation
+      '/api/users/verify-email': {
+        get: {
+          summary: 'Verify Email',
+          tags: ['Email Verification'],
+          security: [],
+          parameters: [
+            {
+              name: 'token',
+              in: 'query',
+              required: true,
+              schema: {
+                type: 'string'
+              },
+              description: 'Email verification token'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Email verified successfully',              
+            },
+            404: {
+              description: 'Invalid token',
+              
+            },
+            500: {
+              description: 'Internal server error',
+              
+            }
+          }
         },
       },
       "/createCollection/{seller_id}": {
@@ -535,8 +651,8 @@ const options = {
         }
       }
     }
-     }
-    },
+  }
+    }
   },
   apis: ["./src/routes/*.ts"],
 };

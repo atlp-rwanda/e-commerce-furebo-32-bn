@@ -29,6 +29,8 @@ class Product
 
   declare category:string;
 
+  declare availability: boolean;
+
   declare createdAt: Date;
 
   declare updatedAt: Date;
@@ -97,6 +99,10 @@ Product.init(
     category: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    availability:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:true
     },
     images: {
       type: DataTypes.ARRAY(DataTypes.STRING),

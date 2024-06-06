@@ -8,9 +8,11 @@ import {
   userLogin,
   userLogout,
   changeAccountStatus,
-  updatePassword
+  updatePassword,
+  requestPasswordReset,
+  resetPassword
 } from "../controllers/user.controller";
-import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
+import { validateUser, validateUserLogin,validateUserUpdatePassword} from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 
 const userRoutes = express.Router();
@@ -27,5 +29,7 @@ userRoutes.patch(
 userRoutes.post('/login', validateUserLogin, userLogin);
 userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
+userRoutes.post("/requestpasswordreset", requestPasswordReset);
+userRoutes.post("/resetpassword", resetPassword);
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;

@@ -36,6 +36,10 @@ module.exports = {
           key:"id",
         }
       },
+      availability:{
+        type:Sequelize.BOOLEAN,
+        defaultValue:true
+      },
       seller_id: {
         type: Sequelize.UUID,
         allowNull: false,

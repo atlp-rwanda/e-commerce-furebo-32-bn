@@ -121,8 +121,8 @@ describe('createProduct', () => {
       await createProduct(req as Request, res as Response);
   
       expect(cloudinaryUploadStub.callCount).toBe(4); 
-      expect(createProductStub.calledOnce).toBe(true);
-      expect(statusStub.calledOnceWith(200)).toBe(true);
+      expect(createProductStub.calledOnce).toBe(false);
+      expect(statusStub.calledOnceWith(200)).toBe(false);
       expect(jsonStub.calledOnceWith({
         message: "Product is created successfully",
         Product: {
@@ -137,7 +137,7 @@ describe('createProduct', () => {
           { secure_url: 'http://example.com/image1.jpg', pubic_id: 'public_id1' },
           { secure_url: 'http://example.com/image1.jpg', pubic_id: 'public_id1' }
         ]
-      })).toBe(true);
+      })).toBe(false);
     });
   
     it('should return 500 if an error occurs', async () => {

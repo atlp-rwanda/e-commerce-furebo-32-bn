@@ -17,5 +17,15 @@ const generateToken = async (user: UserAttributes, expiresIn: string = "30d") =>
     }
   );
 };
+export { generateToken };
 
-export { generateToken};
+
+
+
+export const decodeToken = (token: string): any => {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET as string);
+  } catch (error) {
+    throw new Error("Invalid or expired token");
+  }
+};
