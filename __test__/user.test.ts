@@ -3,7 +3,8 @@ import app from "../src/app";
 import db from "../src/database/config/database.config";
 import { userLogout } from "../src/controllers/user.controller";
 import { Request, Response } from "express"; 
-
+import { hashPassword } from "../src/utils/password.utils";
+import  User from "../src/database/models/user.model";
 import * as tokenUtils from '../src/utils/tokenBlacklist';
 import { UserService } from "../src/services/user.services";
 
@@ -219,21 +220,30 @@ describe("User", () => {
   });
 
 
-  describe("Test user login", () => {
-    test("user logs in with correct credentials", async () => {
+  describe("Test user login",() => {
+    beforeAll(async () => {
+    await User.create({
+      firstName:"Mugisha",
+      lastName: "Walmond",
+      email: "shyaka@gmail.com",
+      password: await hashPassword(process.env.TEST_USER_LOGIN_PASS), // Assuming you have a function to hash the password
+      verified: true,
+      isActive: true,
+    });
+  });
+    test("user logs in with correct credentials,Verified account and active account", async () => {
       const loginUser = {
-        email: "mugisha@gmail.com",
-        password: process.env.TEST_USER_PASS,
+        email: "shyaka@gmail.com",
+        password: process.env.TEST_USER_LOGIN_PASS,
       };
       const res = await request(app).post("/api/users/login").send(loginUser);
       expect(res.statusCode).toBe(200);
       expect(res.body.message).toBe("Login successful");
       expect(res.body).toHaveProperty("token");
     });
-
     test("user logs in with incorrect password", async () => {
       const loginUser = {
-        email: "mugisha@gmail.com",
+        email: "shyaka@gmail.com",
         password: process.env.TEST_USER_WRONG_PASS,
       };
       const res = await request(app).post("/api/users/login").send(loginUser);
@@ -268,6 +278,28 @@ describe("User", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe("Password is required.");
     });
+
+
+    test("user logs in with unverified account", async () => {
+      // Assuming you have a way to create a test user in your setup
+      const unverifiedUser = {
+        email: "unverified@example.com",
+        password: process.env.TEST_USER_PASS,
+      };
+     // Create the unverified user
+    await User.create({
+      firstName:"test",
+      lastName: "User",
+      email: unverifiedUser.email,
+      password: await hashPassword(unverifiedUser.password), // Assuming you have a function to hash the password
+      verified: false,
+      isActive: true,
+    });
+  
+      const res = await request(app).post("/api/users/login").send(unverifiedUser);
+      expect(res.statusCode).toBe(403);
+      expect(res.body.message).toBe("This user is not verified, Check your Email and verify email first");
+    });
     test("should return 500 and appropriate error message if an error occurs during login", async () => {
       // Mocking the UserService.getUserByEmail to throw an error
       jest.spyOn(UserService, 'getUserByEmail').mockImplementation(() => {
@@ -289,6 +321,7 @@ describe("User", () => {
       jest.restoreAllMocks();
     });
   });
+
   
 
   describe("Update user password", () => {
