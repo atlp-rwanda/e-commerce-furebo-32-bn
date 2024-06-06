@@ -454,7 +454,48 @@ const options = {
             }
           }
         }
-      }
+      },
+      // Email Verification Route Documentation
+      '/api/users/verify-email': {
+        get: {
+          summary: 'Verify Email',
+          tags: ['Email Verification'],
+          security: [],
+          parameters: [
+            {
+              name: 'token',
+              in: 'query',
+              required: true,
+              schema: {
+                type: 'string'
+              },
+              description: 'Email verification token'
+            }
+          ],
+          responses: {
+            200: {
+              description: 'Email verified successfully',
+              content : {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      token: {
+                        type: 'string'
+                      }
+                    }
+                  }
+                }
+              }
+              
+            },
+            404: {
+              description: 'Invalid token',
+              
+            }
+          }
+        }
+      },
     }
   },
   apis: ["./src/routes/*.ts"],
