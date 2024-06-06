@@ -222,7 +222,6 @@ describe("User", () => {
         lastName: "Walmond",
         email: "shyaka@gmail.com",
         password: await hashPassword(process.env.TEST_USER_LOGIN_PASS), // Assuming you have a function to hash the password
-        role: "seller",
         verified: true,
         isActive: true,
       });
@@ -237,7 +236,6 @@ describe("User", () => {
       expect(res.body.message).toBe("Login successful");
       expect(res.body).toHaveProperty("token");
     });
-
     test("user logs in with incorrect password", async () => {
       const loginUser = {
         email: "shyaka@gmail.com",
