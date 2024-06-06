@@ -4,7 +4,8 @@
 /* eslint-disable require-jsdoc */
 import Profile, { ProfileAttributes } from '../database/models/Profile';
 import User from '../database/models/user.model';
-import { UserSignupAttributes } from '../types/user.types';
+import { UserSignupAttributes, UserAttributes } from '../types/user.types';
+
 
 export class UserService {
   static async register(user: UserSignupAttributes) {
@@ -14,7 +15,19 @@ export class UserService {
   static async updateUser(user: User) {
     return await user.save();
   }
-
+  
+  static async updateUserSetting(userId: number, updates: Partial<UserAttributes>): Promise<UserAttributes | null> {
+    try {
+      const user = await User.findByPk(userId);
+      if (user) {
+        await user.update(updates);
+        return user.toJSON() as UserAttributes;
+      }
+      return null;
+    } catch (error: any) {
+      throw new Error(`Error updating user: ${error.message}`);
+    }
+  }
   static async getUserByEmail(email:string) {
     return  await User.findOne({ where: { email: email } });
   }

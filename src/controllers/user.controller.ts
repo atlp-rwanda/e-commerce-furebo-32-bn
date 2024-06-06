@@ -232,3 +232,20 @@ export const updatePassword = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const updateUser = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const updates = req.body;
+    const { userId } = req.user.id;
+    const { userId: _, email, password, ...validUpdates } = updates;
+
+    const user = await UserService.updateUserSetting(userId, validUpdates);
+    if (user) {
+      return res.status(200).json({ message: 'User updated successfully', user });
+      res.status(200).json({ message: 'User updated successfully:', user });
+    }
+    return res.status(404).json({ error: 'User not found' });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};

@@ -30,7 +30,7 @@ export const updateProfileController = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
     const profileData = req.body;
-    const { file } = req;
+    const { file } = req.body;
     let profileImage;
 
     if (file) {

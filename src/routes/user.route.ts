@@ -8,7 +8,8 @@ import {
   userLogin,
   userLogout,
   changeAccountStatus,
-  updatePassword
+  updatePassword,
+  updateUser
 } from "../controllers/user.controller";
 import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
@@ -43,4 +44,5 @@ userRoutes.patch(
   updateProfileController
 );
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
+userRoutes.post('/updateUser', protectRoute, updateUser)
 export default userRoutes;
