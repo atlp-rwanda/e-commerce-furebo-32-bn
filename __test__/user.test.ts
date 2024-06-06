@@ -2,10 +2,10 @@ import request from "supertest";
 import app from "../src/app";
 import db from "../src/database/config/database.config";
 import { userLogout } from "../src/controllers/user.controller";
-import { Request, Response } from "express"; 
+import { Request, Response } from "express";
 import { hashPassword } from "../src/utils/password.utils";
-import  User from "../src/database/models/user.model";
-import * as tokenUtils from '../src/utils/tokenBlacklist';
+import User from "../src/database/models/user.model";
+import * as tokenUtils from "../src/utils/tokenBlacklist";
 import { UserService } from "../src/services/user.services";
 
 let userId: any;
@@ -134,7 +134,6 @@ describe("User", () => {
       expect(res.statusCode).toBe(400);
       expect(res.body.data.message).toBe("Email address is required");
     });
-    
   });
 
   describe("Update user role", () => {
@@ -171,9 +170,6 @@ describe("User", () => {
       expect(res.statusCode).toBe(404);
       expect(res.body.message).toBe("User not found");
     });
-
- 
-  
   });
 
   describe("Change account status", () => {
@@ -219,18 +215,17 @@ describe("User", () => {
     });
   });
 
-
-  describe("Test user login",() => {
+  describe("Test user login", () => {
     beforeAll(async () => {
-    await User.create({
-      firstName:"Mugisha",
-      lastName: "Walmond",
-      email: "shyaka@gmail.com",
-      password: await hashPassword(process.env.TEST_USER_LOGIN_PASS), // Assuming you have a function to hash the password
-      verified: true,
-      isActive: true,
+      await User.create({
+        firstName: "Mugisha",
+        lastName: "Walmond",
+        email: "shyaka@gmail.com",
+        password: await hashPassword(process.env.TEST_USER_LOGIN_PASS), // Assuming you have a function to hash the password
+        verified: true,
+        isActive: true,
+      });
     });
-  });
     test("user logs in with correct credentials,Verified account and active account", async () => {
       const loginUser = {
         email: "shyaka@gmail.com",
@@ -279,50 +274,51 @@ describe("User", () => {
       expect(res.body.data.message).toBe("Password is required.");
     });
 
-
     test("user logs in with unverified account", async () => {
       // Assuming you have a way to create a test user in your setup
       const unverifiedUser = {
         email: "unverified@example.com",
         password: process.env.TEST_USER_PASS,
       };
-     // Create the unverified user
-    await User.create({
-      firstName:"test",
-      lastName: "User",
-      email: unverifiedUser.email,
-      password: await hashPassword(unverifiedUser.password), // Assuming you have a function to hash the password
-      verified: false,
-      isActive: true,
-    });
-  
-      const res = await request(app).post("/api/users/login").send(unverifiedUser);
+      // Create the unverified user
+      await User.create({
+        firstName: "test",
+        lastName: "User",
+        email: unverifiedUser.email,
+        password: await hashPassword(unverifiedUser.password), // Assuming you have a function to hash the password
+        verified: false,
+        isActive: true,
+      });
+
+      const res = await request(app)
+        .post("/api/users/login")
+        .send(unverifiedUser);
       expect(res.statusCode).toBe(403);
-      expect(res.body.message).toBe("This user is not verified, Check your Email and verify email first");
+      expect(res.body.message).toBe(
+        "This user is not verified, Check your Email and verify email first"
+      );
     });
     test("should return 500 and appropriate error message if an error occurs during login", async () => {
       // Mocking the UserService.getUserByEmail to throw an error
-      jest.spyOn(UserService, 'getUserByEmail').mockImplementation(() => {
+      jest.spyOn(UserService, "getUserByEmail").mockImplementation(() => {
         throw new Error("Test error");
       });
-  
+
       const loginUser = {
         email: "testuser@example.com",
         password: "password123",
       };
-  
+
       const res = await request(app).post("/api/users/login").send(loginUser);
-  
+
       expect(res.statusCode).toBe(500);
       expect(res.body.status).toBe("error");
       expect(res.body.message).toBe("An error occurred during login");
-  
+
       // Restore the original implementation after the test
       jest.restoreAllMocks();
     });
   });
-
-  
 
   describe("Update user password", () => {
     test("update password without login", async () => {
@@ -336,7 +332,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Authorization header missing");
     });
-  
+
     test("update password with invalid token", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -349,7 +345,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Unauthorized request, Try again");
     });
-  
+
     test("update password with incorrect old password", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -362,7 +358,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Enter correct old password");
     });
-  
+
     test("update password with mismatched new passwords", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -373,9 +369,11 @@ describe("User", () => {
           confirmNewPassword: "differentPassword@123",
         });
       expect(res.statusCode).toBe(400);
-      expect(res.body.message).toBe("New password and confirm password do not match");
+      expect(res.body.message).toBe(
+        "New password and confirm password do not match"
+      );
     });
-  
+
     test("update password successfully", async () => {
       const res = await request(app)
         .patch(`/api/users/${userId}/updatepassword`)
@@ -388,7 +386,7 @@ describe("User", () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.message).toBe("Password updated successfully");
     });
-  
+
     test("update password and user not found", async () => {
       const res = await request(app)
         .patch(`/api/users/nonexistentuser/updatepassword`)
@@ -399,7 +397,9 @@ describe("User", () => {
           confirmNewPassword: "newPassword@123",
         });
       expect(res.statusCode).toBe(500);
-      expect(res.body.message).toBe("An error occurred while updating the password");
+      expect(res.body.message).toBe(
+        "An error occurred while updating the password"
+      );
     });
   });
   
@@ -453,20 +453,20 @@ describe("User", () => {
       expect(res.body.message).toBe("Logout successful");
     });
     test("user cannot logout without providing a token", async () => {
-      const res = await request(app).post('/api/users/logout');
+      const res = await request(app).post("/api/users/logout");
       expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('Authorization header missing');
+      expect(res.body.message).toBe("Authorization header missing");
     });
-    
+
     test("user cannot logout with an invalid token", async () => {
       const res = await request(app)
-        .post('/api/users/logout')
-        .set('Authorization', 'Bearer invalid_token');
-    
+        .post("/api/users/logout")
+        .set("Authorization", "Bearer invalid_token");
+
       expect(res.statusCode).toBe(401);
-      expect(res.body.message).toBe('Unauthorized request, Try again');
+      expect(res.body.message).toBe("Unauthorized request, Try again");
     });
-    
+
     test("Unauthorized Logout", async () => {
       const res = await request(app).post("/api/users/logout");
       expect(res.statusCode).toBe(401);
@@ -479,52 +479,40 @@ describe("User", () => {
       expect(res.statusCode).toBe(401);
       expect(res.body).toHaveProperty("message");
     });
-    
-    
-test("Error during logout", async () => {
 
-  const req: Request = {} as Request;
-  const res: Response = {
-    status: jest.fn().mockReturnThis(),
-    json: jest.fn(),
-  } as unknown as Response;
+    test("Error during logout", async () => {
+      const req: Request = {} as Request;
+      const res: Response = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
 
-  
-  const error = new Error("Test error");
+      const error = new Error("Test error");
 
+      jest.spyOn(tokenUtils, "addToBlacklist").mockImplementationOnce(() => {
+        throw error;
+      });
 
-  jest.spyOn(tokenUtils, 'addToBlacklist').mockImplementationOnce(() => {
-    throw error;
+      await userLogout(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        status: "error",
+        message: "An error occurred during logout",
+      });
+
+      jest.restoreAllMocks();
+    });
   });
 
-  
-  await userLogout(req, res);
+  describe("Testing endpoint", () => {
+    test("Not found for site 404", async () => {
+      const res = await request(app).get("/wrong-endpoint");
+      expect(res.statusCode).toBe(404);
+    });
 
-
-  expect(res.status).toHaveBeenCalledWith(500);
-  expect(res.json).toHaveBeenCalledWith({
-    status: "error",
-    message: "An error occurred during logout",
+    test("Check root route", async () => {
+      const res = await request(app).get("/");
+      expect(res.statusCode).toBe(200);
+    });
   });
-
-
-  jest.restoreAllMocks();
-});
-    
-  });
- 
-
-
-
-
-describe("Testing endpoint", () => {
-  test("Not found for site 404", async () => {
-    const res = await request(app).get("/wrong-endpoint");
-    expect(res.statusCode).toBe(404);
-  });
-
-  test("Check root route", async () => {
-    const res = await request(app).get("/");
-    expect(res.statusCode).toBe(200);
-  });
-});

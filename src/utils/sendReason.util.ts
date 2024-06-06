@@ -1,15 +1,22 @@
-import { UserAttributes } from '../types/user.types';
-import { sendEmail } from './email.utils';
+import { UserAttributes } from "../types/user.types";
+import { sendEmail } from "./email.utils";
 
-export const sendReasonEmail = (user: UserAttributes, subject: string, activationReason: string, isActive: boolean) => {
+export const sendReasonEmail = (
+  user: UserAttributes,
+  subject: string,
+  activationReason: string,
+  isActive: boolean
+) => {
   const emailBody = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-      <p style="font-size: 16px; color: #444;">Dear ${user.firstName + " " + user.lastName},</p>
+      <p style="font-size: 16px; color: #444;">Dear ${
+        user.firstName + " " + user.lastName
+      },</p>
       <p style="font-size: 16px; color: #444;">
         Your account associated with the email 
         <strong style="color: #000;">${user.email}</strong> 
         has been 
-        <strong style="color: ${!isActive ? '#28a745' : '#dc3545'};">
+        <strong style="color: ${!isActive ? "#28a745" : "#dc3545"};">
           ${!isActive ? "activated" : "disabled"}
         </strong>.
       </p>

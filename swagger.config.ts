@@ -23,13 +23,14 @@ const options = {
       },
       {
         url: "https://e-commerce-furebo-32-bn-1.onrender.com",
-        description: "Production server (HTTPS)"
-      }
+        description: "Production server (HTTPS)",
+      },
     ],
     tags: [
       {
         name: "Authentication",
-        description: "Endpoints for user registration, login, logout, and user management.",
+        description:
+          "Endpoints for user registration, login, logout, and user management.",
       },
     ],
     components: {
@@ -109,7 +110,13 @@ const options = {
                       role: { type: "string" },
                       phone: { type: "string" },
                     },
-                    required: ["firstName", "lastName", "email", "role", "phone"],
+                    required: [
+                      "firstName",
+                      "lastName",
+                      "email",
+                      "role",
+                      "phone",
+                    ],
                   },
                 },
               },
@@ -170,41 +177,41 @@ const options = {
           },
         },
       },
-      
+
       "/api/users/logout": {
-        "post": {
-          "summary": "Logout from the application",
-          "tags": ["Authentication"],
-          "security": [{ "bearerAuth": [] }],
-          "responses": {
+        post: {
+          summary: "Logout from the application",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          responses: {
             "200": {
-              "description": "Logout successful",
-              "content": {
+              description: "Logout successful",
+              content: {
                 "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "message": { "type": "string" }
-                    }
-                  }
-                }
-              }
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
             },
             "400": {
-              "description": "Bad request"
+              description: "Bad request",
             },
             "401": {
-              "description": "Unauthorized"
+              description: "Unauthorized",
             },
             "403": {
-              "description": "Forbidden"
+              description: "Forbidden",
             },
             "404": {
-              "description": "User not found"
-            }
-          }
-        }
-  },
+              description: "User not found",
+            },
+          },
+        },
+      },
 
       "/api/users/{id}": {
         patch: {
@@ -290,7 +297,11 @@ const options = {
                       example: "Test@123",
                     },
                   },
-                  required: ["oldPassword", "newPassword", "confirmNewPassword"],
+                  required: [
+                    "oldPassword",
+                    "newPassword",
+                    "confirmNewPassword",
+                  ],
                 },
               },
             },
@@ -362,7 +373,8 @@ const options = {
               description: "User not found",
             },
             500: {
-              description: "An error occurred while updating the account status",
+              description:
+                "An error occurred while updating the account status",
             },
           },
         },

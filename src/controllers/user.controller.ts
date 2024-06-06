@@ -5,11 +5,11 @@ import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
 // import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
 import { sendEmail } from "../utils/email.utils";
+import { sendOTP } from "../middlewares/otp.middleware";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
-import { addToBlacklist } from '../utils/tokenBlacklist';
+import { addToBlacklist } from "../utils/tokenBlacklist";
 export const userSignup = async (req: Request, res: Response) => {
-
   try {
     const hashedpassword: any = await hashPassword(req.body.password);
 
@@ -33,7 +33,7 @@ export const userSignup = async (req: Request, res: Response) => {
     const text = `Please verify your email by clicking on the following link:${verificationLink}`;
     const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
     sendEmail(user.email, subject, text, html);
-   
+
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
 
@@ -83,7 +83,7 @@ export const userLogin = async (req: Request, res: Response) => {
         message: "Invalid email or password",
       });
     }
-  
+
     if (!user.isActive) {
       return res.status(403).json({
         status: "fail",
@@ -91,7 +91,6 @@ export const userLogin = async (req: Request, res: Response) => {
       });
     }
 
-    
     if (!user.verified) {
       const token = await generateToken(user, "1h");
       const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
@@ -100,7 +99,28 @@ export const userLogin = async (req: Request, res: Response) => {
       const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
       sendEmail(user.email, subject, text, html);
       return res.status(403).json({
-        message: "This user is not verified, Check your Email and verify email first",
+        message:
+          "This user is not verified, Check your Email and verify email first",
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        status: "fail",
+        message: "oops, This Account is deactivated",
+      });
+    }
+
+    if (!user.verified) {
+      const token = await generateToken(user, "1h");
+      const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+      const subject = "Email Verification";
+      const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+      const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+      sendEmail(user.email, subject, text, html);
+      return res.status(403).json({
+        message:
+          "This user is not verified, Check your Email and verify email first",
       });
     }
 
@@ -116,14 +136,28 @@ export const userLogin = async (req: Request, res: Response) => {
     const userWithoutPassword = { ...user.dataValues };
     delete userWithoutPassword.password;
 
-    return res.status(200).json({
-      status: "success",
-      message: "Login successful",
-      token: token,
-      data: {
-        user: userWithoutPassword,
-      },
-    });
+    if (user.role === "seller") {
+      req.body.email = email;
+      return sendOTP(req, res, () => {
+        res.status(200).json({
+          status: "success",
+          message: "Login successful",
+          token: token,
+          data: {
+            user: userWithoutPassword,
+          },
+        });
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Login successful",
+        token: token,
+        data: {
+          user: userWithoutPassword,
+        },
+      });
+    }
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).json({
@@ -133,16 +167,15 @@ export const userLogin = async (req: Request, res: Response) => {
   }
 };
 
-
 //Logout Functionality controller
 
 export const userLogout = (req: Request, res: Response) => {
   try {
-    const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.split(' ')[1];
+    const authHeader = req.header("Authorization");
+    const token = authHeader && authHeader.split(" ")[1];
 
     if (token) {
-      addToBlacklist(token); 
+      addToBlacklist(token);
     }
 
     return res.status(200).json({
@@ -157,8 +190,6 @@ export const userLogout = (req: Request, res: Response) => {
     });
   }
 };
-
-
 
 export const changeAccountStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
