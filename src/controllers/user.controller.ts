@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
+import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
+// import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
-import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendEmail } from "../utils/email.utils";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
@@ -243,6 +244,72 @@ export const updatePassword = async (req: Request, res: Response) => {
     return res.status(500).json({
       status: "error",
       message: "An error occurred while updating the password",
+    });
+  }
+};
+
+export const requestPasswordReset = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await UserService.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    const resetToken = await generateToken(user);
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    const subject = "Password Reset Request";
+    const text = `Please reset your password by clicking on the following link: ${resetLink}`;
+    const html = `<p>Please reset your password by clicking on the following link:</p><a href="${resetLink}">Reset Password</a>`;
+
+    await sendEmail(email, subject, text, html);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset email sent",
+      data: { token: resetToken }
+    });
+  } catch (error) {
+    console.error("Error requesting password reset:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while requesting password reset",
+    });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const newPassword = req.body.newPassword;
+    const token = req.query.token as string;
+    const decoded: any = decodeToken(token);
+    const user = await UserService.getUserByid(decoded.id);
+   
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Invalid or expired token",
+      });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while resetting password",
     });
   }
 };
