@@ -10,10 +10,18 @@ checks:
     enabled: false
   similar_code:
     enabled: false  
+  function_length:    
+    enabled: false
 
 exclude_paths:
   - "node_modules/**"
   - "coverage/**"
+
+rules:
+        no-unused-vars:
+          enabled: false  
+        max-len:
+          enabled: false
 
 engines:
   eslint:

@@ -5,7 +5,7 @@ import { CreateCollectionService } from '../src/services/collection.services';
 import { ProductService } from '../src/services/Product.services';
 import cloudinary from 'cloudinary';
 import { UserService } from '../src/services/user.services';
-import { createCollection } from '../src/controllers/product.controller';
+import { createCollection } from '../src/controllers/collection.controller';
 // import { upload } from '../src/middlewares/multer.middleware';
 import Collection from '../src/database/models/collection.model';
 import Product from '../src/database/models/Product.model';

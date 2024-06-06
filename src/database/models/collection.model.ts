@@ -63,7 +63,7 @@ Collection.init(
   {
     timestamps: true,
     sequelize: sequelize,
-    modelName: "Seller collection",
+    modelName: "Collection",
     tableName: "Collections"
   }
 );

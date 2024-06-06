@@ -17,10 +17,10 @@ module.exports = {
         allowNull:false,
       },
       seller_id:{
-        type:Sequelize.STRING,
+        type:Sequelize.UUID,
         allowNull:false,
         references: {
-          model: 'User',
+          model: 'users',
           key: 'id',
         },
         onUpdate: 'CASCADE',

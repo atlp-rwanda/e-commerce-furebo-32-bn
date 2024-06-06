@@ -1,5 +1,3 @@
-const { DataTypes } = require('sequelize');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -10,9 +8,9 @@ module.exports = {
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4
       },
-      productName: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      productName:{
+        type:Sequelize.STRING,
+        allowNull:false,
       },
       description:{
         type:Sequelize.STRING,
@@ -33,26 +31,26 @@ module.exports = {
       collection_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: {
-          model: 'Collections',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        references:{
+          model:"Collections",
+          key:"id",
+        }
       },
-      seller_id:{
-        type:Sequelize.STRING,
-        allowNull:false,
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
-      },
-      category:{
-        type:DataTypes.STRING,
-        allowNull:true
+      seller_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references:{
+          model:"users",
+          key:"id",
+        }
       },
       images: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
+      },
+      category: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       createdAt: {
         type: Sequelize.DATE,
