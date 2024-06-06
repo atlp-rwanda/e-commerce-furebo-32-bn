@@ -21,12 +21,16 @@ const options = {
         url: `http://localhost:${port}`,
         description: "Local Development Server for Swagger",
       },
+      {
+        url: "https://e-commerce-furebo-32-bn-1.onrender.com",
+        description: "Production server (HTTPS)",
+      },
     ],
     tags: [
       {
         name: "Authentication",
         description:
-          "Endpoints for user registration, login, and user management.",
+          "Endpoints for user registration, login, logout, and user management.",
       },
     ],
     components: {
@@ -43,8 +47,6 @@ const options = {
         bearerAuth: [],
       },
     ],
-    basePath: "/api",
-    schemes: ["http"],
     paths: {
       "/api/users/signup": {
         post: {
@@ -96,7 +98,7 @@ const options = {
           },
           responses: {
             201: {
-              description: "OK",
+              description: "User created successfully",
               content: {
                 "application/json": {
                   schema: {
@@ -105,7 +107,6 @@ const options = {
                       firstName: { type: "string" },
                       lastName: { type: "string" },
                       email: { type: "string" },
-                      password: { type: "string" },
                       role: { type: "string" },
                       phone: { type: "string" },
                     },
@@ -113,7 +114,6 @@ const options = {
                       "firstName",
                       "lastName",
                       "email",
-                      "password",
                       "role",
                       "phone",
                     ],
@@ -127,6 +127,92 @@ const options = {
           },
         },
       },
+
+      // User Login Route Documentation
+      "/api/users/login": {
+        post: {
+          summary: "Login with Email and Password",
+          tags: ["Authentication"],
+          security: [],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    email: {
+                      type: "string",
+                      example: "mu@gmail.com",
+                    },
+                    password: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
+                  },
+                  required: ["email", "password"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "User logged in successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      token: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+          },
+        },
+      },
+
+      "/api/users/logout": {
+        post: {
+          summary: "Logout from the application",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            "200": {
+              description: "Logout successful",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad request",
+            },
+            "401": {
+              description: "Unauthorized",
+            },
+            "403": {
+              description: "Forbidden",
+            },
+            "404": {
+              description: "User not found",
+            },
+          },
+        },
+      },
+
       "/api/users/{id}": {
         patch: {
           summary: "Change user role",
@@ -143,61 +229,152 @@ const options = {
               description: "User ID",
             },
           ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    role: {
+                      type: "string",
+                      example: "admin",
+                    },
+                  },
+                  required: ["role"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Role updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            404: {
+              description: "User not found",
+            },
+          },
+        },
+      },
 
-          //User Login Route Documentation
-          "/api/users/login": {
-            post: {
-              summary: "Login with Email and Password",
-              tags: ["Authentication"],
-              security: [],
-              requestBody: {
-                content: {
-                  "application/json": {
-                    schema: {
-                      type: "object",
-                      properties: {
-                        email: {
-                          type: "string",
-                          example: "test@gmail.com",
-                        },
-                        password: {
-                          type: "string",
-                          example: "Test@123",
-                        },
-                      },
-                      required: ["email", "password"],
+      "/api/users/{id}/updatepassword": {
+        patch: {
+          summary: "User updating his/her password",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    oldPassword: {
+                      type: "string",
+                      example: "Walmond@123",
+                    },
+                    newPassword: {
+                      type: "string",
+                      example: "Test@123",
+                    },
+                    confirmNewPassword: {
+                      type: "string",
+                      example: "Test@123",
                     },
                   },
+                  required: [
+                    "oldPassword",
+                    "newPassword",
+                    "confirmNewPassword",
+                  ],
                 },
               },
-              responses: {
-                201: {
-                  description: "Role updated successfully",
-                  content: {
-                    "application/json": {
-                      schema: {
-                        type: "object",
-                        properties: {
-                          id: { type: "string" },
-                          role: { type: "string" },
-                          email: { type: "string" },
-                          password: { type: "string" },
-                        },
-                        required: ["email", "password"],
-                      },
+            },
+          },
+          responses: {
+            200: {
+              description: "Password updated successfully",
+            },
+            400: {
+              description: "New password and confirm password do not match",
+            },
+            401: {
+              description: "Incorrect old password",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description: "An error occurred while updating the password",
+            },
+          },
+        },
+      },
+
+      // Change Account Status Endpoint
+      "/api/users/change-account-status/{id}": {
+        patch: {
+          summary: "Change user account status",
+          tags: ["Authentication"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "User ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    activationReason: {
+                      type: "string",
+                      example: "Violation",
                     },
                   },
-                },
-                400: {
-                  description: "Bad Request",
-                },
-                403: {
-                  description: "Forbidden",
-                },
-                404: {
-                  description: "User not found",
+                  required: ["status"],
                 },
               },
+            },
+          },
+          responses: {
+            200: {
+              description: "Account status updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description:
+                "An error occurred while updating the account status",
             },
           },
         },
