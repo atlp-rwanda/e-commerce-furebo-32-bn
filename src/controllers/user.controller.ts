@@ -1,18 +1,13 @@
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
-import { hashPassword } from "../utils/password.utils";
+import { hashPassword, comparePassword } from "../utils/password.utils";
 import { generateToken } from "../utils/tokenGenerator.utils";
-import { sendVerificationEmail } from "../utils/email.utils";
-
-import { comparePassword } from "../utils/password.utils";
+import { sendEmail } from "../utils/email.utils";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
-
+import { addToBlacklist } from '../utils/tokenBlacklist';
 export const userSignup = async (req: Request, res: Response) => {
-  const subject = "Email Verification";
-  const text = `Please verify your email by clicking on the following link:`;
-  const html = `<p>Please verify your email by clicking on the following link:</p><a href="">Verify Email</a>`;
 
   try {
     const hashedpassword: any = await hashPassword(req.body.password);
@@ -32,8 +27,15 @@ export const userSignup = async (req: Request, res: Response) => {
     const createdUser = await UserService.register(user);
     //@ts-ignore
     const profile = await UserService.createProfileServices(createdUser!.dataValues!.id,user)
-    const token = await generateToken(createdUser);
-    sendVerificationEmail(user.email, subject, text, html);
+  
+    const token = await generateToken(createdUser, "1h");
+
+    const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+    const subject = "Email Verification";
+    const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+    const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+    sendEmail(user.email, subject, text, html);
+   
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
 
@@ -115,6 +117,33 @@ export const userLogin = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+//Logout Functionality controller
+
+export const userLogout = (req: Request, res: Response) => {
+  try {
+    const authHeader = req.header('Authorization');
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token) {
+      addToBlacklist(token); 
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Logout successful",
+    });
+  } catch (error) {
+    console.error("Error during logout:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred during logout",
+    });
+  }
+};
+
+
 
 export const changeAccountStatus = async (req: Request, res: Response) => {
   const { id } = req.params;

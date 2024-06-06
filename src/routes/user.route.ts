@@ -1,14 +1,15 @@
-
-
-import express from "express";
+import express from 'express';
+import { protectRoute, restrictTo } from '../middlewares/auth.middleware';
+import { verifyEmail } from '../controllers/verifyUser.controller';
+import { verifyTokenMiddleware } from '../middlewares/verifyToken.middleware';
 import {
   updateRole,
   userSignup,
   userLogin,
+  userLogout,
   changeAccountStatus,
   updatePassword
 } from "../controllers/user.controller";
-import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
 import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 import { getProfileController, updateProfileController } from "../controllers/profile.controller";
@@ -27,6 +28,7 @@ userRoutes.patch(
 );
 
 userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
 userRoutes.get(
   '/profile',
@@ -40,4 +42,5 @@ userRoutes.patch(
   isImageUploaded,
   updateProfileController
 );
+userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;

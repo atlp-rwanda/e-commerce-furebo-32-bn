@@ -1,5 +1,5 @@
 import { UserAttributes } from '../types/user.types';
-import { sendVerificationEmail } from './email.utils';
+import { sendEmail } from './email.utils';
 
 export const sendReasonEmail = (user: UserAttributes, subject: string, activationReason: string, isActive: boolean) => {
   const emailBody = `
@@ -25,5 +25,5 @@ export const sendReasonEmail = (user: UserAttributes, subject: string, activatio
     </div>
   `;
 
-  sendVerificationEmail(user.email, subject, "text", emailBody);
+  sendEmail(user.email, subject, "text", emailBody);
 };
