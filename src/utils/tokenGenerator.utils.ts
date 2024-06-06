@@ -21,11 +21,6 @@ export { generateToken };
 
 
 
-export const generateResetToken = (user: UserAttributes) => {
-  return jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
-    expiresIn: "1h", // Token expires in 1 hour
-  });
-};
 
 export const decodeToken = (token: string): any => {
   try {

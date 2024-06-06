@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
-import { generateToken,generateResetToken,decodeToken } from "../utils/tokenGenerator.utils";
+import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
 // import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
 import { sendEmail } from "../utils/email.utils";
@@ -240,7 +240,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
       });
     }
 
-    const resetToken = await generateResetToken(user);
+    const resetToken = await generateToken(user);
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     const subject = "Password Reset Request";
@@ -269,8 +269,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const token = req.query.token as string;
     const decoded: any = decodeToken(token);
     const user = await UserService.getUserByid(decoded.id);
-    console.log(decoded)
-    console.log(user)
+   
     if (!user) {
       return res.status(404).json({
         status: "fail",
