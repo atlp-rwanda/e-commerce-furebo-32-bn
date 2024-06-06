@@ -402,6 +402,47 @@ describe("User", () => {
       );
     });
   });
+  
+  describe("Password Reset", () => {
+    let resetToken: string;
+  
+    test("Request password reset with valid email", async () => {
+      const res = await request(app)
+        .post("/api/users/requestpasswordreset")
+        .send({ email: "mugisha@gmail.com" });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Password reset email sent");
+      resetToken = res.body.data.token;  // Assuming the token is returned in the response for testing
+    });
+  
+    test("Request password reset with non-existing email", async () => {
+      const res = await request(app)
+        .post("/api/users/requestpasswordreset")
+        .send({ email: "nonexistent@gmail.com" });
+      expect(res.statusCode).toBe(404);
+      expect(res.body.message).toBe("User not found");
+    });
+  
+    test("Reset password with valid token", async () => {
+      const newPassword = "NewPassword@123";
+      const res = await request(app)
+      .post(`/api/users/resetpassword?token=${resetToken}`)
+        .send({ newPassword });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.message).toBe("Password reset successfully");
+    });
+  
+    test("Reset password with invalid token", async () => {
+      const newPassword = "NewPassword@123";
+      const res = await request(app)
+        .post("/api/users/resetpassword")
+        .send({ token: "invalidtoken", newPassword });
+      expect(res.statusCode).toBe(500);
+      expect(res.body.message).toBe("An error occurred while resetting password");
+    });
+  });
+
+  });
 
   describe("Logout Functionality", () => {
     test("successful logout", async () => {
@@ -475,4 +516,3 @@ describe("User", () => {
       expect(res.statusCode).toBe(200);
     });
   });
-});

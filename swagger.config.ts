@@ -378,8 +378,84 @@ const options = {
             },
           },
         },
+      },'/api/users/requestpasswordreset': {
+        post: {
+          summary: 'Request Password Reset',
+          tags: ['Password Reset'],
+          security: [],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    email: {
+                      type: 'string',
+                      example: 'user@example.com'
+                    }
+                  },
+                  required: ['email']
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Password reset email sent',
+             
+            },
+            404: {
+              description: 'User not found',
+              
+            }
+          }
+        }
       },
-    },
+      '/api/users/resetpassword': {
+        post: {
+          summary: 'Reset Password',
+          tags: ['Password Reset'],
+          security: [],
+          parameters: [
+            {
+              name: 'token',
+              in: 'query',
+              required: true,
+              schema: {
+                type: 'string'
+              },
+              description: 'Password reset token'
+            }
+          ],
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    newPassword: {
+                      type: 'string',
+                      example: 'NewPassword@123'
+                    }
+                  },
+                  required: ['newPassword']
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: 'Password reset successfully',
+              
+            },
+            404: {
+              description: 'Invalid or expired token',
+              
+            }
+          }
+        }
+      }
+    }
   },
   apis: ["./src/routes/*.ts"],
 };
