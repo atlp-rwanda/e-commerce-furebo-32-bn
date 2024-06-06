@@ -9,9 +9,14 @@ import {
   userLogout,
   changeAccountStatus,
   updatePassword,
+<<<<<<< HEAD
   updateUser
+=======
+  requestPasswordReset,
+  resetPassword
+>>>>>>> main
 } from "../controllers/user.controller";
-import { validateUser, validateUserLogin,validateUserUpdatePassword } from "../validations/user.validate";
+import { validateUser, validateUserLogin,validateUserUpdatePassword} from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
 import { getProfileController, updateProfileController } from "../controllers/profile.controller";
 import upload from "../utils/multer";
@@ -31,6 +36,7 @@ userRoutes.patch(
 userRoutes.post('/login', validateUserLogin, userLogin);
 userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
+<<<<<<< HEAD
 userRoutes.get(
   '/profile',
   protectRoute,
@@ -43,6 +49,10 @@ userRoutes.patch(
   isImageUploaded,
   updateProfileController
 );
+=======
+userRoutes.post("/requestpasswordreset", requestPasswordReset);
+userRoutes.post("/resetpassword", resetPassword);
+>>>>>>> main
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 userRoutes.post('/updateUser', protectRoute, updateUser)
 export default userRoutes;

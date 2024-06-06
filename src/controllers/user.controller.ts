@@ -1,14 +1,15 @@
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
+import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
+// import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
-import { generateToken } from "../utils/tokenGenerator.utils";
 import { sendEmail } from "../utils/email.utils";
+import { sendOTP } from "../middlewares/otp.middleware";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
-import { addToBlacklist } from '../utils/tokenBlacklist';
+import { addToBlacklist } from "../utils/tokenBlacklist";
 export const userSignup = async (req: Request, res: Response) => {
-
   try {
     const hashedpassword: any = await hashPassword(req.body.password);
 
@@ -35,7 +36,7 @@ export const userSignup = async (req: Request, res: Response) => {
     const text = `Please verify your email by clicking on the following link:${verificationLink}`;
     const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
     sendEmail(user.email, subject, text, html);
-   
+
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
 
@@ -89,6 +90,46 @@ export const userLogin = async (req: Request, res: Response) => {
       });
     }
 
+    if (!user.isActive) {
+      return res.status(403).json({
+        status: "fail",
+        message: "oops, This Account is deactivated",
+      });
+    }
+
+    if (!user.verified) {
+      const token = await generateToken(user, "1h");
+      const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+      const subject = "Email Verification";
+      const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+      const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+      sendEmail(user.email, subject, text, html);
+      return res.status(403).json({
+        message:
+          "This user is not verified, Check your Email and verify email first",
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        status: "fail",
+        message: "oops, This Account is deactivated",
+      });
+    }
+
+    if (!user.verified) {
+      const token = await generateToken(user, "1h");
+      const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+      const subject = "Email Verification";
+      const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+      const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+      sendEmail(user.email, subject, text, html);
+      return res.status(403).json({
+        message:
+          "This user is not verified, Check your Email and verify email first",
+      });
+    }
+
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -101,14 +142,28 @@ export const userLogin = async (req: Request, res: Response) => {
     const userWithoutPassword = { ...user.dataValues };
     delete userWithoutPassword.password;
 
-    return res.status(200).json({
-      status: "success",
-      message: "Login successful",
-      token: token,
-      data: {
-        user: userWithoutPassword,
-      },
-    });
+    if (user.role === "seller") {
+      req.body.email = email;
+      return sendOTP(req, res, () => {
+        res.status(200).json({
+          status: "success",
+          message: "Login successful",
+          token: token,
+          data: {
+            user: userWithoutPassword,
+          },
+        });
+      });
+    } else {
+      return res.status(200).json({
+        status: "success",
+        message: "Login successful",
+        token: token,
+        data: {
+          user: userWithoutPassword,
+        },
+      });
+    }
   } catch (error) {
     console.error("Error during login:", error);
     return res.status(500).json({
@@ -118,16 +173,15 @@ export const userLogin = async (req: Request, res: Response) => {
   }
 };
 
-
 //Logout Functionality controller
 
 export const userLogout = (req: Request, res: Response) => {
   try {
-    const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.split(' ')[1];
+    const authHeader = req.header("Authorization");
+    const token = authHeader && authHeader.split(" ")[1];
 
     if (token) {
-      addToBlacklist(token); 
+      addToBlacklist(token);
     }
 
     return res.status(200).json({
@@ -142,8 +196,6 @@ export const userLogout = (req: Request, res: Response) => {
     });
   }
 };
-
-
 
 export const changeAccountStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -233,6 +285,7 @@ export const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
+<<<<<<< HEAD
 export const updateUser = async (req: Request, res: Response): Promise<Response> => {
   try {
     const updates = req.body;
@@ -249,3 +302,70 @@ export const updateUser = async (req: Request, res: Response): Promise<Response>
     return res.status(500).json({ error: error.message });
   }
 };
+=======
+export const requestPasswordReset = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await UserService.getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+
+    const resetToken = await generateToken(user);
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    const subject = "Password Reset Request";
+    const text = `Please reset your password by clicking on the following link: ${resetLink}`;
+    const html = `<p>Please reset your password by clicking on the following link:</p><a href="${resetLink}">Reset Password</a>`;
+
+    await sendEmail(email, subject, text, html);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset email sent",
+      data: { token: resetToken }
+    });
+  } catch (error) {
+    console.error("Error requesting password reset:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while requesting password reset",
+    });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const newPassword = req.body.newPassword;
+    const token = req.query.token as string;
+    const decoded: any = decodeToken(token);
+    const user = await UserService.getUserByid(decoded.id);
+   
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Invalid or expired token",
+      });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while resetting password",
+    });
+  }
+};
+>>>>>>> main
