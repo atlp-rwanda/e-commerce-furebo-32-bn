@@ -285,7 +285,6 @@ export const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
-<<<<<<< HEAD
 export const updateUser = async (req: Request, res: Response): Promise<Response> => {
   try {
     const updates = req.body;
@@ -302,7 +301,6 @@ export const updateUser = async (req: Request, res: Response): Promise<Response>
     return res.status(500).json({ error: error.message });
   }
 };
-=======
 export const requestPasswordReset = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -368,4 +366,3 @@ export const resetPassword = async (req: Request, res: Response) => {
     });
   }
 };
->>>>>>> main
