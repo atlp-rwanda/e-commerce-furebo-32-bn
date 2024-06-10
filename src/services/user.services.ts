@@ -2,7 +2,7 @@
 /* eslint-disable quotes */
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable require-jsdoc */
-import Profile, { ProfileAttributes } from '../database/models/Profile';
+import Profile, { ProfileAttributes } from '../database/models/Profile.,model';
 import User from '../database/models/user.model';
 import { UserSignupAttributes, UserAttributes } from '../types/user.types';
 

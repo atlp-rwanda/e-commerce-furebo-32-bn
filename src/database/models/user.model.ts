@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/sequelize.config";
 import { UserAttributes, UserSignupAttributes } from '../../types/user.types'
-import Profile from "./Profile";
+import Profile from "./Profile.,model";
 const currentDate = new Date();
 const userPasswordValidityPeriod = new Date(currentDate);
 userPasswordValidityPeriod.setMonth(currentDate.getMonth() + 3);

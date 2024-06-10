@@ -288,8 +288,8 @@ export const updatePassword = async (req: Request, res: Response) => {
 export const updateUser = async (req: Request, res: Response): Promise<Response> => {
   try {
     const updates = req.body;
-    const { userId } = req.user.id;
     const { userId: _, email, password, ...validUpdates } = updates;
+    const  userId  = parseInt (req.body.userId);
 
     const user = await UserService.updateUserSetting(userId, validUpdates);
     if (user) {
