@@ -18,7 +18,7 @@ import { userRole } from "../utils/variable.utils";
 const userRoutes = express.Router();
 
 userRoutes.post("/signup", validateUser, userSignup);
-userRoutes.patch("/:id", protectRoute, restrictTo(userRole.admin), updateRole);
+userRoutes.patch("/:id/role", protectRoute, restrictTo(userRole.admin), updateRole);
 userRoutes.patch(
   "/change-account-status/:id",
   protectRoute,

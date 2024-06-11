@@ -62,11 +62,13 @@ export const updateRole = async (req: Request, res: Response) => {
   }
   user.role = role;
   user?.save();
+  const userWithoutPassword = { ...user.dataValues };
+  delete userWithoutPassword.password;
   res.status(201).json({
     status: "success",
     message: "User role updated successfully",
     data: {
-      user: user,
+      user: userWithoutPassword,
     },
   });
 };
