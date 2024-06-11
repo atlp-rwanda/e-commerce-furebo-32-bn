@@ -26,10 +26,10 @@ userRoutes.patch(
   changeAccountStatus
 );
 
-userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.post('/login', validateUserLogin,userLogin);
 userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
-userRoutes.post("/requestpasswordreset", requestPasswordReset);
+userRoutes.post("/requestpasswordreset",requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;

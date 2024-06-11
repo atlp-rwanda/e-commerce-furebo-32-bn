@@ -382,7 +382,7 @@ const options = {
         post: {
           summary: 'Request Password Reset',
           tags: ['Password Reset'],
-          security: [],
+          security: [{ bearerAuth: [] }],
           requestBody: {
             content: {
               'application/json': {

@@ -27,6 +27,7 @@ export interface UserAttributes {
     | "email"
     | "role"
     | "phone"
+    | "updatedAt"
   > {}
 
 export interface UserOutputs extends Required<UserAttributes> {}
