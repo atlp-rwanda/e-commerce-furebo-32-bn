@@ -410,6 +410,72 @@ const options = {
           },
         },
       },
+      "/api/users/update-profile": {
+        patch: {
+          summary: "Update user profile",
+          tags: ["User Profile"],
+          description: "Update the user's profile information",
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: {
+                      type: "string",
+                      example: "John Doe",
+                    },
+                    gender: {
+                      type: "string",
+                      example: "male",
+                    },
+                    birthdate: {
+                      type: "string",
+                      example: "2000-01-01",
+                    },
+                    preferredLanguage: {
+                      type: "string",
+                      example: "kinyarwanda",
+                    },
+                    preferredCurrency: {
+                      type: "string",
+                      example: "rwf",
+                    },
+                    whereYouLive: {
+                      type: "string",
+                      example: "kgl",
+                    },
+                    billingAddress: {
+                      type: "string",
+                      example: "kabeza",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "User profile updated successfully",
+            },
+            "400": {
+              description: "Invalid input",
+            },
+            "404": {
+              description: "User profile not found",
+            },
+            "500": {
+              description: "An error occurred while updating the profile",
+            },
+          },
+        },
+      },
       "/api/users/resetpassword": {
         post: {
           summary: "Reset Password",

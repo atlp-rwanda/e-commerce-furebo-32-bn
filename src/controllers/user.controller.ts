@@ -1,7 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable quotes */
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
-import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
+import { generateToken, decodeToken } from "../utils/tokenGenerator.utils";
 // import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
 import { sendEmail } from "../utils/email.utils";
@@ -10,7 +12,8 @@ import { sendOTP } from "../middlewares/otp.middleware";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
 import { addToBlacklist } from "../utils/tokenBlacklist";
-import { passwordEventEmitter } from '../events/passwordEvents.event';
+import { passwordEventEmitter } from "../events/passwordEvents.event";
+import UserProfile from "../database/models/UserProfile";
 
 export const userSignup = async (req: Request, res: Response) => {
   try {
@@ -32,6 +35,15 @@ export const userSignup = async (req: Request, res: Response) => {
     const createdUser = await UserService.register(user);
     const token = await generateToken(createdUser, "1h");
 
+    let userProfile;
+    if (createdUser) {
+      userProfile = await UserProfile.create({
+        userId: createdUser.id,
+        name: `${req.body.firstName} ${req.body.lastName}`,
+      });
+    }
+
+
     const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
     const subject = "Email Verification";
     const text = `Please verify your email by clicking on the following link:${verificationLink}`;
@@ -39,7 +51,7 @@ export const userSignup = async (req: Request, res: Response) => {
     sendEmail(user.email, subject, text, html);
 
     //Emitting the password event when password is updated
-    passwordEventEmitter.emit('passwordUpdated', user.id);
+    passwordEventEmitter.emit("passwordUpdated", user.id);
 
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
@@ -51,9 +63,10 @@ export const userSignup = async (req: Request, res: Response) => {
       data: {
         user: userWithoutPassword,
       },
+      userProfile,
     });
-  } catch (error) {
-    console.log(error, "Error in creating account");
+  } catch (error: any) {
+    console.log(error.message, "Error in creating account");
   }
 };
 
@@ -100,18 +113,18 @@ export const userLogin = async (req: Request, res: Response) => {
       });
     }
 
-    if (!user.verified) {
-      const token = await generateToken(user, "1h");
-      const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
-      const subject = "Email Verification";
-      const text = `Please verify your email by clicking on the following link:${verificationLink}`;
-      const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
-      sendEmail(user.email, subject, text, html);
-      return res.status(403).json({
-        message:
-          "This user is not verified, Check your Email and verify email first",
-      });
-    }
+    // if (!user.verified) {
+    //   const token = await generateToken(user, "1h");
+    //   const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+    //   const subject = "Email Verification";
+    //   const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+    //   const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+    //   sendEmail(user.email, subject, text, html);
+    //   return res.status(403).json({
+    //     message:
+    //       "This user is not verified, Check your Email and verify email first",
+    //   });
+    // }
 
     if (!user.isActive) {
       return res.status(403).json({
@@ -120,18 +133,18 @@ export const userLogin = async (req: Request, res: Response) => {
       });
     }
 
-    if (!user.verified) {
-      const token = await generateToken(user, "1h");
-      const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
-      const subject = "Email Verification";
-      const text = `Please verify your email by clicking on the following link:${verificationLink}`;
-      const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
-      sendEmail(user.email, subject, text, html);
-      return res.status(403).json({
-        message:
-          "This user is not verified, Check your Email and verify email first",
-      });
-    }
+    // if (!user.verified) {
+    //   const token = await generateToken(user, "1h");
+    //   const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
+    //   const subject = "Email Verification";
+    //   const text = `Please verify your email by clicking on the following link:${verificationLink}`;
+    //   const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
+    //   sendEmail(user.email, subject, text, html);
+    //   return res.status(403).json({
+    //     message:
+    //       "This user is not verified, Check your Email and verify email first",
+    //   });
+    // }
 
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
@@ -164,14 +177,14 @@ export const userLogin = async (req: Request, res: Response) => {
         token: token,
         data: {
           user: userWithoutPassword,
-        },
+        }
       });
     }
-  } catch (error) {
-    console.error("Error during login:", error);
+  } catch (error: any) {
+    console.error("Error during login:", error.message);
     return res.status(500).json({
       status: "error",
-      message: "An error occurred during login",
+      message: error.message,
     });
   }
 };
@@ -237,7 +250,6 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
   });
 };
 
-
 export const updatePassword = async (req: Request, res: Response) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
@@ -273,8 +285,8 @@ export const updatePassword = async (req: Request, res: Response) => {
     user.password = hashedPassword;
     await user.save();
     //Emitting the password event when password is updated
-    passwordEventEmitter.emit('passwordUpdated', user.id);
-  
+    passwordEventEmitter.emit("passwordUpdated", user.id);
+
     return res.status(200).json({
       status: "success",
       message: "Password updated successfully",
@@ -337,7 +349,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     return res.status(200).json({
       status: "success",
       message: "Password reset email sent",
-      data: { token: resetToken }
+      data: { token: resetToken },
     });
   } catch (error) {
     console.error("Error requesting password reset:", error);
@@ -354,7 +366,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const token = req.query.token as string;
     const decoded: any = decodeToken(token);
     const user = await UserService.getUserByid(decoded.id);
-   
+
     if (!user) {
       return res.status(404).json({
         status: "fail",
