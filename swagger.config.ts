@@ -213,7 +213,7 @@ const options = {
         },
       },
 
-      "/api/users/{id}": {
+      "/api/users/{id}/role": {
         patch: {
           summary: "Change user role",
           tags: ["Authentication"],
