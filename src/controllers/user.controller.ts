@@ -9,6 +9,8 @@ import { sendOTP } from "../middlewares/otp.middleware";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
 import { addToBlacklist } from "../utils/tokenBlacklist";
+import { passwordEventEmitter } from '../events/passwordEvents.event';
+
 export const userSignup = async (req: Request, res: Response) => {
   try {
     const hashedpassword: any = await hashPassword(req.body.password);
@@ -20,6 +22,7 @@ export const userSignup = async (req: Request, res: Response) => {
       password: hashedpassword,
       role: req.body.role,
       phone: req.body.phone,
+      updatedAt: new Date(),
     };
     const email = req.body.email;
     if (email == undefined) {
@@ -33,6 +36,9 @@ export const userSignup = async (req: Request, res: Response) => {
     const text = `Please verify your email by clicking on the following link:${verificationLink}`;
     const html = `<p>Please verify your email by clicking on the following link:</p><a href="${verificationLink}">Verify Email</a>`;
     sendEmail(user.email, subject, text, html);
+
+    //Emitting the password event when password is updated
+    passwordEventEmitter.emit('passwordUpdated', user.id);
 
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
@@ -62,11 +68,13 @@ export const updateRole = async (req: Request, res: Response) => {
   }
   user.role = role;
   user?.save();
+  const userWithoutPassword = { ...user.dataValues };
+  delete userWithoutPassword.password;
   res.status(201).json({
     status: "success",
     message: "User role updated successfully",
     data: {
-      user: user,
+      user: userWithoutPassword,
     },
   });
 };
@@ -227,12 +235,13 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
     reason: activationReason,
   });
 };
+
+
 export const updatePassword = async (req: Request, res: Response) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
     const id = req.params.id;
 
-    // Fetch the user by ID
     const user = await UserService.getUserByid(id);
     if (!user) {
       return res.status(404).json({
@@ -241,7 +250,6 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate the old password
     const isPasswordValid = await comparePassword(oldPassword, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -250,7 +258,6 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if new password and confirm password match
     if (newPassword !== confirmNewPassword) {
       return res.status(400).json({
         status: "fail",
@@ -258,14 +265,12 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Hash the new password
     const hashedPassword = await hashPassword(newPassword);
-
-    // Update the user's password
     user.password = hashedPassword;
     await user.save();
-
-    // Respond with success
+    //Emitting the password event when password is updated
+    passwordEventEmitter.emit('passwordUpdated', user.id);
+  
     return res.status(200).json({
       status: "success",
       message: "Password updated successfully",

@@ -18,7 +18,7 @@ import { userRole } from "../utils/variable.utils";
 const userRoutes = express.Router();
 
 userRoutes.post("/signup", validateUser, userSignup);
-userRoutes.patch("/:id", protectRoute, restrictTo(userRole.admin), updateRole);
+userRoutes.patch("/:id/role", protectRoute, restrictTo(userRole.admin), updateRole);
 userRoutes.patch(
   "/change-account-status/:id",
   protectRoute,
@@ -26,10 +26,10 @@ userRoutes.patch(
   changeAccountStatus
 );
 
-userRoutes.post('/login', validateUserLogin, userLogin);
+userRoutes.post('/login', validateUserLogin,userLogin);
 userRoutes.post('/logout',protectRoute, userLogout);
 userRoutes.patch('/:id/updatepassword',protectRoute,validateUserUpdatePassword, updatePassword);
-userRoutes.post("/requestpasswordreset", requestPasswordReset);
+userRoutes.post("/requestpasswordreset",requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
 userRoutes.get('/verify-email',verifyTokenMiddleware, verifyEmail);
 export default userRoutes;

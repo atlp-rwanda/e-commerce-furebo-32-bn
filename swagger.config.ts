@@ -213,7 +213,7 @@ const options = {
         },
       },
 
-      "/api/users/{id}": {
+      "/api/users/{id}/role": {
         patch: {
           summary: "Change user role",
           tags: ["Authentication"],
@@ -382,7 +382,7 @@ const options = {
         post: {
           summary: 'Request Password Reset',
           tags: ['Password Reset'],
-          security: [],
+          security: [{ bearerAuth: [] }],
           requestBody: {
             content: {
               'application/json': {
@@ -652,50 +652,106 @@ const options = {
       }
     }
   },
-  "/api/cart/add": {
-    post: {
-      summary: "Add an item to the cart",
-      tags: ["Cart"],
-      security: [{ bearerAuth: [] }],
-      parameters: [
-        {
-          name: "productId",
-          in: "path",
-          required: true,
-          schema: {
-            type: "string",
+
+    "/api/cart/create": {
+      "post": {
+        "summary": "Create a new cart",
+        "tags": ["Cart"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the cart"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the cart"
+                  }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cart created successfully"
           },
-          description: "Product ID",
-        },
-        {
-          name: "quantity",
-          in: "query",
-          required: true,
-          schema: {
-            type: "number",
+          "400": {
+            "description": "Bad Request"
           },
-          description: "Quantity",
-        },
-      ],
-      responses: {
-        200: {
-          description: "Item added to cart",
-        },
-        400: {
-          description: "Bad Request",
-        },
-        403: {
-          description: "Unauthorized",
-        },
-        404: {
-          description: "Product not found",
-        },
-        500: {
-          description: "Internal server error",
-        },
-      },
-    },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    
   },
+  
+  
+  "/api/cart/add": {
+    "post": {
+      "summary": "Add an item to the cart",
+      "tags": ["Cart"],
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        {
+          "name": "productId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Product ID"
+        },
+        {
+          "name": "quantity",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "number"
+          },
+          "description": "Quantity"
+        },
+        {
+          "name": "cartId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Cart ID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Item added to cart"
+        },
+        "400": {
+          "description": "Bad Request"
+        },
+        "403": {
+          "description": "Unauthorized"
+        },
+        "404": {
+          "description": "Product not found"
+        },
+        "500": {
+          "description": "Internal server error"
+        }
+      }
+  
+  }
+},
   
   "/api/cart/view": {
     get: {
@@ -763,29 +819,42 @@ const options = {
       },
     },
   },
-  
   "/api/cart/clear": {
-    post: {
-      summary: "Clear the cart",
-      tags: ["Cart"],
-      security: [{ bearerAuth: [] }],
-      responses: {
-        200: {
-          description: "Cart cleared successfully",
+    "delete": {
+      "summary": "Delete the cart",
+      "tags": ["Cart"],
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        {
+          "name": "cartId",
+          "in": "query",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "Cart ID"
+        }
+      ],
+      "responses": {
+        "200": {
+          "description": "Cart cleared successfully"
         },
-        400: {
-          description: "Bad Request",
+        "400": {
+          "description": "Bad Request"
         },
-        403: {
-          description: "Unauthorized",
+        "403": {
+          "description": "Unauthorized"
         },
-        500: {
-          description: "Internal server error",
+        "404": {
+          "description": "Cart not found"
         },
-      },
-    },
-  },
-  
+        "500": {
+          "description": "Internal server error"
+        }
+      }
+    }
+  }
+
     }
   },
   apis: ["./src/routes/*.ts"],

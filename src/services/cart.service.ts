@@ -3,6 +3,19 @@ import Product from "../database/models/Product.model";
 import { createCartAttributes, updateCartAttributes } from "../types/cart.types";
 
 export class CartService {
+    static async createCart(cartData: createCartAttributes) {
+        try {
+            const newCart = await Cart.create({
+                userId: cartData.userId,
+                name: cartData.name,
+                description: cartData.description,
+            });
+            return newCart;
+        } catch (error: any) {
+            throw new Error("Failed to create cart: " + error.message);
+        }
+    }
+
     static async addItemToCart(cartItem: createCartAttributes) {
         try {
             // Check if the item already exists in the cart
@@ -12,62 +25,59 @@ export class CartService {
                     productId: cartItem.productId,
                 },
             });
-    
+
             if (existingItem) {
                 // If item exists, update the quantity
                 existingItem.quantity += cartItem.quantity;
                 await existingItem.save();
                 return existingItem;
             }
-    
+
             // If item doesn't exist, create a new cart item
             const newCartItem = await Cart.create({
                 userId: cartItem.userId,
                 productId: cartItem.productId,
                 quantity: cartItem.quantity,
             });
-    
+
             return newCartItem;
         } catch (error:any) {
             throw new Error("Failed to add item to cart: " + error.message);
         }
     }
-    
 
-  static async getCartByUserId(userId: string) {
-    return await Cart.findAll({
-      where: { userId },
-      include: [{ model: Product, attributes: ["productName", "price", "images"] }],
-    });
-  }
-
-  static async updateCartItem(cartItem: updateCartAttributes) {
-    const item = await Cart.findOne({
-      where: {
-        id: cartItem.id,
-        userId: cartItem.userId,
-      },
-    });
-
-    if (item) {
-      item.quantity = cartItem.quantity;
-      await item.save();
-      return item;
+    static async getCartByUserId(userId: string) {
+        return await Cart.findAll({
+            where: { userId },
+            include: [{ model: Product, attributes: ["productName", "price", "images"] }],
+        });
     }
 
-    throw new Error("Cart item not found");
-  }
+    static async updateCartItem(cartItem: updateCartAttributes) {
+        const item = await Cart.findOne({
+            where: {
+                id: cartItem.id,
+                userId: cartItem.userId,
+            },
+        });
 
-  static async clearCart(userId: string) {
-    return await Cart.destroy({ where: { userId } });
-  }
+        if (item) {
+            item.quantity = cartItem.quantity;
+            await item.save();
+            return item;
+        }
 
-  static async viewCart(userId: string) {
-    return await Cart.findAll({
-      where: { userId },
-      include: [{ model: Product, attributes: ["productName", "price", "images"] }],
-    });
-  }
+        throw new Error("Cart item not found");
+    }
+
+    static async clearCart(userId: string) {
+        return await Cart.destroy({ where: { userId } });
+    }
+
+    static async viewCart(userId: string) {
+        return await Cart.findAll({
+            where: { userId },
+            include: [{ model: Product, attributes: ["productName", "price", "images"] }],
+        });
+    }
 }
-
-

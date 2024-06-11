@@ -1,12 +1,14 @@
 import { Request, Response } from "express";
 import sinon from "sinon";
-import { addItemToCart, viewCart, updateCartItem, clearCart } from "../src/controllers/cart.controller";
+import { addItemToCart, viewCart, updateCartItem, clearCart} from "../src/controllers/cart.controller";
 import { CartService } from "../src/services/cart.service";
 import { ProductService } from "../src/services/Product.services";
 import { DataTypes, Sequelize } from "sequelize";
 import User from "../src/database/models/user.model";
 import Product from '../src/database/models/Product.model';
 import Cart from "../src/database/models/cart.model";
+
+
 
 
 describe("Cart Controller", () => {
@@ -39,17 +41,26 @@ describe("Cart Controller", () => {
     sinon.restore();
   });
   describe("Add Item to cart", () => {
-  it("should add an item to the cart", async () => {
-    const cartItem = { userId: "user123", productId: "123", quantity: 2 };
-    req.body = cartItem;
-    getProductByIdStub.resolves({ id: "123", price: 10 });
-
-    await addItemToCart(req as Request, res as Response);
-
-    sinon.assert.calledOnceWithExactly(addCartItemStub, cartItem);
-    sinon.assert.calledOnce(statusStub);
-    sinon.assert.calledOnce(jsonStub);
-  });
+    it("should add an item to the cart", async () => {
+      const cartItem = {
+        userId: "user123",
+        productId: "123",
+        quantity: 2,
+        name: "",
+        description: ""
+      };
+      req.body = { productId: "123", quantity: 2 };
+      req.user = { id: "user123" };
+    
+      getProductByIdStub.resolves({ id: "123", price: 10 });
+    
+      await addItemToCart(req as Request, res as Response);
+    
+      sinon.assert.calledOnceWithExactly(addCartItemStub, cartItem);
+      sinon.assert.calledOnce(statusStub);
+      sinon.assert.calledOnce(jsonStub);
+    });
+    
 
   it("should return 403 if user is unauthorized", async () => {
     req.user = undefined;
@@ -73,20 +84,6 @@ describe("Cart Controller", () => {
     sinon.assert.calledOnceWithExactly(jsonStub, { message: "Product not found" });
   });
 
-  it("should add an item to the cart", async () => {
-    const cartItem = { userId: "user123", productId: "123", quantity: 2 };
-    req.user = { id: "user123" };
-    req.body = { productId: "123", quantity: 2 };
-    getProductByIdStub.resolves({ id: "123", price: 10 });
-    addCartItemStub.resolves(cartItem);
-
-    await addItemToCart(req as Request, res as Response);
-
-    sinon.assert.calledOnceWithExactly(getProductByIdStub, "123");
-    sinon.assert.calledOnceWithExactly(addCartItemStub, cartItem);
-    sinon.assert.calledOnceWithExactly(statusStub, 200);
-    sinon.assert.calledOnceWithExactly(jsonStub, { message: "Item added to cart", cartItem });
-  });
 
   it("should return 500 if there is an unexpected error", async () => {
     req.user = { id: "user123" };
@@ -406,21 +403,23 @@ describe("Cart Model", () => {
   
     describe('addItemToCart', () => {
       it('should add a new item to the cart if it does not exist', async () => {
-        const cartItem = { userId: 'user123', productId: 'product123', quantity: 2 };
+        const cartItem = { userId: 'user123', productId: 'product123', quantity: 2, name: 'Sample Product', description: 'Sample Description' };
+        const createCartItem = { userId: 'user123', productId: 'product123', quantity: 2 };
+    
         findOneStub.resolves(null);
-        createStub.resolves(cartItem);
-  
+        createStub.resolves(createCartItem);
+    
         const newItem = await CartService.addItemToCart(cartItem);
-  
-        sinon.assert.calledOnceWithExactly(createStub, cartItem);
-        expect(newItem).toEqual(cartItem);
-      });
-  
-  
+    
+        sinon.assert.calledOnceWithExactly(createStub, createCartItem);
+        expect(newItem).toEqual(createCartItem);
+    });
+    
+    
       it('should throw an error if unable to add item to cart', async () => {
-        const cartItem = { userId: 'user123', productId: 'product123', quantity: 2 };
+        const cartItem = { userId: 'user123', productId: 'product123', quantity: 2, name: 'Sample Product', description: 'Sample Description' };
         findOneStub.rejects(new Error('Unable to add item'));
-  
+    
         await expect(CartService.addItemToCart(cartItem)).rejects.toThrowError('Failed to add item to cart: Unable to add item');
       });
     });

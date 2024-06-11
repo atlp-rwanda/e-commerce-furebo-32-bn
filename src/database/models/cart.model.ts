@@ -9,6 +9,8 @@ class Cart extends Model {
   declare userId: string;
   declare productId: string;
   declare quantity: number;
+  declare name: string; 
+  declare description: string; 
     Product: any;
 
   static associate() {

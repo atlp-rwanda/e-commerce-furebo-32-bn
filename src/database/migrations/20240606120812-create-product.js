@@ -8,44 +8,44 @@ module.exports = {
         primaryKey: true,
         defaultValue: Sequelize.UUIDV4
       },
-      productName:{
-        type:Sequelize.STRING,
-        allowNull:false,
+      productName: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      description:{
-        type:Sequelize.STRING,
-        allowNull:false,
+      description: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      price:{
-        type:Sequelize.FLOAT,
-        allowNull:false,
+      price: {
+        type: Sequelize.FLOAT,
+        allowNull: false,
       },
-      quantity:{
-        type:Sequelize.INTEGER,
-        allowNull:false,
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      expireDate:{
-        type:Sequelize.DATE,
-        allowNull:false,
+      expireDate: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       collection_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references:{
-          model:"Collections",
-          key:"id",
+        references: {
+          model: 'Collections',
+          key: 'id',
         }
       },
-      availability:{
-        type:Sequelize.BOOLEAN,
-        defaultValue:true
+      availability: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
       },
       seller_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references:{
-          model:"users",
-          key:"id",
+        references: {
+          model: 'users',
+          key: 'id',
         }
       },
       images: {

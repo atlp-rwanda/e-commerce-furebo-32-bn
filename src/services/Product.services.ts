@@ -2,6 +2,7 @@ import Product from "../database/models/Product.model";
 import { createProductAttributes } from "../types/product.types";
 
 export class ProductService {
+  static getProductById: any;
   static async createProduct(product: createProductAttributes) {
     return await Product.create(product);
   }
