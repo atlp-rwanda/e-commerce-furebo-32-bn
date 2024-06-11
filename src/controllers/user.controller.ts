@@ -5,6 +5,7 @@ import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
 // import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
 import { sendEmail } from "../utils/email.utils";
+import passport from "passport";
 import { sendOTP } from "../middlewares/otp.middleware";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
@@ -242,6 +243,7 @@ export const updatePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
     const id = req.params.id;
 
+    // Fetch the user by ID
     const user = await UserService.getUserByid(id);
     if (!user) {
       return res.status(404).json({
@@ -250,6 +252,7 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
+    // Validate the old password
     const isPasswordValid = await comparePassword(oldPassword, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -258,6 +261,7 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
+    // Check if new password and confirm password match
     if (newPassword !== confirmNewPassword) {
       return res.status(400).json({
         status: "fail",
@@ -283,6 +287,31 @@ export const updatePassword = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const LoginViaGoogle=async (req:Request,res:Response)=>{
+  const user = req.user as UserSignupAttributes;
+  try {
+      const token = await generateToken(user);
+      res.status(200).json({ token });
+  } 
+  catch (error) {
+      res.status(400).json({message:'Error while generating token'});}
+}
+
+export const googleRedirect= function(){
+ return passport.authenticate('google',{
+    successRedirect:'/google/token',
+    failureRedirect:'/google/failure'
+  })
+}
+
+export const googleAuthenticate=function(){
+    return passport.authenticate('google',{scope:['email','profile']})
+}
+
+export const googleAuthFailed=function(_req:Request,res:Response){
+  res.status(400).json({message:"Authentication failed"})
+}
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
   try {
