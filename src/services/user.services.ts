@@ -17,10 +17,7 @@ export class UserService {
   static async getUserByid(id:string) {
     return await User.findOne({ where: { id: id } });
   }
-<<<<<<< HEAD
   static async getAllUsers() {
     return await User.findAll();
   }
-=======
->>>>>>> 12e7f19 (feat(Login via Google):User should be able to login by google)
 }
