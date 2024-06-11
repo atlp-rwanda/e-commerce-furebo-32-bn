@@ -711,6 +711,34 @@ const options = {
           },
         },
       },
+
+      "/google/auth": {
+        get: {
+          summary: "Login with Google",
+          tags: ["Authentication"],
+          responses: {
+            200: {
+              description: "Login Successful",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      token: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],
