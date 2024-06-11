@@ -24,8 +24,8 @@ describe('Product Expiration Cron Job', () => {
   test('should mark products as expired and emit productExpired event', async () => {
     const currentDate = new Date();
     const mockProducts = [
-      { id: 1, seller_id: 1, expireDate: new Date(currentDate.getTime() - 24 * 60 * 60 * 1000), expired: false, save: jest.fn() },
-      { id: 2, seller_id: 2, expireDate: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000), expired: false, save: jest.fn() } // not expired
+      { id: 1, seller_id: 1, expireDate: new Date(currentDate.getTime() - 24 * 60 * 60 * 1000), expired: false, availability: true, save: jest.fn() },
+      { id: 2, seller_id: 2, expireDate: new Date(currentDate.getTime() + 24 * 60 * 60 * 1000), expired: false, availability: true, save: jest.fn() } // not expired
     ];
 
     (Product.findAll as jest.Mock).mockResolvedValue([mockProducts[0]]);
@@ -41,13 +41,17 @@ describe('Product Expiration Cron Job', () => {
     });
 
     expect(mockProducts[0].expired).toBe(true);
+    expect(mockProducts[0].availability).toBe(false); // Check availability is set to false
     expect(mockProducts[0].save).toHaveBeenCalled();
     expect(productEventEmitter.emit).toHaveBeenCalledWith('productExpired', mockProducts[0]);
 
     expect(mockProducts[1].expired).toBe(false);
+    expect(mockProducts[1].availability).toBe(true); // Check availability is not changed
     expect(mockProducts[1].save).not.toHaveBeenCalled();
     expect(productEventEmitter.emit).not.toHaveBeenCalledWith('productExpired', mockProducts[1]);
   });
+
+
 
   test('should handle errors gracefully', async () => {
     (Product.findAll as jest.Mock).mockRejectedValue(new Error('Database error'));

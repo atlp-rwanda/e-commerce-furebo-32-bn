@@ -16,6 +16,7 @@ export const checkForExpiredProducts = async () => {
 
     for (const product of expiredProducts) {
       product.expired = true;
+      product.availability = false;
       await product.save();
       productEventEmitter.emit('productExpired', product);
     }
