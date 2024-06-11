@@ -651,7 +651,141 @@ const options = {
         }
       }
     }
-  }
+  },
+  "/api/cart/add": {
+    post: {
+      summary: "Add an item to the cart",
+      tags: ["Cart"],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "productId",
+          in: "path",
+          required: true,
+          schema: {
+            type: "string",
+          },
+          description: "Product ID",
+        },
+        {
+          name: "quantity",
+          in: "query",
+          required: true,
+          schema: {
+            type: "number",
+          },
+          description: "Quantity",
+        },
+      ],
+      responses: {
+        200: {
+          description: "Item added to cart",
+        },
+        400: {
+          description: "Bad Request",
+        },
+        403: {
+          description: "Unauthorized",
+        },
+        404: {
+          description: "Product not found",
+        },
+        500: {
+          description: "Internal server error",
+        },
+      },
+    },
+  },
+  
+  "/api/cart/view": {
+    get: {
+      summary: "View the cart",
+      tags: ["Cart"],
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: "Cart retrieved successfully",
+        },
+        400: {
+          description: "Bad Request",
+        },
+        403: {
+          description: "Unauthorized",
+        },
+        500: {
+          description: "Internal server error",
+        },
+      },
+    },
+  },
+  
+  "/api/cart/update": {
+    post: {
+      summary: "Update an item in the cart",
+      tags: ["Cart"],
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: {
+            type: "string",
+          },
+          description: "Cart item ID",
+        },
+        {
+          name: "quantity",
+          in: "query",
+          required: true,
+          schema: {
+            type: "number",
+          },
+          description: "New quantity",
+        },
+      ],
+      responses: {
+        200: {
+          description: "Cart item updated successfully",
+        },
+        400: {
+          description: "Bad Request",
+        },
+        403: {
+          description: "Unauthorized",
+        },
+        404: {
+          description: "Cart item not found",
+        },
+        500: {
+          description: "Internal server error",
+        },
+      },
+    },
+  },
+  
+  "/api/cart/clear": {
+    post: {
+      summary: "Clear the cart",
+      tags: ["Cart"],
+      security: [{ bearerAuth: [] }],
+      responses: {
+        200: {
+          description: "Cart cleared successfully",
+        },
+        400: {
+          description: "Bad Request",
+        },
+        403: {
+          description: "Unauthorized",
+        },
+        500: {
+          description: "Internal server error",
+        },
+      },
+    },
+  },
+  
     }
   },
   apis: ["./src/routes/*.ts"],
