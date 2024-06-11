@@ -529,17 +529,6 @@ const options = {
           summary: "Create a new collection",
           description: "Create a new collection with the provided name",
           tags: ["Product"],
-          parameters: [
-            {
-              name: "seller_id",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Seller ID",
-            },
-          ],
           requestBody: {
             description: "Collection details",
             required: true,
@@ -594,7 +583,7 @@ const options = {
           },
         },
       },
-      "/createProduct/{collection_id}": {
+      "/api/createProduct/{collection_id}": {
         post: {
           summary: "Create a new Product",
           description: "Create a new Product with in ",

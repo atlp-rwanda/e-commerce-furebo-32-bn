@@ -5,7 +5,7 @@ import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
 import { userRole } from "../utils/variable.utils";
 const router = express.Router();
 
-router.post('/createProduct/:collection_id',protectRoute,upload,createProduct);
+router.post('/createProduct/:collection_id',protectRoute,restrictTo(userRole.seller),upload,createProduct);
 router.get('/availableItems',protectRoute, getAvailableItems);
 router.post("/searchProduct", protectRoute, searchProducts);
 router.get("/availableProducts/:seller_id", protectRoute, getAvailableProducts);
