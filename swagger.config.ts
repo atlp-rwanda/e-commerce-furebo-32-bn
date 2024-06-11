@@ -378,113 +378,108 @@ const options = {
             },
           },
         },
-      },'/api/users/requestpasswordreset': {
+      },
+      "/api/users/requestpasswordreset": {
         post: {
-          summary: 'Request Password Reset',
-          tags: ['Password Reset'],
+          summary: "Request Password Reset",
+          tags: ["Password Reset"],
           security: [{ bearerAuth: [] }],
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
                     email: {
-                      type: 'string',
-                      example: 'user@example.com'
-                    }
+                      type: "string",
+                      example: "user@example.com",
+                    },
                   },
-                  required: ['email']
-                }
-              }
-            }
+                  required: ["email"],
+                },
+              },
+            },
           },
           responses: {
             200: {
-              description: 'Password reset email sent',
-             
+              description: "Password reset email sent",
             },
             404: {
-              description: 'User not found',
-              
-            }
-          }
-        }
+              description: "User not found",
+            },
+          },
+        },
       },
-      '/api/users/resetpassword': {
+      "/api/users/resetpassword": {
         post: {
-          summary: 'Reset Password',
-          tags: ['Password Reset'],
+          summary: "Reset Password",
+          tags: ["Password Reset"],
           security: [],
           parameters: [
             {
-              name: 'token',
-              in: 'query',
+              name: "token",
+              in: "query",
               required: true,
               schema: {
-                type: 'string'
+                type: "string",
               },
-              description: 'Password reset token'
-            }
+              description: "Password reset token",
+            },
           ],
           requestBody: {
             content: {
-              'application/json': {
+              "application/json": {
                 schema: {
-                  type: 'object',
+                  type: "object",
                   properties: {
                     newPassword: {
-                      type: 'string',
-                      example: 'NewPassword@123'
-                    }
+                      type: "string",
+                      example: "NewPassword@123",
+                    },
                   },
-                  required: ['newPassword']
-                }
-              }
-            }
+                  required: ["newPassword"],
+                },
+              },
+            },
           },
           responses: {
             200: {
-              description: 'Password reset successfully',
-              
+              description: "Password reset successfully",
             },
             404: {
-              description: 'Invalid or expired token',
-              
-            }
-          }
-        }
+              description: "Invalid or expired token",
+            },
+          },
+        },
       },
       // Email Verification Route Documentation
-      '/api/users/verify-email': {
+      "/api/users/verify-email": {
         get: {
-          summary: 'Verify Email',
-          tags: ['Email Verification'],
+          summary: "Verify Email",
+          tags: ["Email Verification"],
           security: [],
           parameters: [
             {
-              name: 'token',
-              in: 'query',
+              name: "token",
+              in: "query",
               required: true,
               schema: {
-                type: 'string'
+                type: "string",
               },
-              description: 'Email verification token'
-            }
+              description: "Email verification token",
+            },
           ],
           responses: {
             200: {
-              description: 'Email verified successfully',              
+              description: "Email verified successfully",
             },
             404: {
-              description: 'Invalid token',
-              
+              description: "Invalid token",
             },
             500: {
-              description: 'Internal server error',
-              
-            }
-          }
+              description: "Internal server error",
+            },
+          },
         },
       },
       "/createCollection/{seller_id}": {
@@ -505,24 +500,24 @@ const options = {
           ],
           requestBody: {
             description: "Collection details",
-             required: true,
-             content: {
+            required: true,
+            content: {
               "application/json": {
                 schema: {
                   type: "object",
                   properties: {
                     CollectionName: {
                       type: "string",
-                      description: "Name of the collection"
+                      description: "Name of the collection",
                     },
                     description: {
                       type: "string",
-                      description: "Description of the collection"
+                      description: "Description of the collection",
                     },
-                  }
-                }
-              }
-            }
+                  },
+                },
+              },
+            },
           },
           responses: {
             200: {
@@ -530,129 +525,193 @@ const options = {
               content: {
                 "application/json": {
                   schema: {
-                    type:"object",
+                    type: "object",
                     properties: {
                       CollectionName: {
                         type: "string",
-                        description: "Name of the collection"
+                        description: "Name of the collection",
                       },
                       description: {
                         type: "string",
-                        description: "Description of the collection"
+                        description: "Description of the collection",
                       },
-                      seller_id:{
-                        type:"string"
-                      }
+                      seller_id: {
+                        type: "string",
+                      },
                     },
-                }
-              }
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
             },
-            400: {
-              description: "Bad Request"
-            },
-            500: {
-              description: "Internal server error"
-            }
-          }
-        }
-      }
-    },
-    "/createProduct/{collection_id}": {
-      post: {
-        summary: "Create a new Product",
-        description: "Create a new Product with in ",
-        tags: ["Product"],
-        parameters: [
-          {
-            name: "collection_id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string",
-            },
-            description: "Collection ID",
           },
-        ],
-        requestBody: {
-          description: "Product details",
-           required: true,
-          content: {
-            "multipart/form-data": {
-              schema: {
-                type: "object",
-                properties: {
-                  productName: {
-                    type: "string",
-                    description: "Name of the collection"
-                  },
-                  description: {
-                    type: "string",
-                    description: "Description of the collection"
-                  },
-                  price: {
-                    type: "number",
-                    description: "Name of the collection"
-                  },
-                  quantity: {
-                    type: "number",
-                    description: "Quantinty Of the products"
-                  },
-                  expireDate: {
-                    type: "string",
-                    description: "expiration date of the product",
-                    format:"date"
-                  },
-                  category: {
-                    type: "string",
-                    description: "Category of the product",
-                  },
-                  images: {
-                    type: "array",
-                    description: "Images",
-                    items:{
-                       type: "string",
-                       format: "binary",
-                        description: "Image file(s) of the product"
-                    },
-                  }
-                }
-              }
-            }
-          }
         },
-        responses: {
-          200: {
-            description: "Collection created successfully",
+      },
+      "/createProduct/{collection_id}": {
+        post: {
+          summary: "Create a new Product",
+          description: "Create a new Product with in ",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "collection_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Collection ID",
+            },
+          ],
+          requestBody: {
+            description: "Product details",
+            required: true,
             content: {
-              "application/json": {
+              "multipart/form-data": {
                 schema: {
-                  type:"object",
+                  type: "object",
                   properties: {
-                    id:{type:"string"},
-                    productName: { type: "string" },
-                    description: { type: "string" },
-                    price: { type: "number" },
-                    quantity: { type: "number" },
-                    seller_id: { type: "string" },
-                    expireDate: { type: "string" },
-                    Collection_id: { type: "string" },
-                    images: { type: "array" },
-                    category:{type:"string"}
+                    productName: {
+                      type: "string",
+                      description: "Name of the collection",
+                    },
+                    description: {
+                      type: "string",
+                      description: "Description of the collection",
+                    },
+                    price: {
+                      type: "number",
+                      description: "Name of the collection",
+                    },
+                    quantity: {
+                      type: "number",
+                      description: "Quantinty Of the products",
+                    },
+                    expireDate: {
+                      type: "string",
+                      description: "expiration date of the product",
+                      format: "date",
+                    },
+                    category: {
+                      type: "string",
+                      description: "Category of the product",
+                    },
+                    images: {
+                      type: "array",
+                      description: "Images",
+                      items: {
+                        type: "string",
+                        format: "binary",
+                        description: "Image file(s) of the product",
+                      },
+                    },
                   },
-              }
-            }
+                },
+              },
+            },
           },
-          400: {
-            description: "Bad Request"
+          responses: {
+            200: {
+              description: "Collection created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
           },
-          500: {
-            description: "Internal server error"
-          }
-        }
-      }
-    }
-  }
-    }
+        },
+      },
+
+      "/searchProduct": {
+        post: {
+          summary: "search for Products",
+          description: "search for products by name, price or category ",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "search",
+              in: "query",
+              schema: {
+                type: "string",
+              },
+              description: "name of the product",
+            },
+            {
+              name: "price_range",
+              in: "query",
+              schema: {
+                type: "string",
+              },
+              description: "range of prices",
+            },
+            {
+              name: "category",
+              in: "query",
+              schema: {
+                type: "string",
+              },
+              description: "category of the product",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Search results",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
+    },
   },
   apis: ["./src/routes/*.ts"],
 };
