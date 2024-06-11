@@ -485,8 +485,173 @@ const options = {
               
             }
           }
-        }
+        },
       },
+      "/createCollection/{seller_id}": {
+        post: {
+          summary: "Create a new collection",
+          description: "Create a new collection with the provided name",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "seller_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Seller ID",
+            },
+          ],
+          requestBody: {
+            description: "Collection details",
+             required: true,
+             content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    CollectionName: {
+                      type: "string",
+                      description: "Name of the collection"
+                    },
+                    description: {
+                      type: "string",
+                      description: "Description of the collection"
+                    },
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            200: {
+              description: "Collection created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type:"object",
+                    properties: {
+                      CollectionName: {
+                        type: "string",
+                        description: "Name of the collection"
+                      },
+                      description: {
+                        type: "string",
+                        description: "Description of the collection"
+                      },
+                      seller_id:{
+                        type:"string"
+                      }
+                    },
+                }
+              }
+            },
+            400: {
+              description: "Bad Request"
+            },
+            500: {
+              description: "Internal server error"
+            }
+          }
+        }
+      }
+    },
+    "/createProduct/{collection_id}": {
+      post: {
+        summary: "Create a new Product",
+        description: "Create a new Product with in ",
+        tags: ["Product"],
+        parameters: [
+          {
+            name: "collection_id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "Collection ID",
+          },
+        ],
+        requestBody: {
+          description: "Product details",
+           required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  productName: {
+                    type: "string",
+                    description: "Name of the collection"
+                  },
+                  description: {
+                    type: "string",
+                    description: "Description of the collection"
+                  },
+                  price: {
+                    type: "number",
+                    description: "Name of the collection"
+                  },
+                  quantity: {
+                    type: "number",
+                    description: "Quantinty Of the products"
+                  },
+                  expireDate: {
+                    type: "string",
+                    description: "expiration date of the product",
+                    format:"date"
+                  },
+                  category: {
+                    type: "string",
+                    description: "Category of the product",
+                  },
+                  images: {
+                    type: "array",
+                    description: "Images",
+                    items:{
+                       type: "string",
+                       format: "binary",
+                        description: "Image file(s) of the product"
+                    },
+                  }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: "Collection created successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type:"object",
+                  properties: {
+                    id:{type:"string"},
+                    productName: { type: "string" },
+                    description: { type: "string" },
+                    price: { type: "number" },
+                    quantity: { type: "number" },
+                    seller_id: { type: "string" },
+                    expireDate: { type: "string" },
+                    Collection_id: { type: "string" },
+                    images: { type: "array" },
+                    category:{type:"string"}
+                  },
+              }
+            }
+          },
+          400: {
+            description: "Bad Request"
+          },
+          500: {
+            description: "Internal server error"
+          }
+        }
+      }
+    }
+  }
     }
   },
   apis: ["./src/routes/*.ts"],
