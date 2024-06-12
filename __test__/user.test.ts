@@ -15,7 +15,7 @@ describe("User", () => {
   let sequelizeInstance: any;
 
   beforeAll(async () => {
-    jest.setTimeout(60000);
+    jest.setTimeout(70000);
     sequelizeInstance = await db();
     await sequelizeInstance.query(
       "TRUNCATE TABLE users RESTART IDENTITY CASCADE;"

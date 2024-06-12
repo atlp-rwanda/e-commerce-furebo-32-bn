@@ -742,6 +742,7 @@ const options = {
           },
         },
       },
+
       "/google/auth": {
         get: {
           summary: "Login with Google",
