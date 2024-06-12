@@ -738,6 +738,53 @@ const options = {
           },
         },
       },
+      "/product/markAvailable/{productId}": {
+        patch: {
+          summary: "Mark a product as available or unavailable",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "productId",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "ID of the product to update",
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    available: {
+                      type: "boolean",
+                    },
+                  },
+                  required: ["available"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Product availability updated successfully",
+            },
+            400: {
+              description: "Bad Request",
+            },
+            404: {
+              description: "Product not found",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],

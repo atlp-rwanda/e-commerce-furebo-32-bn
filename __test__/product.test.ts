@@ -666,3 +666,127 @@ describe("searchProducts", () => {
     expect(jsonStub.calledOnceWith({ products })).toBe(true);
   });
 });
+
+
+describe("markProductAvailable", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: {},
+      body: {},
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    getProductByIdStub = sinon.stub(ProductService, "getProductByid");
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should return 404 if product is not found", async () => {
+    const productId = "4be9b41c-5aa3-4862-991a-caada9c4a982";
+    req.params.id = productId;
+    getProductByIdStub.resolves(null);
+
+    await markProductAvailable(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(
+      jsonStub.calledOnceWith({
+        status: "fail",
+        message: "Product not found",
+      })
+    ).toBe(true);
+  });
+
+  it("should update availability and return 200 on success", async () => {
+    const productId = "4be9b41c-5aa3-4862-991a-caada9c4a982";
+    const availability = true;
+    req.params.id = productId;
+    req.body.availability = availability;
+    const mockProduct = {
+      id: productId,
+      productName: "Test Product",
+      description: "Sample description",
+      price: 99.99,
+      seller_id: "seller123",
+      quantity: 5,
+      expireDate: "2024-12-31",
+      collection_id: "collection456",
+      category: "electronics",
+      availability: !availability, // Mocking current availability state
+      images: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      expired: false,
+    };
+    getProductByIdStub.resolves(mockProduct);
+    const saveProductStub = sinon.stub().resolves(mockProduct);
+    sinon.replace(mockProduct, "save", saveProductStub);
+
+    await markProductAvailable(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(200)).toBe(true);
+    expect(
+      jsonStub.calledOnceWith({
+        status: "success",
+        message: "Product availability updated successfully",
+        data: {
+          product: {
+            ...mockProduct,
+            availability,
+          },
+        },
+      })
+    ).toBe(true);
+    sinon.assert.calledOnce(saveProductStub);
+  });
+
+  it("should handle errors and return 500 if save operation fails", async () => {
+    const productId = "4be9b41c-5aa3-4862-991a-caada9c4a982";
+    const availability = true;
+    req.params.id = productId;
+    req.body.availability = availability;
+    const mockProduct = {
+      id: productId,
+      productName: "Test Product",
+      description: "Sample description",
+      price: 99.99,
+      seller_id: "seller123",
+      quantity: 5,
+      expireDate: "2024-12-31",
+      collection_id: "collection456",
+      category: "electronics",
+      availability: !availability, // Mocking current availability state
+      images: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      expired: false,
+    };
+    getProductByIdStub.resolves(mockProduct);
+    const errorMessage = "Database error";
+    const saveProductStub = sinon.stub().rejects(new Error(errorMessage));
+    sinon.replace(mockProduct, "save", saveProductStub);
+
+    await markProductAvailable(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(500)).toBe(true);
+    expect(
+      jsonStub.calledOnceWith({
+        status: "error",
+        message: "An error occurred while updating the product availability",
+      })
+    ).toBe(true);
+    sinon.assert.calledOnce(saveProductStub);
+  });
+});
