@@ -487,7 +487,7 @@ const options = {
           }
         },
       },
-      "/createCollection/{seller_id}": {
+      "/api/createCollection/{seller_id}": {
         post: {
           summary: "Create a new collection",
           description: "Create a new collection with the provided name",
@@ -557,7 +557,48 @@ const options = {
         }
       }
     },
-    "/createProduct/{collection_id}": {
+    "/api/getCollection/{seller_id}": {
+      get: {
+        summary: "Get Seller Collections",
+        description: "Get all collections of a seller",
+        tags: ["Product"],
+        parameters: [
+          {
+            name: "seller_id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "Seller ID",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Collections retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    CollectionName: { type: "string" },
+                    description: { type: "string" },
+                    seller_id: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad Request",
+          },
+          500: {
+            description: "Internal server error",
+          },
+        },
+      },
+    },
+    "/api/createProduct/{collection_id}": {
       post: {
         summary: "Create a new Product",
         description: "Create a new Product with in ",
@@ -651,7 +692,56 @@ const options = {
         }
       }
     }
-  }
+  },
+  
+  "/api/availableItems": {
+    get: {
+      summary: "Get Available Items",
+      description: "Get all available items",
+      tags: ["Product"],
+      security: [],
+      parameters: [
+        {
+          name: "seller_id",
+          in: "path",
+          required: true,
+          schema: {
+            type: "string",
+          },
+          description: "Seller ID",
+        },
+      ],
+      responses: {
+        200: {
+          description: "Items retrieved successfully",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  productName: { type: "string" },
+                  description: { type: "string" },
+                  price: { type: "number" },
+                  quantity: { type: "number" },
+                  seller_id: { type: "string" },
+                  expireDate: { type: "string" },
+                  Collection_id: { type: "string" },
+                  images: { type: "array" },
+                  category:{type:"string"}
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Bad Request",
+        },
+        500: {
+          description: "Internal server error",
+        },
+      }
+    }
+  },
     }
   },
   apis: ["./src/routes/*.ts"],

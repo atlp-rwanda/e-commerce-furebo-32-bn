@@ -12,4 +12,7 @@ export class ProductService {
   static async getProductByid(id:string) {
     return await Product.findOne({ where: { id: id } });
   }
+  static async getAvailableItems() {
+    return await Product.findAll({ where: { availability: true } });
+  }
 }

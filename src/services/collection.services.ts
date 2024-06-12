@@ -13,3 +13,13 @@ export class CreateCollectionService {
     return await Collection.findOne({ where: { id: id } });
   }
 }
+
+export class GetCollectionService {
+  static async getAllCollections() {
+    return await Collection.findAll();
+  }
+  static async getSellerItem(seller_id:string) {
+    return await Collection.findAll({ where: { seller_id: seller_id } });
+  }
+
+}

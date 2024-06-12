@@ -13,8 +13,8 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(morgan("dev"))
 
-app.use ('/',productRoutes)
-app.use('/',collectionRoute)
+app.use ('/api',productRoutes)
+app.use('/api',collectionRoute)
 
 app.get('/', (_req: Request, res: Response) => {
     return res.json({ message: "welcome to ATLP Backend APIs" });

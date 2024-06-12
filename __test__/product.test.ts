@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import sinon from 'sinon';
-import { createProduct } from '../src/controllers/product.controller';
-import { CreateCollectionService } from '../src/services/collection.services';
+import { createProduct} from '../src/controllers/product.controller';
+import { CreateCollectionService, GetCollectionService } from '../src/services/collection.services';
 import { ProductService } from '../src/services/Product.services';
 import cloudinary from 'cloudinary';
 import { UserService } from '../src/services/user.services';
-import { createCollection } from '../src/controllers/collection.controller';
+import { createCollection, getSellerItems } from '../src/controllers/collection.controller';
 // import { upload } from '../src/middlewares/multer.middleware';
 import Collection from '../src/database/models/collection.model';
 import Product from '../src/database/models/Product.model';
@@ -369,6 +369,49 @@ describe('CreateCollectionService', () => {
         findOneStub.restore();
       });
     });
+
+    describe('getSellerItems', () => {
+        it('should return all items for a seller', async () => {
+          const mockItems = [
+            { id: '1', CollectionName: 'Test Collection 1', description: 'Test Description 1', seller_id: '123' },
+            { id: '2', CollectionName: 'Test Collection 2', description: 'Test Description 2', seller_id: '123' }
+          ];
+          const findAllStub = sinon.stub(Collection, 'findAll').resolves(mockItems as any);
+    
+          const result = await GetCollectionService.getSellerItem('123');
+    
+          expect(findAllStub.calledOnceWith({ where: { seller_id: '123' } })).toBe(true);
+          expect(result).toEqual(mockItems);
+    
+          findAllStub.restore();
+        });
+    
+        it('should return an empty array if no items are found for a seller', async () => {
+          const findAllStub = sinon.stub(Collection, 'findAll').resolves([]);
+    
+          const result = await GetCollectionService.getSellerItem('123');
+    
+          expect(findAllStub.calledOnceWith({ where: { seller_id: '123' } })).toBe(true);
+          expect(result).toEqual([]);
+    
+          findAllStub.restore();
+        });
+
+        it('should return 401 if the user is not a seller', async () => {
+            const getUserByIdStub = sinon.stub(UserService, 'getUserByid').resolves(null);
+            const req = { params: { seller_id: '123' } };
+            const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+    
+            await getSellerItems(req as unknown as Request, res as unknown as Response);
+    
+            expect(getUserByIdStub.calledOnceWith('123')).toBe(true);
+            expect(res.status.calledOnceWith(401)).toBe(true);
+            expect(res.json.calledOnceWith({ status: 401, error: "Unauthorized access" })).toBe(true);
+    
+            getUserByIdStub.restore();
+        });
+        
+    });
   });
 
 describe('ProductService', () => {
@@ -413,6 +456,34 @@ describe('ProductService', () => {
         expect(result).toEqual(productData);
   
         findOneStub.restore();
+      });
+    });
+
+    describe('getAvailableItems', () => {
+        it('should return all available items', async () => {
+          const mockItems = [
+            { id: '1', name: 'Test Product 1', price: 10, availability: true },
+            { id: '2', name: 'Test Product 2', price: 20, availability: true }
+          ];
+          const findAllStub = sinon.stub(Product, 'findAll').resolves(mockItems as any);
+    
+          const result = await ProductService.getAvailableItems();
+    
+          expect(findAllStub.calledOnceWith({ where: { availability: true } })).toBeTruthy();
+          expect(result).toEqual(mockItems);
+    
+          findAllStub.restore();
+        });
+    
+        it('should return an empty array if no items are available', async () => {
+          const findAllStub = sinon.stub(Product, 'findAll').resolves([]);
+    
+          const result = await ProductService.getAvailableItems();
+    
+          expect(findAllStub.calledOnceWith({ where: { availability: true } })).toBeTruthy();
+          expect(result).toEqual([]);
+    
+          findAllStub.restore();
       });
     });
   });
