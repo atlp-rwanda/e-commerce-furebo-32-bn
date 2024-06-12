@@ -14,7 +14,7 @@ export interface CartItem {
 
 export interface createCartAttributes {
     [x: string]: any;
-    userId: string;
+    
     name: string;
     description: string;
 }
@@ -33,7 +33,7 @@ export class CartService {
   static async createCart(cartData: createCartAttributes) {
     try {
         const newCart = await Cart.create({
-            userId: cartData.userId,
+           
             name: cartData.name,
             description: cartData.description,
             // Add default or placeholder values for other properties

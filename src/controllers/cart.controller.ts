@@ -6,10 +6,7 @@ import { createCartSchema } from "../validations/cart.validator";
 // Function to create a cart
 export const createCart = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id; 
-    if (!userId) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
+   
 
     const { error } = createCartSchema.validate(req.body);
     if (error) {
@@ -18,7 +15,7 @@ export const createCart = async (req: Request, res: Response) => {
 
     const { name, description } = req.body;
 
-    const cart = await CartService.createCart({ userId, name, description });
+    const cart = await CartService.createCart({ name, description });
     return res.status(201).json({ message: "Cart created", cart });
   } catch (error: any) {
     return res.status(500).json({ message: error.message });

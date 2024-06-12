@@ -6,7 +6,7 @@ import Product from "./Product.model";
 class Cart extends Model {
     [x: string]: any;
   declare id: string;
-  declare userId: string;
+/*   declare userId: string; */
   declare productId: string;
   declare quantity: number;
   declare name: string; 
@@ -27,10 +27,10 @@ Cart.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    userId: {
+   /*  userId: {
       type: DataTypes.UUID,
       allowNull: false,
-    },
+    }, */
     productId: {
       type: DataTypes.UUID,
       allowNull: false,
