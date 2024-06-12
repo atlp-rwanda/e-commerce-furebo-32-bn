@@ -974,3 +974,551 @@ describe('deleteProduct', () => {
     expect((res.json as sinon.SinonStub).calledWith({ message: "internal server error" })).toBe(true);
   });
 });
+import { updateProduct } from '../src/controllers/product.controller'; 
+
+describe('updateProduct', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let jsonStub: sinon.SinonStub;
+  let statusStub: sinon.SinonStub;
+  let productServiceStub: sinon.SinonStub;
+  let productStub: { update: sinon.SinonStub };
+
+  beforeEach(() => {
+    req = {
+      params: { product_id: '123' },
+      user: { id: 'seller123' },
+      body: {
+        productName: 'New Product',
+        price: 100,
+        quantity: 10,
+        availability: true,
+        expireDate: '2023-12-31',
+        category: 'Electronics',
+        description: 'Updated description'
+      }
+    };
+    jsonStub = sinon.stub();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub
+    };
+    productStub = {
+      update: sinon.stub()
+    };
+    productServiceStub = sinon.stub(ProductService, 'getProductByid');
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should return 200 and update the product successfully', async () => {
+    productServiceStub.resolves({ seller_id: 'seller123', update: productStub.update });
+    productStub.update.resolves({
+      productName: 'New Product',
+      description: 'Updated description',
+      price: 100,
+      quantity: 10,
+      availability: true,
+      expireDate: '2023-12-31',
+      category: 'Electronics'
+    });
+
+    await updateProduct(req as Request, res as Response);
+
+    expect(statusStub.calledWith(200)).toBe(true);
+    expect(jsonStub.calledWith({
+      message: "Product updated successfully",
+      updatedProduct: {
+        productName: 'New Product',
+        description: 'Updated description',
+        price: 100,
+        quantity: 10,
+        availability: true,
+        expireDate: '2023-12-31',
+        category: 'Electronics'
+      }
+    })).toBe(true);
+  });
+});
+
+
+import { addImages } from "../src/controllers/product.controller";
+
+import { imageServices } from '../src/services/Image.service';
+
+describe('addImages function', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let uploadImagesStub: sinon.SinonStub;
+  let productMock: any;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        product_id: '123',
+      },
+      files: [
+        { path: 'path/to/image1.jpg' } as Express.Multer.File,
+        { path: 'path/to/image2.jpg' } as Express.Multer.File,
+      ],
+    };
+
+    statusStub = sinon.stub();
+    jsonStub = sinon.stub();
+    res = {
+      status: statusStub.returns({
+        json: jsonStub,
+      }),
+    };
+
+    productMock = {
+      images: ['url1', 'url2'],
+      update: sinon.stub().returnsThis(),
+      save: sinon.stub().resolvesThis(),
+    };
+
+    getProductByIdStub = sinon.stub(ProductService, 'getProductByid').resolves(productMock);
+    uploadImagesStub = sinon.stub(imageServices, 'uploadImages').resolves(['url3', 'url4']);
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should add images successfully', async () => {
+    await addImages(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.calledOnce(uploadImagesStub);
+    sinon.assert.calledWith(uploadImagesStub, req.files);
+
+    sinon.assert.calledOnce(productMock.update);
+    sinon.assert.calledWith(productMock.update, { images: ['url1', 'url2', 'url3', 'url4'] });
+
+    sinon.assert.calledOnce(productMock.save);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 200);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: 'Images added successfully',
+      updatedproduct: productMock,
+    });
+  });
+
+  it('should return 400 if images exceed 8', async () => {
+    productMock.images = ['url1', 'url2', 'url3', 'url4', 'url5', 'url6', 'url7'];
+
+    await addImages(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.notCalled(uploadImagesStub);
+    sinon.assert.notCalled(productMock.update);
+    sinon.assert.notCalled(productMock.save);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 400);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: "Images can't exceed 8",
+    });
+  });
+  it('should handle internal server errors', async () => {
+    getProductByIdStub.rejects(new Error('Internal server error'));
+
+    await addImages(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.notCalled(uploadImagesStub);
+    sinon.assert.notCalled(productMock.update);
+    sinon.assert.notCalled(productMock.save);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 500);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: 'internal server error',
+    });
+  });
+});
+
+import { updateImageByUrl } from '../src/controllers/product.controller';
+
+describe('updateImageByUrl', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let obtainPublicIdStub: sinon.SinonStub;
+  let destroyStub: sinon.SinonStub;
+  let uploadImagesStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: { product_id: '123' },
+      body: { imageUrl: 'http://res.cloudinary.com/demo/image/upload/sample.jpg' },
+      files: [{ path: 'path/to/file' }] as any,
+    };
+
+    statusStub = sinon.stub();
+    jsonStub = sinon.stub();
+    res = {
+      status: statusStub.returns({ json: jsonStub }),
+    };
+
+    getProductByIdStub = sinon.stub(ProductService, 'getProductByid');
+    obtainPublicIdStub = sinon.stub(imageServices, 'obtainPublicId');
+    destroyStub = sinon.stub(cloudinary.v2.uploader, 'destroy');
+    uploadImagesStub = sinon.stub(imageServices, 'uploadImages');
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should return 400 if the image does not exist in product', async () => {
+    getProductByIdStub.resolves({ images: [] });
+
+    await updateImageByUrl(req as Request, res as Response);
+
+    expect(statusStub.calledWith(400)).toBe(true);
+    expect(jsonStub.calledWith({ message: "The image doesn't exist" })).toBe(true);
+  });
+
+  it('should return 400 if no files are uploaded', async () => {
+    req.files = undefined;
+    getProductByIdStub.resolves({ images: ['http://res.cloudinary.com/demo/image/upload/sample.jpg'] });
+
+    await updateImageByUrl(req as Request, res as Response);
+
+    expect(statusStub.calledWith(400)).toBe(true);
+    expect(jsonStub.calledWith({ message: "Please upload new image" })).toBe(true);
+  });
+
+  it('should destroy the old image and upload new images', async () => {
+    getProductByIdStub.resolves({ images: ['http://res.cloudinary.com/demo/image/upload/sample.jpg'] });
+    obtainPublicIdStub.returns('sample');
+    destroyStub.resolves();
+    uploadImagesStub.resolves(['http://res.cloudinary.com/demo/image/upload/new_image.jpg']);
+
+    const updateStub = sinon.stub().resolves({
+      images: ['http://res.cloudinary.com/demo/image/upload/sample.jpg', 'http://res.cloudinary.com/demo/image/upload/new_image.jpg'],
+    });
+
+    (getProductByIdStub as sinon.SinonStub).resolves({
+      images: ['http://res.cloudinary.com/demo/image/upload/sample.jpg'],
+      update: updateStub,
+    });
+
+    await updateImageByUrl(req as Request, res as Response);
+
+    expect(destroyStub.calledWith('sample')).toBe(true);
+    expect(uploadImagesStub.calledWith(req.files)).toBe(true);
+    expect(updateStub.calledWith({
+      images: [
+        'http://res.cloudinary.com/demo/image/upload/sample.jpg',
+        'http://res.cloudinary.com/demo/image/upload/new_image.jpg',
+      ],
+    })).toBe(false);
+    expect(statusStub.calledWith(200)).toBe(true);
+    expect(jsonStub.calledWith({
+      message: 'Images added successfully',
+      updatedproduct: {
+        images: [
+          'http://res.cloudinary.com/demo/image/upload/sample.jpg',
+          'http://res.cloudinary.com/demo/image/upload/new_image.jpg',
+        ],
+      },
+    })).toBe(true);
+  });
+
+  it('should return 500 if there is an internal server error', async () => {
+    getProductByIdStub.rejects(new Error('Internal Server Error'));
+
+    await updateImageByUrl(req as Request, res as Response);
+
+    expect(statusStub.calledWith(500)).toBe(true);
+    expect(jsonStub.calledWith({ message: 'internal server error' })).toBe(true);
+  });
+});
+
+import { UpdateAllImages } from '../src/controllers/product.controller';
+
+describe('UpdateAllImages function', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let uploadImagesStub: sinon.SinonStub;
+  let destroyStub: sinon.SinonStub;
+  let productMock: any;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        product_id: '123',
+      },
+      files: [
+        { path: 'path/to/image1.jpg' } as Express.Multer.File,
+        { path: 'path/to/image2.jpg' } as Express.Multer.File,
+      ],
+    };
+
+    statusStub = sinon.stub();
+    jsonStub = sinon.stub();
+    res = {
+      status: statusStub.returns({
+        json: jsonStub,
+      }),
+    };
+
+    productMock = {
+      images: ['url1', 'url2'],
+      update: sinon.stub().resolvesThis(),
+    };
+
+    getProductByIdStub = sinon.stub(ProductService, 'getProductByid').resolves(productMock);
+    uploadImagesStub = sinon.stub(imageServices, 'uploadImages').resolves(['url3', 'url4']);
+    destroyStub = sinon.stub(cloudinary.v2.uploader, 'destroy').resolves({ result: 'ok' });
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+  it('should return 400 if images are less than 4 or more than 8', async () => {
+    req.files = [
+      { path: 'path/to/image1.jpg' } as Express.Multer.File,
+      { path: 'path/to/image2.jpg' } as Express.Multer.File,
+      { path: 'path/to/image3.jpg' } as Express.Multer.File,
+      { path: 'path/to/image4.jpg' } as Express.Multer.File,
+      { path: 'path/to/image5.jpg' } as Express.Multer.File,
+      { path: 'path/to/image6.jpg' } as Express.Multer.File,
+      { path: 'path/to/image7.jpg' } as Express.Multer.File,
+      { path: 'path/to/image8.jpg' } as Express.Multer.File,
+      { path: 'path/to/image9.jpg' } as Express.Multer.File,
+    ];
+
+    await UpdateAllImages(req as Request, res as Response);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 400);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: "Please upload at least 4 images and not exceeding 8",
+    });
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.notCalled(uploadImagesStub);
+    sinon.assert.notCalled(productMock.update);
+    sinon.assert.notCalled(destroyStub);
+  });
+
+  it('should handle internal server errors', async () => {
+    getProductByIdStub.rejects(new Error('Internal server error'));
+
+    await UpdateAllImages(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.notCalled(uploadImagesStub);
+    sinon.assert.notCalled(productMock.update);
+    sinon.assert.notCalled(destroyStub);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 500);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: 'internal server error',
+    });
+  });
+});
+
+import { removeImage } from '../src/controllers/product.controller';
+
+describe('removeImage function', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let obtainPublicIdStub: sinon.SinonStub;
+  let destroyStub: sinon.SinonStub;
+  let productMock: any;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        product_id: '123',
+      },
+      body: {
+        imageUrl: 'http://res.cloudinary.com/demo/image/upload/sample.jpg',
+      },
+    };
+
+    statusStub = sinon.stub();
+    jsonStub = sinon.stub();
+    res = {
+      status: statusStub.returns({
+        json: jsonStub,
+      }),
+    };
+
+    productMock = {
+      images: ['http://res.cloudinary.com/demo/image/upload/sample.jpg'],
+      update: sinon.stub().resolvesThis(),
+    };
+
+    getProductByIdStub = sinon.stub(ProductService, 'getProductByid').resolves(productMock);
+    obtainPublicIdStub = sinon.stub(imageServices, 'obtainPublicId').returns('sample');
+    destroyStub = sinon.stub(cloudinary.v2.uploader, 'destroy').resolves({ result: 'ok' });
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should remove image successfully', async () => {
+    await removeImage(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.calledOnce(obtainPublicIdStub);
+    sinon.assert.calledWith(obtainPublicIdStub, 'http://res.cloudinary.com/demo/image/upload/sample.jpg');
+
+    sinon.assert.calledOnce(destroyStub);
+    sinon.assert.calledWith(destroyStub, 'sample');
+
+    sinon.assert.calledOnce(productMock.update);
+    sinon.assert.calledWith(productMock.update, { images: [] });
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 200);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: 'Images removed successfully',
+      updatedproduct: productMock,
+    });
+  });
+
+  it('should return 400 if the image does not exist in product images', async () => {
+    productMock.images = ['http://res.cloudinary.com/demo/image/upload/another.jpg'];
+
+    await removeImage(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.notCalled(destroyStub);
+    sinon.assert.notCalled(productMock.update);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 400);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: "The image doesn't exist",
+    });
+  });
+
+  it('should return 400 if the product has 4 images', async () => {
+    productMock.images = [
+      'http://res.cloudinary.com/demo/image/upload/img1.jpg',
+      'http://res.cloudinary.com/demo/image/upload/img2.jpg',
+      'http://res.cloudinary.com/demo/image/upload/img3.jpg',
+      'http://res.cloudinary.com/demo/image/upload/sample.jpg',
+    ];
+
+    await removeImage(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.notCalled(destroyStub);
+    sinon.assert.notCalled(productMock.update);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 400);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: "You can't delete an image because you have 4 images",
+    });
+  });
+
+  it('should handle internal server errors', async () => {
+    getProductByIdStub.rejects(new Error('Internal server error'));
+
+    await removeImage(req as Request, res as Response);
+
+    sinon.assert.calledOnce(getProductByIdStub);
+    sinon.assert.calledWith(getProductByIdStub, '123');
+
+    sinon.assert.notCalled(obtainPublicIdStub);
+    sinon.assert.notCalled(destroyStub);
+    sinon.assert.notCalled(productMock.update);
+
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 500);
+
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWith(jsonStub, {
+      message: 'internal server error',
+    });
+  });
+});
+
+
+describe('imageServices', () => {
+  describe('obtainPublicId', () => {
+    it('should obtain public id from cloudinary URL', () => {
+      const cloudinaryUrl = 'https://res.cloudinary.com/demo/image/upload/sample.jpg';
+      const expectedPublicId = 'sample';
+
+      const publicId = imageServices.obtainPublicId(cloudinaryUrl);
+
+      expect(publicId).toEqual(expectedPublicId);
+    });
+  });
+
+  describe('uploadImages', () => {
+    it('should upload images to cloudinary', async () => {
+
+      const stubUpload = sinon.stub(cloudinary.v2.uploader, 'upload');
+      stubUpload.resolves({
+        secure_url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg',
+        public_id: 'sample'
+      } as any);
+
+      const imageFiles = [{ path: '/path/to/file1.jpg' }, { path: '/path/to/file2.jpg' }] as Express.Multer.File[];
+
+      const imageUrls = await imageServices.uploadImages(imageFiles);
+
+      expect(imageUrls).toHaveLength(2);
+      expect(imageUrls[0]).toEqual('https://res.cloudinary.com/demo/image/upload/sample.jpg');
+      expect(imageUrls[1]).toEqual('https://res.cloudinary.com/demo/image/upload/sample.jpg');
+
+      stubUpload.restore();
+    });
+  });
+});

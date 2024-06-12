@@ -1,5 +1,12 @@
 import express  from "express";
 import { createProduct, getAvailableItems, searchProducts,getAvailableProducts, updateProductAvailability } from "../controllers/product.controller";
+import {
+  updateImageByUrl,
+  updateProduct,
+  addImages,
+  UpdateAllImages,
+  removeImage
+} from "../controllers/product.controller";
 import { upload } from "../utils/multer.utils";
 import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
 import { deleteProduct } from "../controllers/product.controller";
@@ -19,4 +26,9 @@ router.patch(
 
 router.delete('/deleteProduct/:product_id',protectRoute,restrictTo(userRole.seller),checkProductOwner,deleteProduct) 
 
+router.patch('/updateProduct/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,updateProduct);
+router.patch('/updateAllProductImages/:product_id',protectRoute,restrictTo(userRole.seller),checkProductOwner,upload,UpdateAllImages);
+router.patch('/updateProductImage/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,updateImageByUrl);
+router.patch('/removeProductImage/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,removeImage);
+router.patch('/addProductImage/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,addImages)
 export default router;
