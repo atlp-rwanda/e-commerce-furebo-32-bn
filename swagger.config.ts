@@ -647,7 +647,6 @@ const options = {
           },
         },
       },
-
       "/searchProduct": {
         post: {
           summary: "search for Products",
