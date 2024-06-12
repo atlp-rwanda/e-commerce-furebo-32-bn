@@ -1407,8 +1407,51 @@ const options = {
           },
         },
       },
+      "/api/deleteProduct/{product_id}": {
+  delete: {
+    summary: "Delete a product in a collection",
+    description: "Delete a product with the provided id of the product",
+    tags: ["Product"],
+    parameters: [
+      {
+        name: "product_id",
+        in: "path",
+        required: true,
+        schema: {
+          type: "string",
+        },
+        description: "Product ID",
+      },
+    ],
+    responses: {
+      202: {
+        description: "Product deleted successfully",
+        content: {
+          "application/json": {
+            schema: {
+              type:"object",
+              properties: {
+                deletedProduct:{
+                  type:"object",
+                  description:"deleted Product"
+                }
+              },
+          }
+        }
+      },
+      400: {
+        description: "Bad Request"
+      },
+      500: {
+        description: "Internal server error"
+      }
+    }
+  }
+  }
+},
     },
   },
+  
   apis: ["./src/routes/*.ts"],
 };
 

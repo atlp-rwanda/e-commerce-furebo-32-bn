@@ -182,3 +182,18 @@ export const updateProductAvailability = async (
     });
   }
 };
+export const deleteProduct=async (req:Request,res:Response)=>{
+  try{
+    const productId=req.params.product_id;
+    const product = await ProductService.getProductByid(productId)
+  
+    await ProductService.deleteProductById(productId)
+    return res.status(202).json({
+      message:"Product deleted successfully",
+      deletedProduct:product,
+    })
+  }
+  catch(error){
+    return res.status(500).json({message:"internal server error"})
+  }
+}
