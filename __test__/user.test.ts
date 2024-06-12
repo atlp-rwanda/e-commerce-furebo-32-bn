@@ -139,7 +139,7 @@ describe("User", () => {
   describe("Update user role", () => {
     test("update user role without login", async () => {
       const res = await request(app)
-        .patch(`/api/users/${userId}`)
+        .patch(`/api/users/${userId}/role`)
         .send({ role: "seller" });
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Authorization header missing");
@@ -147,7 +147,7 @@ describe("User", () => {
 
     test("update user role with invalid token", async () => {
       const res = await request(app)
-        .patch(`/api/users/${userId}`)
+        .patch(`/api/users/${userId}/role`)
         .set("Authorization", `Bearer kdekefiwfgj`)
         .send({ role: "seller" });
       expect(res.statusCode).toBe(401);
@@ -156,7 +156,7 @@ describe("User", () => {
 
     test("update user role successful", async () => {
       const res = await request(app)
-        .patch(`/api/users/${userId}`)
+        .patch(`/api/users/${userId}/role`)
         .set("Authorization", `Bearer ${token}`)
         .send({ role: "seller" });
       expect(res.statusCode).toBe(201);
@@ -164,7 +164,7 @@ describe("User", () => {
     });
     test("update user role  and user not found", async () => {
       const res = await request(app)
-        .patch(`/api/users/${"21c2e6b1-eb05-4dde-b7bb-25bad784c296"}`)
+        .patch(`/api/users/${"21c2e6b1-eb05-4dde-b7bb-25bad784c296"}/role`)
         .set("Authorization", `Bearer ${token}`)
         .send({ role: "seller" });
       expect(res.statusCode).toBe(404);

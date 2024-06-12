@@ -5,11 +5,15 @@ export class ProductService {
   static async createProduct(product: createProductAttributes) {
     return await Product.create(product);
   }
-  static async getProductByName(productName:string) {
-    return  await Product.findOne({ where: { productName: productName} });
+  static async getProductByName(productName: string) {
+    return await Product.findOne({ where: { productName: productName } });
   }
 
-  static async getProductByid(id:string) {
+  static async getProductByid(id: string) {
     return await Product.findOne({ where: { id: id } });
+  }
+
+  static async getProducts(query: any) {
+    return await Product.findAll(query);
   }
 }

@@ -12,21 +12,21 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      description:{
-        type:Sequelize.STRING,
-        allowNull:false,
+      description: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      seller_id:{
-        type:Sequelize.UUID,
-        allowNull:false,
+      seller_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
         references: {
           model: 'users',
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
-    },
-    createdAt: {
+      },
+      createdAt: {
         type: Sequelize.DATE,
         allowNull: false
       },

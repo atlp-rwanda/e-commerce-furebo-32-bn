@@ -47,3 +47,4 @@ class Wishlist
         tableName: "wishlists"
     }
   )
+  export default Wishlist;
