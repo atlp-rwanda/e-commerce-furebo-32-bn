@@ -17,11 +17,7 @@ export class UserService {
   static async getUserByid(id: string) {
     return await User.findOne({ where: { id: id } });
   }
-<<<<<<< HEAD
-}
-=======
   static async getAllUsers() {
     return await User.findAll();
   }
 }
->>>>>>> 2c83d28 (Rebase to resolve conflicts)
