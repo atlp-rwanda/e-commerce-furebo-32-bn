@@ -35,6 +35,8 @@ class Product
 
   declare updatedAt: Date;
 
+  declare expired: boolean;
+
   static associate(): void {
     Product.belongsTo(User, { foreignKey: 'sellerId' })
     Product.belongsTo(Collection, { foreignKey: 'collectionId' })
@@ -115,6 +117,10 @@ Product.init(
     updatedAt: {
       allowNull: true,
       type: DataTypes.DATE
+    },
+    expired:{
+      type:DataTypes.BOOLEAN,
+      defaultValue:false
     },
   },
   {
