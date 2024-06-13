@@ -1,104 +1,91 @@
 import { Request, Response } from "express";
 import { CartService } from "../services/cart.service";
-import { ProductService } from "../services/Product.services";
-import { createCartSchema } from "../validations/cart.validator";
+import { validateAddItemToCart } from "../validations/cart.validate";
 
-// Function to create a cart
+
+
 export const createCart = async (req: Request, res: Response) => {
-  try {
-   
-
-    const { error } = createCartSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+    try {
+      const { userId, name, description } = req.body; 
+      const cart = await CartService.createCart(userId, name, description);
+      res.status(201).json({
+        status: "success",
+        data: {
+          cart,
+        },
+      });
+    } catch (error:any) {
+      res.status(500).json({ error: error.message });
     }
-
-    const { name, description } = req.body;
-
-    const cart = await CartService.createCart({ name, description });
-    return res.status(201).json({ message: "Cart created", cart });
-  } catch (error: any) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-
+  };
+  
 export const addItemToCart = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
+    await validateAddItemToCart(req, res, async () => {
+      const { cartId, productId, quantity, description } = req.body;
 
-    const { productId, quantity, cartId } = req.body; 
+      const updatedCart = await CartService.addItemToCart(cartId, productId, quantity, description);
 
-   
-    if (!cartId) {
-      return res.status(400).json({ message: "Cart ID is required" });
-    }
-
-    const product = await ProductService.getProductById(productId); 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    const cartItem = await CartService.addItemToCart({
-      userId,
-      productId,
-      quantity,
-      cartId, 
-      name: "",
-      description: ""
+      res.status(200).json({
+        status: "success",
+        data: {
+          cart: updatedCart,
+        },
+      });
     });
-    return res.status(200).json({ message: "Item added to cart", cartItem });
   } catch (error: any) {
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
 
-export const viewCart = async (req: Request, res: Response) => {
+export const updateCart = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(403).json({ message: "Unauthorized" });
+    const { id } = req.params;
+    const { items } = req.body;
+
+    const updatedCart = await CartService.updateCart(id, items);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        cart: updatedCart,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
+  
+
+  export const getCart = async (_req: Request, res: Response) => {
+    try {
+      const carts = await CartService.getAllCarts(); 
+      res.status(200).json({
+        status: "success",
+        data: {
+          carts,
+        },
+      });
+    } catch (error:any) {
+      res.status(500).json({ error: error.message });
     }
+  };
+  
+  
  
-    const cart = await CartService.getCartByUserId(userId);
-    const cartTotal = cart.reduce((total, item) => total + item.quantity * item.Product.price, 0);
 
-    return res.status(200).json({ cart, cartTotal });
-  } catch (error: any) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-export const updateCartItem = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(403).json({ message: "Unauthorized" });
+  export const clearCart = async (req: Request, res: Response) => {
+    try {
+      const { cartId } = req.body;
+  
+      await CartService.clearCart(cartId);
+  
+      res.status(200).json({
+        status: "success",
+        message: "Cart cleared successfully",
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
-
-    const { id, quantity } = req.body;
-
-    const cartItem = await CartService.updateCartItem({ id, userId, quantity });
-    return res.status(200).json({ message: "Cart item updated", cartItem });
-  } catch (error: any) {
-    return res.status(500).json({ message: error.message });
-  }
-};
-
-export const clearCart = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
-    await CartService.clearCart(userId);
-    return res.status(200).json({ message: "Cart cleared" });
-  } catch (error: any) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+  };

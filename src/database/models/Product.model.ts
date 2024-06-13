@@ -9,6 +9,8 @@ class Product
   extends Model<ProductAttributes, createProductAttributes>
   implements ProductAttributes
 {
+  
+  [x: string]: any;
   declare id: string;
 
   declare productName: string;

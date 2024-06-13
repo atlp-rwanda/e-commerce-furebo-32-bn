@@ -6,7 +6,7 @@ import morgan from "morgan";
 import bodyParser from 'body-parser';
 import productRoutes from "./routes/product.route"
 import collectionRoute from "./routes/collection.route"
-import cartRoutes from "./routes/cart.route";
+import cartRoutes from './routes/cart.route';
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(morgan("dev"))
 
 app.use ('/',productRoutes)
 app.use('/',collectionRoute)
-app.use("/api/cart", cartRoutes);
+app.use('/api/cart', cartRoutes);
 app.get('/', (_req: Request, res: Response) => {
     return res.json({ message: "welcome to ATLP Backend APIs" });
 });

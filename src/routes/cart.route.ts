@@ -1,14 +1,26 @@
-import express from "express";
-import { addItemToCart, viewCart, updateCartItem, clearCart, createCart } from "../controllers/cart.controller";
+import { Router } from "express";
+import {
+  addItemToCart,
+  clearCart,
+  createCart,
+  getCart,
+  updateCart,
+} from "../controllers/cart.controller";
 import { protectRoute } from "../middlewares/auth.middleware";
-import { validateRequest } from "../middlewares/validateRequest.middleware";
-import { addCartItemSchema, createCartSchema, updateCartItemSchema } from "../validations/cart.validator";
+import {
+   validateAddItemToCart,
+    validateClearCart,
+     validateUpdateCart
+     }
+  from "../validations/cart.validate";
 
-const router = express.Router();
-router.post("/create", protectRoute, validateRequest(createCartSchema), createCart);
-router.post("/add", protectRoute, validateRequest(addCartItemSchema), addItemToCart);
-router.get("/", protectRoute, viewCart);
-router.post("/update", protectRoute, validateRequest(updateCartItemSchema), updateCartItem);
-router.delete("/clear", protectRoute, clearCart);
+const router = Router();
+
+
+router.post("/", protectRoute, createCart);
+router.get("/", protectRoute, getCart);
+router.post("/:id", protectRoute, validateAddItemToCart, addItemToCart);  
+router.put("/:id", protectRoute, validateUpdateCart, updateCart);
+router.post("/", protectRoute, validateClearCart, clearCart); 
 
 export default router;

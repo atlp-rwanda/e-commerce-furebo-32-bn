@@ -1,83 +1,146 @@
 import Cart from "../database/models/cart.model";
 import Product from "../database/models/Product.model";
-import { createCartAttributes, updateCartAttributes } from "../types/cart.types";
 
 export class CartService {
-    static async createCart(cartData: createCartAttributes) {
-        try {
-            const newCart = await Cart.create({
-                userId: cartData.userId,
-                name: cartData.name,
-                description: cartData.description,
-            });
-            return newCart;
-        } catch (error: any) {
-            throw new Error("Failed to create cart: " + error.message);
+  static async getCartById(cartId: string): Promise<Cart | null> {
+    try {
+      const cart = await Cart.findByPk(cartId, {
+        include: [{ model: Product, as: "products" }],
+      });
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to fetch cart");
+    }
+  }
+
+  static async updateCart(
+    cartId: string,
+    items: { productId: string; quantity: number }[]
+  ): Promise<Cart> {
+    const cart = await Cart.findByPk(cartId);
+    if (!cart) {
+      throw new Error("Cart not found");
+    }
+
+    cart.items = await Promise.all(
+      items.map(async (item) => {
+        const product = await Product.findByPk(item.productId);
+        if (!product) {
+          throw new Error(`Product with ID ${item.productId} not found`);
         }
+        return {
+          productId: item.productId,
+          quantity: item.quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          description: product.description,
+        };
+      })
+    );
+
+    cart.total = cart.items.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+    await cart.save();
+
+    return cart;
+  }
+
+  static async createCart(
+    userId: string,
+    name: string,
+    description: string
+  ): Promise<Cart> {
+    try {
+      const cart = await Cart.create({ userId, name, description });
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to create cart");
+    }
+  }
+
+  static async addItemToCart(
+    cartId: string,
+    productId: string,
+    quantity: number,
+    description: string
+  ): Promise<Cart> {
+    const cart = await Cart.findByPk(cartId);
+    if (!cart) {
+      throw new Error("Cart not found");
     }
 
-    static async addItemToCart(cartItem: createCartAttributes) {
-        try {
-            // Check if the item already exists in the cart
-            const existingItem = await Cart.findOne({
-                where: {
-                    userId: cartItem.userId,
-                    productId: cartItem.productId,
-                },
-            });
-
-            if (existingItem) {
-                // If item exists, update the quantity
-                existingItem.quantity += cartItem.quantity;
-                await existingItem.save();
-                return existingItem;
-            }
-
-            // If item doesn't exist, create a new cart item
-            const newCartItem = await Cart.create({
-                userId: cartItem.userId,
-                productId: cartItem.productId,
-                quantity: cartItem.quantity,
-            });
-
-            return newCartItem;
-        } catch (error:any) {
-            throw new Error("Failed to add item to cart: " + error.message);
-        }
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      throw new Error("Product not found");
     }
 
-    static async getCartByUserId(userId: string) {
-        return await Cart.findAll({
-            where: { userId },
-            include: [{ model: Product, attributes: ["productName", "price", "images"] }],
-        });
+    const existingItemIndex = cart.items.findIndex(
+      (item: any) => item.productId === productId
+    );
+    if (existingItemIndex > -1) {
+      cart.items[existingItemIndex].quantity += quantity;
+    } else {
+      cart.items.push({
+        productId,
+        quantity,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        description,
+      });
     }
 
-    static async updateCartItem(cartItem: updateCartAttributes) {
-        const item = await Cart.findOne({
-            where: {
-                id: cartItem.id,
-                userId: cartItem.userId,
-            },
-        });
+    cart.total += product.price * quantity;
+    await cart.save();
 
-        if (item) {
-            item.quantity = cartItem.quantity;
-            await item.save();
-            return item;
-        }
+    return cart;
+  }
 
-        throw new Error("Cart item not found");
+  static async clearCart(cartId: string): Promise<void> {
+    const cart = await Cart.findByPk(cartId);
+    if (!cart) {
+      throw new Error("Cart not found");
     }
 
-    static async clearCart(userId: string) {
-        return await Cart.destroy({ where: { userId } });
+    cart.items = [];
+    cart.total = 0;
+    await cart.save();
+  }
+
+  static async deleteItemFromCart(
+    cartId: string,
+    productId: string
+  ): Promise<Cart> {
+    const cart = await this.getCartById(cartId);
+    if (!cart) {
+      throw new Error("Cart not found");
     }
 
-    static async viewCart(userId: string) {
-        return await Cart.findAll({
-            where: { userId },
-            include: [{ model: Product, attributes: ["productName", "price", "images"] }],
-        });
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId === productId
+    );
+    if (itemIndex > -1) {
+      const product = await Product.findByPk(productId);
+      if (!product) {
+        throw new Error("Product not found");
+      }
+      cart.total -= cart.items[itemIndex].quantity * product.price;
+      cart.items.splice(itemIndex, 1);
+      await cart.save();
     }
+
+    return cart;
+  }
+
+  static async getAllCarts(): Promise<Cart[]> {
+    try {
+      const carts = await Cart.findAll();
+      return carts;
+    } catch (error) {
+      throw new Error("Failed to fetch carts");
+    }
+  }
 }

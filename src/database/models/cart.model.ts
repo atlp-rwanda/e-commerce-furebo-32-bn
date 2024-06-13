@@ -1,21 +1,28 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/sequelize.config";
+import { CartAttributes, createCartAttributes } from "../../types/cart.types";
 import User from "./user.model";
-import Product from "./Product.model";
 
-class Cart extends Model {
-    [x: string]: any;
+class Cart extends Model<CartAttributes, createCartAttributes> implements CartAttributes {
+  [x: string]: any;
   declare id: string;
-/*   declare userId: string; */
-  declare productId: string;
-  declare quantity: number;
+  declare userId: string;
   declare name: string; 
   declare description: string; 
-    Product: any;
+  declare items: {
+    productId: string;
+    quantity: number;
+    name: string;
+    price: number;
+    image: string;
+    description: string; 
+  }[];
+  declare total: number;
+  declare createdAt: Date;
+  declare updatedAt: Date;
 
-  static associate() {
-    Cart.belongsTo(User, { foreignKey: "userId" });
-    Cart.belongsTo(Product, { foreignKey: "productId" });
+  static associate(): void {
+    Cart.belongsTo(User, { foreignKey: 'userId' });
   }
 }
 
@@ -27,27 +34,46 @@ Cart.init(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-   /*  userId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-    }, */
-    productId: {
+    userId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
-    quantity: {
-      type: DataTypes.INTEGER,
+    name: {
+      type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        min: 1,
-      },
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    items: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    total: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
-    sequelize,
+    timestamps: true,
+    sequelize: sequelize,
     modelName: "Cart",
     tableName: "Carts",
   }
 );
 
 export default Cart;
+
