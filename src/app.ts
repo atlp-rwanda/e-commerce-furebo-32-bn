@@ -6,6 +6,7 @@ import morgan from "morgan";
 import bodyParser from 'body-parser';
 import productRoutes from "./routes/product.route"
 import collectionRoute from "./routes/collection.route"
+import paymentRoutes from "./routes/payment.route";
 import session from "express-session";
 import passport from "passport";
 import LoginByGoogleRoute from "../src/routes/Login-by-google.route";
@@ -37,6 +38,6 @@ app.use('/api/users', userRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use('/',LoginByGoogleRoute)
-
+app.use("/api", paymentRoutes);
 
 export default app;

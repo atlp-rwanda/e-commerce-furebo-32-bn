@@ -785,6 +785,72 @@ const options = {
           },
         },
       },
+      "/api/payment": {
+        post: {
+          summary: "Process Payment",
+          tags: ["Payment"],
+          security: [],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    token: {
+                      type: "string",
+                      example: "tok_visa",
+                    },
+                    amount: {
+                      type: "number",
+                      example: 1000,
+                    },
+                    description: {
+                      type: "string",
+                      example: "Payment for order #1234",
+                    },
+                    orderId: {
+                      type: "string",
+                      example: "1234",
+                    },
+                  },
+                  required: ["token", "amount", "description", "orderId"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Payment successful",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      order: {
+                        type: "object",
+                        properties: {
+                          orderId: { type: "string" },
+                          amount: { type: "number" },
+                          currency: { type: "string" },
+                          expectedDelivery: { type: "string" },
+                        },
+                      },
+                      paymentIntentId: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal Server Error",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],
