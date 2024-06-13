@@ -114,3 +114,22 @@ export const searchProducts = async (req: Request, res: Response) => {
 
   return res.status(200).json({ products });
 };
+
+export const getAvailableProducts = async (req: Request, res: Response) => {
+  try {
+    const seller_id = req.params.seller_id;
+    const products = await ProductService.getAvailableProductsBySeller(
+      seller_id
+    );
+
+    if (!products || products.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No available products found for this seller." });
+    }
+
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({ error: error });
+  }
+};
