@@ -47,6 +47,7 @@ describe("createProduct", () => {
     findOneStub = sinon.stub(Product, "findOne");
   });
 
+  
   afterEach(() => {
     sinon.restore();
   });
