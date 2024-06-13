@@ -9,7 +9,7 @@ import "../utils/cloudinary.utils";
 import { Op } from "sequelize";
 
 dotenv.config();
-
+// dotenv.config();
 export const createProduct = async function (req: Request, res: Response) {
   try {
     const collection = await CreateCollectionService.getCollectionByid(
