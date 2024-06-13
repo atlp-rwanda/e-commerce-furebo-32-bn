@@ -14,7 +14,6 @@ export interface ProductAttributes {
     availability?:boolean;
     createdAt?: Date;
     updatedAt?: Date;
-    expired?:boolean;
   }
 
 
@@ -32,7 +31,6 @@ export interface ProductAttributes {
     |"description"
     |"category"
     |"availability"
-    |"expired"
   > {}
 
 export interface UserOutputs extends Required<ProductAttributes> {}
