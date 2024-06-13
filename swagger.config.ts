@@ -760,11 +760,11 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
-                    available: {
+                    availability: {
                       type: "boolean",
                     },
                   },
-                  required: ["available"],
+                  required: ["availability"],
                 },
               },
             },
