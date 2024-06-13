@@ -49,45 +49,35 @@ export const createProduct = async function (req: Request, res: Response) {
       category: req.body.category,
     };
 
-    const existingProduct = await Product.findOne({
-      where: { productName: product.productName },
-    });
-    if (existingProduct) {
-      return res.status(409).json({
-        message: "Product exists, please update your stock",
-      });
+        const existingProduct = await Product.findOne({
+            where: {productName:product.productName},
+          })
+          if (existingProduct) {
+            return res.status(409).json({
+              message: 'Product exists, please update your stock',
+            })
+          }
+
+        if(!product.collection_id||!product.collection_id||!product.description||!product.expireDate||!product.price||!product.productName||!product.quantity||!product.seller_id){
+
+            //delete images when there is an error
+            imagePublicId.forEach(async(publicId)=>{
+                await cloudinary.v2.uploader.destroy(publicId)
+            })
+
+            return res.status(400).json({message:"Make sure you enter all required information"})
+        }
+    
+        const createdProduct= await ProductService.createProduct(product);
+        return res.status(200).json({
+            message:"Product is created successfully",
+            Product:createdProduct,
+        })
     }
-
-    if (
-      !product.collection_id ||
-      !product.collection_id ||
-      !product.description ||
-      !product.expireDate ||
-      !product.price ||
-      !product.productName ||
-      !product.quantity ||
-      !product.seller_id
-    ) {
-      //delete images when there is an error
-      imagePublicId.forEach(async (publicId) => {
-        await cloudinary.v2.uploader.destroy(publicId);
-      });
-
-      return res
-        .status(400)
-        .json({ message: "Make sure you enter all required information" });
+    catch(error){
+        return res.status(500).json({error:error})
     }
-
-    const createdProduct = await ProductService.createProduct(product);
-    return res.status(200).json({
-      message: "Product is created successfully",
-      Product: createdProduct,
-    });
-  } catch (error) {
-    return res.status(500).json({ error: error });
-  }
-};
-
+}
 //search products
 
 export const searchProducts = async (req: Request, res: Response) => {
@@ -113,4 +103,21 @@ export const searchProducts = async (req: Request, res: Response) => {
   const products = await ProductService.getProducts(query);
 
   return res.status(200).json({ products });
+};
+
+export const getAvailableProducts = async (req: Request, res: Response) => {
+  try {
+    const seller_id = req.params.seller_id;
+    const products = await ProductService.getAvailableProductsBySeller(seller_id);
+
+    if (!products || products.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No available products found for this seller." });
+    }
+
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({ error: error});
+  }
 };
