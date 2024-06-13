@@ -3,6 +3,7 @@ import sinon from "sinon";
 import {
   createProduct,
   searchProducts,
+  getAvailableProducts,
 } from "../src/controllers/product.controller";
 import { CreateCollectionService } from "../src/services/collection.services";
 import { ProductService } from "../src/services/Product.services";
@@ -13,6 +14,8 @@ import { createCollection } from "../src/controllers/collection.controller";
 import Collection from "../src/database/models/collection.model";
 import Product from "../src/database/models/Product.model";
 import { Op } from "sequelize";
+
+
 
 describe("createProduct", () => {
   let req: Partial<Request>;
@@ -664,5 +667,67 @@ describe("searchProducts", () => {
     ).toBe(true);
     expect(statusStub.calledOnceWith(200)).toBe(true);
     expect(jsonStub.calledOnceWith({ products })).toBe(true);
+  });
+});
+
+describe("getAvailableProducts", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let findAllStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: {},
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    findAllStub = sinon.stub(Product, "findAll");
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should return 200 and a list of available products", async () => {
+    const mockProducts = [
+      {
+        id: "1",
+        productName: "Product 1",
+        description: "Description 1",
+        price: 100,
+        quantity: 10,
+        seller_id: "123",
+        expireDate: "2024-12-31",
+        Collection_id: "1",
+        images: ["http://example.com/image1.jpg"],
+        category: "Category 1",
+      },
+      {
+        id: "2",
+        productName: "Product 2",
+        description: "Description 2",
+        price: 200,
+        quantity: 5,
+        seller_id: "123",
+        expireDate: "2024-12-31",
+        Collection_id: "2",
+        images: ["http://example.com/image2.jpg"],
+        category: "Category 2",
+      },
+    ];
+
+    findAllStub.resolves(mockProducts);
+    req.params = { seller_id: "123" };
+
+    await getAvailableProducts(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(200)).toBe(true);
+    expect(jsonStub.calledOnceWith(mockProducts)).toBe(true);
   });
 });
