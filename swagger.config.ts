@@ -1883,6 +1883,97 @@ const options = {
           }
         }
       },
+      "/api/viewProduct/{product_id}": {
+        get: {
+          summary: "View Product",
+          description: "View Product by providing its id",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Collection created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      product: {
+                        type: "object",
+                        description: "requested product",
+                      },
+                    },
+                  },
+                },
+              },},
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+          },
+        },
+      },
+      "/api/sellerViewProduct/{product_id}/{collection_id}": {
+        get: {
+          summary: "View Product By seller",
+          description: "Seller can view product in his collection",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+            {
+              name: "collection_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Collection ID",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Product found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      product: {
+                        type: "object",
+                        description: "Requested product",
+                      },
+                    },
+                  },
+                },
+              },},
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+        },
+      },
     },
   },
   
