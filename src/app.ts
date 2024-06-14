@@ -20,6 +20,7 @@ import orderStatusroutes from "./routes/orderstatus.routes";
 import { initSocket } from "./socketio";
 import http from "http";
 dotenv.config();
+import postRoutes from "./routes/chat.route";
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use("/api/notifications", notificatioRoute);
 
 app.use("/api/users", profileRoutes);
 app.use("/api", checkoutRoutes);
+app.use('/api/chat', postRoutes)
 // Swagger UI route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
