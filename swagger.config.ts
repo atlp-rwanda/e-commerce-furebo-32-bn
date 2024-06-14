@@ -854,6 +854,57 @@ const options = {
           },
         },
       },
+      "/updateAvailability/:id": {
+        patch: {
+          summary: "Update product availability",
+          tags: ["Product"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    availability: {
+                      type: "boolean",
+                      example: true,
+                    },
+                  },
+                  required: ["availability"],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Product availability updated successfully",
+            },
+            "400": {
+              description: "Bad Request",
+            },
+            "401": {
+              description: "Unauthorized",
+            },
+            "404": {
+              description: "Product not found",
+            },
+            "500": {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],
