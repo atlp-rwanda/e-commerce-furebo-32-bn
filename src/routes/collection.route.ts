@@ -6,6 +6,6 @@ import { getSellerItems } from "../controllers/collection.controller";
 const router=express.Router();
 
 router.post('/createCollection/:seller_id',protectRoute,createCollection)
-router.get('/getSellerItems/:seller_id',protectRoute,getSellerItems)
+router.get('/seller/collection/:seller_id',protectRoute,getSellerItems)
 
 export default router;
