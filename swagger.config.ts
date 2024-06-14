@@ -771,6 +771,89 @@ const options = {
           },
         },
       },
+      "/availableProducts/{seller_id}": {
+        get: {
+          summary: "Get available products by seller",
+          description:
+            "Retrieve a list of available products for a specific seller.",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "seller_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "ID of the seller to retrieve products for",
+            },
+          ],
+          responses: {
+            200: {
+              description: "A list of available products",
+              content: {
+                "application/json": {
+                  schema: {
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string", description: "Product ID" },
+                        productName: {
+                          type: "string",
+                          description: "Name of the product",
+                        },
+                        description: {
+                          type: "string",
+                          description: "Description of the product",
+                        },
+                        price: {
+                          type: "number",
+                          description: "Price of the product",
+                        },
+                        quantity: {
+                          type: "number",
+                          description: "Quantity of the product",
+                        },
+                        seller_id: { type: "string", description: "Seller ID" },
+                        expireDate: {
+                          type: "string",
+                          description: "Expiration date of the product",
+                          format: "date",
+                        },
+                        Collection_id: {
+                          type: "string",
+                          description: "Collection ID",
+                        },
+                        images: {
+                          type: "array",
+                          items: {
+                            type: "string",
+                            description: "Image URL of the product",
+                          },
+                          description: "Images of the product",
+                        },
+                        category: {
+                          type: "string",
+                          description: "Category of the product",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              404: {
+                description: "Seller not found",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],

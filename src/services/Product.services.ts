@@ -16,4 +16,13 @@ export class ProductService {
   static async getProducts(query: any) {
     return await Product.findAll(query);
   }
+
+  static async getAvailableProductsBySeller(seller_id: string) {
+    return await Product.findAll({
+      where: {
+        seller_id: seller_id,
+        availability: true,
+      },
+    });
+  }
 }
