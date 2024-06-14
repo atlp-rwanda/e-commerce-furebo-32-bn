@@ -222,7 +222,7 @@ const options = {
       },
       "/api/users/logout": {
         post: {
-          summary: "Logout from the application",
+          summary: "Logout from the Application",
           tags: ["Authentication"],
           security: [{ bearerAuth: [] }],
           responses: {
