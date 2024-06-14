@@ -9,6 +9,7 @@ import productRoutes from "./routes/product.route"
 import cartRoutes from "./routes/cart.route";
 import collectionRoute from "./routes/collection.route"
 import wishlistRoute from "./routes/wishlist.route"
+import checkoutRouter from "./routes/checkout.route";
 import session from "express-session";
 import passport from "passport";
 import LoginByGoogleRoute from "../src/routes/Login-by-google.route";
@@ -40,6 +41,7 @@ app.use("/api/cart", cartRoutes);
 
 
 app.use('/api/users', profileRoutes);
+app.use("/api", checkoutRouter);
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
