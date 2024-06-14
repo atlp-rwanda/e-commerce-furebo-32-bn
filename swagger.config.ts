@@ -905,6 +905,62 @@ const options = {
           },
         },
       },
+      "/api/payment": {
+        post: {
+          summary: "Process a payment",
+          tags: ["Payment"],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    token: { type: "string", example: "tok_visa" },
+                    amount: { type: "number", example: 5000 },
+                    description: {
+                      type: "string",
+                      example: "Order description",
+                    },
+                    orderId: { type: "string", example: "orderId_123" },
+                  },
+                  required: ["token", "amount", "description", "orderId"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Payment processed successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      order: {
+                        type: "object",
+                        properties: {
+                          orderId: { type: "string" },
+                          amount: { type: "number" },
+                          currency: { type: "string" },
+                          expectedDelivery: { type: "string" },
+                        },
+                      },
+                      paymentIntentId: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Payment failed",
+            },
+          },
+        },
+      },
     },
   },
   apis: ["./src/routes/*.ts"],

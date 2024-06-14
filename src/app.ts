@@ -8,6 +8,7 @@ import productRoutes from "./routes/product.route"
 import collectionRoute from "./routes/collection.route"
 import wishlistRoute from "./routes/wishlist.route"
 import session from "express-session";
+import paymentRoutes from "./routes/payment.route";
 import passport from "passport";
 import LoginByGoogleRoute from "../src/routes/Login-by-google.route";
 import dotenv from 'dotenv'
@@ -34,7 +35,7 @@ app.get('/', (_req: Request, res: Response) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/wishlist',wishlistRoute)
-
+app.use("/api", paymentRoutes);
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
