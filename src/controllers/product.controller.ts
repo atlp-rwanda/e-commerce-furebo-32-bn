@@ -133,3 +133,39 @@ export const getAvailableProducts = async (req: Request, res: Response) => {
     return res.status(500).json({ error: error });
   }
 };
+export const updateProductAvailability = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const id = req.params.id;
+    const { availability } = req.body;
+
+    const product = await ProductService.getProductByid(id);
+
+    if (!product) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Product not found",
+      });
+    }
+
+    product.availability = availability;
+
+    await product.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Product availability updated successfully",
+      data: {
+        product,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating product availability:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while updating the product availability",
+    });
+  }
+};

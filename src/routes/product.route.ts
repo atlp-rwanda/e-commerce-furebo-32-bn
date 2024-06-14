@@ -4,6 +4,7 @@ import {
   createProduct,
   searchProducts,
   getAvailableProducts,
+  updateProductAvailability,
 } from "../controllers/product.controller";
 import { upload } from "../utils/multer.utils";
 import { protectRoute } from "../middlewares/auth.middleware";
@@ -17,4 +18,9 @@ router.post(
 );
 router.post("/searchProduct", protectRoute, searchProducts);
 router.get("/availableProducts/:seller_id", protectRoute, getAvailableProducts);
+router.patch(
+  "/updateAvailability/:id",
+  protectRoute,
+  updateProductAvailability
+);
 export default router;
