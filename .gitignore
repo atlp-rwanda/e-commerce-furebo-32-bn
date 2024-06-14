@@ -2,4 +2,7 @@
 .env
 /coverage
 /dist
+
+
 yarn.lock
+package-lock.json
