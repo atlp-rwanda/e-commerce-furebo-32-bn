@@ -6,6 +6,7 @@ import morgan from "morgan";
 import bodyParser from 'body-parser';
 import productRoutes from "./routes/product.route"
 import collectionRoute from "./routes/collection.route"
+import checkoutRouter from "./routes/checkout.route";
 import wishlistRoute from "./routes/wishlist.route"
 import session from "express-session";
 import paymentRoutes from "./routes/payment.route";
@@ -34,7 +35,8 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 app.use('/api/users', userRoutes);
-app.use('/api/wishlist',wishlistRoute)
+app.use('/api/wishlist', wishlistRoute)
+app.use("/api", checkoutRouter);
 app.use("/api", paymentRoutes);
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));

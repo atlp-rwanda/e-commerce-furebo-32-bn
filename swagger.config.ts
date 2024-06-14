@@ -905,6 +905,96 @@ const options = {
           },
         },
       },
+      "/api/checkout": {
+        post: {
+          summary: "Create a new order",
+          tags: ["Order"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    userId: {
+                      type: "string",
+                      example: "userId_123",
+                    },
+                    deliveryAddress: {
+                      type: "string",
+                      example: "123 Main St, Anytown, USA",
+                    },
+                    paymentMethod: {
+                      type: "string",
+                      example: "credit_card",
+                    },
+                    products: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          productId: { type: "string" },
+                          quantity: { type: "number" },
+                          price: { type: "number" },
+                        },
+                        required: ["productId", "quantity", "price"],
+                        example: {
+                          productId: "product_123",
+                          quantity: 2,
+                          price: 25.99,
+                        },
+                      },
+                    },
+                  },
+                  required: [
+                    "userId",
+                    "deliveryAddress",
+                    "paymentMethod",
+                    "products",
+                  ],
+                },
+              },
+            },
+          },
+          responses: {
+            201: {
+              description: "Order created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      orderId: { type: "string" },
+                      userId: { type: "string" },
+                      deliveryAddress: { type: "string" },
+                      paymentMethod: { type: "string" },
+                      status: { type: "string" },
+                      products: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            productId: { type: "string" },
+                            quantity: { type: "number" },
+                            price: { type: "number" },
+                          },
+                        },
+                      },
+                      totalAmount: { type: "number" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request - Invalid input",
+            },
+            500: {
+              description: "Internal Server Error",
+            },
+          },
+        },
+      },
       "/api/payment": {
         post: {
           summary: "Process a payment",
