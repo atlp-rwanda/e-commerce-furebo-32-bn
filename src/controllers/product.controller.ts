@@ -88,6 +88,19 @@ export const createProduct = async function (req: Request, res: Response) {
   }
 };
 
+export const getAvailableItems = async function (req: Request, res: Response) {
+  const items = await ProductService.getAvailableItems();
+  const user = req.user;
+  if (!user) {
+        return res.status(401).json({ status: 401, error: "Unauthorized access" });
+  }
+   return res.status(200).json({
+       status: 200,
+       message: "Items retrieved successfully",
+       items: items
+   });
+}
+
 //search products
 
 export const searchProducts = async (req: Request, res: Response) => {

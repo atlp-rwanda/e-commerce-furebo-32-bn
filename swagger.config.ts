@@ -177,10 +177,52 @@ const options = {
           },
         },
       },
-
+      "/api/auth/google": {
+        post: {
+          summary: "Login with Google",
+          tags: ["Authentication"],
+          security: [],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    tokenId: {
+                      type: "string",
+                      example: "Google token ID",
+                    },
+                  },
+                  required: ["tokenId"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      token: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+          },
+        },
+      },
       "/api/users/logout": {
         post: {
-          summary: "Logout from the application",
+          summary: "Logout from the Application",
           tags: ["Authentication"],
           security: [{ bearerAuth: [] }],
           responses: {
@@ -482,7 +524,7 @@ const options = {
           },
         },
       },
-      "/createCollection/{seller_id}": {
+      "/api/createCollection/{seller_id}": {
         post: {
           summary: "Create a new collection",
           description: "Create a new collection with the provided name",
@@ -647,7 +689,92 @@ const options = {
           },
         },
       },
-      "/searchProduct": {
+      "/seller/collection/{seller_id}": {
+        get: {
+          summary: "Get Seller Items",
+          description: "Get all items of a seller",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "seller_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Seller ID",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Seller Items",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
+      "/api/availableItems": {
+        get: {
+          summary: "Get Available Items In all collections",
+          description: "Get all available items",
+          tags: ["Product"],
+          responses: {
+            200: {
+              description: "Available Items",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
+      "/api/searchProduct": {
         post: {
           summary: "search for Products",
           description: "search for products by name, price or category ",
@@ -773,7 +900,7 @@ const options = {
       },
       "/availableProducts/{seller_id}": {
         get: {
-          summary: "Get available products by seller",
+          summary: "Get available products by a particular seller",
           description:
             "Retrieve a list of available products for a specific seller.",
           tags: ["Product"],
