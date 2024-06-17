@@ -594,7 +594,7 @@ const options = {
           },
         },
       },
-      "/createProduct/{collection_id}": {
+      "/api/createProduct/{collection_id}": {
         post: {
           summary: "Create a new Product",
           description: "Create a new Product with in ",

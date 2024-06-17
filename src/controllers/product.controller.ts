@@ -7,7 +7,10 @@ import { CreateCollectionService } from "../services/collection.services";
 import Product from "../database/models/Product.model";
 import "../utils/cloudinary.utils";
 import { Op } from "sequelize";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 
+dayjs.extend(utc)
 dotenv.config();
 // dotenv.config();
 export const createProduct = async function (req: Request, res: Response) {
@@ -182,3 +185,26 @@ export const updateProductAvailability = async (
     });
   }
 };
+
+export const getProductStats=async(req:Request)=>{
+  const userId=req.user?.id;
+  const {start}=req.query as any
+  const {end}=req.query as any
+  const startDate=dayjs(start).startOf('day').utc().toDate();
+  const endDate=dayjs(end).endOf('day').utc().toDate();
+  try{
+    const products=await Product.findAll({
+      where:{
+        seller_id:userId,
+        createdAt:{
+          [Op.gte]:startDate,
+          [Op.lte]:endDate
+        }
+      }
+    })
+    return products.length
+  }catch(error:any){
+    console.log(error.message);
+    
+  }
+}

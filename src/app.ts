@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 import productRoutes from "./routes/product.route"
 import collectionRoute from "./routes/collection.route"
 import wishlistRoute from "./routes/wishlist.route"
+import productStatsRoute from "./routes/productStats.route"
 import session from "express-session";
 import passport from "passport";
 import LoginByGoogleRoute from "../src/routes/Login-by-google.route";
@@ -34,6 +35,7 @@ app.get('/', (_req: Request, res: Response) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/wishlist',wishlistRoute)
+app.use('/api/stats',productStatsRoute)
 
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
