@@ -771,6 +771,341 @@ const options = {
           },
         },
       },
+      "/api/cart/createCart": {
+        post: {
+          summary: "Create a new cart",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    description: { type: "string" },
+                    userId: { type: "string" }
+                  },
+                  required: ["name", "description", "userId"]
+                }
+              }
+            }
+          },
+          responses: {
+            201: {
+              description: "Cart created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      cart: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          name: { type: "string" },
+                          description: { type: "string" },
+                          userId: { type: "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            401: {
+              description: "Unauthorized"
+            },
+            500: {
+              description: "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/api/cart/addItemToCart": {
+        "post": {
+          "summary": "Add an item to the cart",
+          "tags": ["Cart"],
+          "security": [{ "bearerAuth": [] }],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cartId": { "type": "string" },
+                    "productId": { "type": "string" },
+                    "quantity": { "type": "integer" }
+                  },
+                  "required": ["cartId", "productId", "quantity"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Item added to cart successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" },
+                      "cart": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "productId": { "type": "string" },
+                                "productName": { "type": "string" },
+                                "price": { "type": "number" },
+                                "image": { "type": "string" },
+                                "quantity": { "type": "integer" },
+                                "productDetails": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": { "type": "string" },
+                                    "price": { "type": "number" },
+                                    "image": { "type": "string" }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Product not found or Cart not found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      
+      
+      
+      
+      "/api/cart/viewCart/{cartId}": {
+        "get": {
+          "summary": "View items in the cart",
+          "tags": ["Cart"],
+          "security": [{ "bearerAuth": [] }],
+          "parameters": [
+            {
+              "name": "cartId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "ID of the cart to be viewed"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Cart retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" },
+                      "cart": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": { "type": "string" },
+                                "productId": { "type": "string" },
+                                "productName": { "type": "string" },
+                                "price": { "type": "number" },
+                                "image": { "type": "string" },
+                                "quantity": { "type": "integer" },
+                                "productDetails": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": { "type": "string" },
+                                    "price": { "type": "number" },
+                                    "image": { "type": "string" }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Cart not found"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      
+      "/api/cart/updateCart/{cartId}": {
+        post: {
+          summary: "Update items in the cart",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "cartId",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "ID of the cart to update",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    items: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          productId: { type: "string" },
+                          quantity: { type: "integer" },
+                        },
+                        required: ["productId", "quantity"],
+                      },
+                    },
+                  },
+                  required: ["items"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Cart updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      cart: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "string" },
+                            productId: { type: "string" },
+                            productName: { type: "string" },
+                            price: { type: "number" },
+                            image: { type: "string" },
+                            quantity: { type: "integer" },
+                            productDetails: {
+                              type: "object",
+                              properties: {
+                                name: { type: "string" },
+                                price: { type: "number" },
+                                image: { type: "string" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            401: {
+              description: "Unauthorized",
+            },
+            500: {
+              description: "Internal Server Error",
+            },
+          },
+        },
+      },
+      "/api/cart/clear/{cartId}": {
+        "post": {
+          "summary": "Clear the cart",
+          "tags": ["Cart"],
+          "security": [{ "bearerAuth": [] }],
+          "parameters": [
+            {
+              "name": "cartId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "ID of the cart to be cleared"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Cart cleared successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" },
+                    },
+                  },
+                },
+              },
+            },
+            "401": {
+              "description": "Unauthorized",
+            },
+            "404": {
+              "description": "Cart not found",
+            },
+            "500": {
+              "description": "Internal Server Error",
+            },
+          },
+        },
+      }
+      
+
     },
   },
   apis: ["./src/routes/*.ts"],
