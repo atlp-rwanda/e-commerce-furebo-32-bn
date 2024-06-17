@@ -3,6 +3,7 @@ import * as controller from '../src/controllers/cart.controller';
 import { CartService } from '../src/services/cart.services'; 
 import { ProductService } from '../src/services/Product.services';
 import {  validateAddItemToCart, validateUpdateCart } from '../src/validations/cart.validate'; 
+import { createCart } from '../src/controllers/cart.controller';
 
 
 
@@ -10,23 +11,36 @@ import {  validateAddItemToCart, validateUpdateCart } from '../src/validations/c
 jest.mock('../src/services/cart.services'); 
 jest.mock('../src/services/Product.services'); 
 
+
 describe('createCart', () => {
   let req: Request;
   let res: Response;
 
   beforeEach(() => {
-    req = { body: { name: 'Test Cart', description: 'Test Description', userId: 'test_user_id' } } as Request;
-    res = { 
-      status: jest.fn().mockReturnThis(), 
-      json: jest.fn()
+    req = {
+      body: { name: 'Test Cart', description: 'Test Description' },
+      user: { id: 'test_user_id' }, // Mock the user object to include id
+    } as unknown as Request;
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     } as unknown as Response;
   });
 
   it('should create a new cart', async () => {
-    const expectedCart = { id: 'test_cart_id', name: 'Test Cart', description: 'Test Description', userId: 'test_user_id', items: [], total: 0 };
+    const expectedCart = {
+      id: 'test_cart_id',
+      name: 'Test Cart',
+      description: 'Test Description',
+      userId: 'test_user_id',
+      items: [],
+      total: 0,
+    };
+
     (CartService.createCart as jest.Mock).mockResolvedValue(expectedCart);
 
-    await controller.createCart(req, res);
+    await createCart(req, res);
 
     expect(res.status).toHaveBeenCalledWith(201);
     expect(res.json).toHaveBeenCalledWith({ message: 'Cart created successfully', cart: expectedCart });
@@ -37,11 +51,13 @@ describe('createCart', () => {
     (CartService.createCart as jest.Mock).mockRejectedValue(new Error(errorMessage));
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    await controller.createCart(req, res);
+    await createCart(req, res);
 
     expect(consoleSpy).toHaveBeenCalledWith('Error creating cart:', new Error(errorMessage));
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+
+    consoleSpy.mockRestore();
   });
 });
 

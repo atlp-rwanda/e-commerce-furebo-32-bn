@@ -13,10 +13,7 @@ export const cartValidationSchema = Joi.object({
       "string.max": "Description cannot exceed 1000 characters",
       "any.required": "Description is required",
     }),
-    userId: Joi.string().guid({ version: 'uuidv4' }).required().messages({
-      "string.guid": "User ID must be a valid UUIDv4",
-      "any.required": "User ID is required",
-    }),
+   
   }).options({ abortEarly: false });
 
   export const validateCreateCart = async (req: Request, res: Response, next: NextFunction) => {

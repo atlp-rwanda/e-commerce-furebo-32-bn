@@ -907,13 +907,11 @@ const options = {
           parameters: [
             {
               name: "seller_id",
-
               in: "path",
               required: true,
               schema: {
                 type: "string",
               },
-
               description: "ID of the seller to retrieve products for",
             },
           ],
@@ -997,7 +995,6 @@ const options = {
                 type: "string",
               },
               description: "Product ID",
-
             },
           ],
           requestBody: {
@@ -1006,22 +1003,17 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
-
-                    
                     availability: {
                       type: "boolean",
                       example: true,
                     },
                   },
                   required: ["availability"],
-
                 },
               },
             },
           },
           responses: {
-
-           
             "200": {
               description: "Product availability updated successfully",
             },
@@ -1036,11 +1028,11 @@ const options = {
             },
             "500": {
               description: "Internal server error",
-
             },
           },
         },
       },
+      
       "/api/cart/createCart": {
         post: {
           summary: "Create a new cart",
@@ -1055,9 +1047,9 @@ const options = {
                   properties: {
                     name: { type: "string" },
                     description: { type: "string" },
-                    userId: { type: "string" }
+                   
                   },
-                  required: ["name", "description", "userId"]
+                  required: ["name", "description"]
                 }
               }
             }
@@ -1372,9 +1364,6 @@ const options = {
         },
       }
       
-
-      
-
     },
   },
   apis: ["./src/routes/*.ts"],

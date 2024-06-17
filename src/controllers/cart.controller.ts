@@ -7,10 +7,12 @@ import { ProductService } from "../services/Product.services";
 
 export const createCart = async (req: Request, res: Response) => {
     try {
-      const { name, description, userId } = req.body; 
+      const { name, description } = req.body; 
+      const userId = req.user.id;
   
       const cart: CreateCartAttributes = { name, description, userId, items: [], total: 0 };
       const newCart = await CartService.createCart(cart);
+     
   
       return res.status(201).json({
         message: 'Cart created successfully',
