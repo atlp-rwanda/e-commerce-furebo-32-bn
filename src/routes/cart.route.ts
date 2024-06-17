@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Routes
 router.post("/createCart", protectRoute, validateCreateCart, createCart);
-router.post("/addItemToCart", protectRoute, validateAddItemToCart, addItemToCart);
+router.post("/addItemToCart/:productId", protectRoute, validateAddItemToCart, addItemToCart);
 router.get("/viewCart/:cartId", protectRoute, viewCart);
 router.post("/updateCart/:cartId", protectRoute, validateUpdateCart, updateCart);
 router.post('/clear/:cartId', protectRoute, clearCart);

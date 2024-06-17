@@ -3,16 +3,16 @@ import { CreateCartAttributes, CreateCartItemAttributes } from "../types/cart.ty
 /* import Cart from "../database/models/cart.model";  */
 import { CartService } from "../services/cart.services";
 import { ProductService } from "../services/Product.services";
+/* import { request } from "http"; */
 
 
 export const createCart = async (req: Request, res: Response) => {
     try {
-      const { name, description } = req.body; 
+      const { name, description} = req.body; 
       const userId = req.user.id;
   
       const cart: CreateCartAttributes = { name, description, userId, items: [], total: 0 };
       const newCart = await CartService.createCart(cart);
-     
   
       return res.status(201).json({
         message: 'Cart created successfully',
@@ -28,15 +28,16 @@ export const createCart = async (req: Request, res: Response) => {
 
   export const addItemToCart = async (req: Request, res: Response) => {
     try {
-      const { cartId, productId, quantity } = req.body;
+      const  productId = req.params.productId;
+      
       const userId = (req.user as any).id;
+      const cart=await CartService.getCartByUserId(userId)
   
       const product = await ProductService.getProductById(productId);
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
   
-      const cart = await CartService.getCartById(cartId);
       if (!cart || cart.userId !== userId) {
         return res.status(404).json({ message: "Cart not found" });
       }
@@ -44,15 +45,16 @@ export const createCart = async (req: Request, res: Response) => {
       const newItem: CreateCartItemAttributes = {
         cartId: cart.id!,
         productId,
-        productName: product.name,
+        productName: product.productName,
         price: product.price,
-        image: product.image,
-        quantity
+        image: product.images,
+        quantity:1
+        
       };
   
       await CartService.addCartItem(userId, newItem);
   
-      const updatedCart = await CartService.getPopulatedCart(cartId);
+      const updatedCart = await CartService.getPopulatedCart(cart.id);
       
       if (!updatedCart) {
         return res.status(500).json({ message: "Failed to retrieve updated cart" });
@@ -111,7 +113,7 @@ export const createCart = async (req: Request, res: Response) => {
       res.status(200).json({
         message: "Cart retrieved successfully",
         cart: {
-          ...cart,
+          ...cart.dataValues,
           items: populatedCart
         }
       });

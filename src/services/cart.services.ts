@@ -30,16 +30,10 @@ export class CartService {
       if (existingItemIndex !== -1) {
         cart.items[existingItemIndex].quantity += newItem.quantity;
       } else {
-        cart.items.push({
-          cartId: cart.id,
-          productId: newItem.productId,
-          productName: newItem.productName,
-          price: newItem.price,
-          image: newItem.image,
-          quantity: newItem.quantity,
-        });
+        cart.items.push(newItem);
+        console.log(newItem)
       }
-
+  
       cart.total = this.calculateCartTotal(cart.items);
       await cart.save();
     }

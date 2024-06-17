@@ -594,7 +594,7 @@ const options = {
           },
         },
       },
-      "/createProduct/{collection_id}": {
+      "/api/createProduct/{collection_id}": {
         post: {
           summary: "Create a new Product",
           description: "Create a new Product with in ",
@@ -907,11 +907,13 @@ const options = {
           parameters: [
             {
               name: "seller_id",
+
               in: "path",
               required: true,
               schema: {
                 type: "string",
               },
+
               description: "ID of the seller to retrieve products for",
             },
           ],
@@ -995,6 +997,7 @@ const options = {
                 type: "string",
               },
               description: "Product ID",
+
             },
           ],
           requestBody: {
@@ -1003,17 +1006,22 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
+
+                    
                     availability: {
                       type: "boolean",
                       example: true,
                     },
                   },
                   required: ["availability"],
+
                 },
               },
             },
           },
           responses: {
+
+           
             "200": {
               description: "Product availability updated successfully",
             },
@@ -1028,11 +1036,11 @@ const options = {
             },
             "500": {
               description: "Internal server error",
+
             },
           },
         },
       },
-      
       "/api/cart/createCart": {
         post: {
           summary: "Create a new cart",
@@ -1047,7 +1055,7 @@ const options = {
                   properties: {
                     name: { type: "string" },
                     description: { type: "string" },
-                   
+                    
                   },
                   required: ["name", "description"]
                 }
@@ -1086,26 +1094,22 @@ const options = {
           }
         }
       },
-      "/api/cart/addItemToCart": {
+      "/api/cart/addItemToCart/{productId}": {
         "post": {
           "summary": "Add an item to the cart",
           "tags": ["Cart"],
           "security": [{ "bearerAuth": [] }],
-          "requestBody": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "cartId": { "type": "string" },
-                    "productId": { "type": "string" },
-                    "quantity": { "type": "integer" }
-                  },
-                  "required": ["cartId", "productId", "quantity"]
-                }
-              }
+          "parameters": [
+            {
+              "name": "productId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "description": "ID of the product"
             }
-          },
+          ],
           "responses": {
             "201": {
               "description": "Item added to cart successfully",
@@ -1364,6 +1368,9 @@ const options = {
         },
       }
       
+
+      
+
     },
   },
   apis: ["./src/routes/*.ts"],

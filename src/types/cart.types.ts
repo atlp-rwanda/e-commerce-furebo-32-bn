@@ -19,7 +19,7 @@ export interface CartItemAttributes {
   productId: string;
   productName?: string;
   price?: number;
-  image?: string;
+  image?: string[];
   quantity: number;
   createdAt?: Date;
   updatedAt?: Date;
