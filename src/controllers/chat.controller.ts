@@ -4,12 +4,12 @@ import { viewAllPosts, createPost } from '../services/chat.services';
 export const createMessage = async (req: Request, res: Response) => {
   try {
     // @ts-ignore
-    const { user } = req.user;
+    const  user  = req.user;
     const { content } = req.body;
 
     const message = {
       userId: user.id,
-      name: user.firstname,
+      name: user.firstName,
       content,
     };
 

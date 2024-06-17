@@ -47,7 +47,8 @@
     "test": "jest --detectOpenHandles --coverage",
     "test:coverage": "nyc jest --coverage",
     "build": "tsc",
-    "migrate": "sequelize db:migrate"
+    "migrate": "sequelize db:migrate",
+    "migrate:undo": "sequelize db:migrate:undo"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
