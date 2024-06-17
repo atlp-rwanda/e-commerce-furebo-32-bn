@@ -1,17 +1,14 @@
-// File: src/routes/cart.routes.ts
 
-import express from "express";
-import { createCart, addItemToCart, viewCart, updateCart,clearCart } from "../controllers/cart.controller";
-import { validateCreateCart, validateAddItemToCart, validateUpdateCart } from "../validations/cart.validate";
-import { protectRoute } from "../middlewares/auth.middleware";
+import { Router } from "express";
+import { CartController } from "../controllers/cart.controller";
+import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
 
-const router = express.Router();
+const router = Router();
 
-// Routes
-router.post("/createCart", protectRoute, validateCreateCart, createCart);
-router.post("/addItemToCart/:productId", protectRoute, validateAddItemToCart, addItemToCart);
-router.get("/viewCart/:cartId", protectRoute, viewCart);
-router.post("/updateCart/:cartId", protectRoute, validateUpdateCart, updateCart);
-router.post('/clear/:cartId', protectRoute, clearCart);
+router.post("/", protectRoute, restrictTo("buyer"), CartController.createCart);
+router.post("/add/:productId", protectRoute, restrictTo("buyer"), CartController.addItemToCart);
+router.get("/view", protectRoute, restrictTo("buyer"), CartController.viewCart);
+router.patch("/update/:productId", protectRoute, restrictTo("buyer"), CartController.updateCartItem);
+router.post("/clear", protectRoute, restrictTo("buyer"), CartController.clearCart);
 
 export default router;

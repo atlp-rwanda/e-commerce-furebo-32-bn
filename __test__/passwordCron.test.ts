@@ -3,7 +3,7 @@ import { UserService } from '../src/services/user.services';
 import { sendEmail } from '../src/utils/email.utils';
 import { job } from '../src/cronjobs/passwordExpirationChecker.cronjob';
 
-// Correctly mocking cron.schedule
+
 jest.mock('node-cron', () => ({
   schedule: jest.fn().mockImplementation((_, callback) => ({
     start: () => callback(),

@@ -1,167 +1,82 @@
 import { Request, Response } from "express";
-import { CreateCartAttributes, CreateCartItemAttributes } from "../types/cart.types";
-/* import Cart from "../database/models/cart.model";  */
 import { CartService } from "../services/cart.services";
-import { ProductService } from "../services/Product.services";
-/* import { request } from "http"; */
 
 
-export const createCart = async (req: Request, res: Response) => {
+export class CartController {
+  static async createCart(req: Request, res: Response) {
+    const userId = req.user.id;
     try {
-      const { name, description} = req.body; 
-      const userId = req.user.id;
-  
-      const cart: CreateCartAttributes = { name, description, userId, items: [], total: 0 };
-      const newCart = await CartService.createCart(cart);
-  
+      const cart = await CartService.createCart(userId);
       return res.status(201).json({
-        message: 'Cart created successfully',
-        cart: newCart,
+        message: "Cart created successfully",
+        cartId: cart.id,
+        items: cart.items
       });
-    } catch (error) {
-      console.error('Error creating cart:', error);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    } catch (error:any) {
+      return res.status(500).json({ message: error.message });
     }
-  };
+  }
+  static async addItemToCart(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { productId } = req.params;
 
-  
-
-  export const addItemToCart = async (req: Request, res: Response) => {
     try {
-      const  productId = req.params.productId;
-      
-      const userId = (req.user as any).id;
-      const cart=await CartService.getCartByUserId(userId)
-  
-      const product = await ProductService.getProductById(productId);
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-  
-      if (!cart || cart.userId !== userId) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-  
-      const newItem: CreateCartItemAttributes = {
-        cartId: cart.id!,
-        productId,
-        productName: product.productName,
-        price: product.price,
-        image: product.images,
-        quantity:1
-        
-      };
-  
-      await CartService.addCartItem(userId, newItem);
-  
-      const updatedCart = await CartService.getPopulatedCart(cart.id);
-      
-      if (!updatedCart) {
-        return res.status(500).json({ message: "Failed to retrieve updated cart" });
-      }
-    
-      return res.status(201).json({
+      const cart = await CartService.addItemToCart(userId, productId);
+      return res.status(200).json({
         message: "Item added to cart successfully",
-        cart: {
-          id: updatedCart.id,
-          items: updatedCart.items.map((item: any) => ({
-            productId: item.productId,
-            productName: item.productName,
-            price: item.price,
-            image: item.image,
-            quantity: item.quantity,
-            productDetails: item.productDetails
-          }))
-        }
+        cart
       });
-    } catch (error) {
-      console.error("Error adding item to cart:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-
-  export const viewCart = async (req: Request, res: Response) => {
-    try {
-      const { cartId } = req.params;
-      const userId = (req.user as any).id;
-  
-      const cart = await CartService.getCartById(cartId);
-  
-      if (!cart || cart.userId !== userId) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-  
-      const populatedCart = await Promise.all(
-        cart.items.map(async (item: CreateCartItemAttributes) => {
-          const product = await ProductService.getProductById(item.productId);
-          return {
-            id: item.productId,
-            productId: item.productId,
-            productName: item.productName,
-            price: item.price,
-            image: item.image,
-            quantity: item.quantity,
-            productDetails: product ? {
-              name: product.name,
-              price: product.price,
-              image: product.image,
-            } : null,
-          };
-        })
-      );
-  
-      res.status(200).json({
-        message: "Cart retrieved successfully",
-        cart: {
-          ...cart.dataValues,
-          items: populatedCart
-        }
-      });
-    } catch (error) {
-      console.error("Error viewing cart:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  };
-  
-export const updateCart = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const userId = (req.user as any).id;
-    const cartId = req.params.cartId;
-    const cartItems: CreateCartItemAttributes[] = req.body.items;
-
-    for (const item of cartItems) {
-      if (item.quantity <= 0 || !Number.isInteger(item.quantity)) {
-        res.status(400).json({ error: "Bad Request", message: "Quantity must be a positive integer" });
-        return;
-      }
-    }
-
-    const updatedCart = await CartService.updateCart(userId, cartId, cartItems);
-
-    const populatedCart = await CartService.getPopulatedCart(updatedCart.id);
-
-    res.status(200).json({ message: "Cart updated successfully", cart: populatedCart });
-  } catch (error) {
-    console.error("Error updating cart:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
-
-
-export async function clearCart(req: Request, res: Response): Promise<void> {
-    const { cartId } = req.params;
-    const userId = (req as any).user.id;
-  
-    try {
-      const cartCleared = await CartService.clearCart(userId, cartId);
-  
-      if (cartCleared) {
-        res.status(200).json({ message: 'Cart cleared successfully' });
-      } else {
-        res.status(404).json({ message: 'Cart not found' });
-      }
-    } catch (error) {
-      console.error('Error clearing cart:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    } catch (error:any) {
+      return res.status(500).json({ message: error.message });
     }
   }
+
+ 
+  static async viewCart(req: Request, res: Response) {
+    const userId = req.user.id;
+    try {
+      const cart = await CartService.viewCart(userId);
+      return res.status(200).json(cart);
+    } catch (error:any) {
+      return res.status(500).json({ message: error.message });
+    }
+  } 
+ 
+  static async updateCartItem(req: Request, res: Response) {
+    const userId = req.user.id;  
+    const { productId } = req.params || {}; // Ensure productId is defined
+    const { quantity } = req.body;
+  
+    if (typeof quantity !== 'number' || quantity < 1) {
+      return res.status(400).json({ message: "Invalid quantity" });
+    }
+  
+    try {
+      const cart = await CartService.updateCartItem(userId, productId, quantity);
+      return res.status(200).json({
+        message: "Cart updated successfully",
+        cart
+      });
+    } catch (error: any) {
+      if (error.message === "Cart not found" || error.message === "Product not found in cart" || error.message.includes("Product with ID")) {
+        return res.status(404).json({ message: error.message });
+      }
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+  
+  
+
+  static async clearCart(req: Request, res: Response) {
+    const userId = req.user.id;
+    try {
+      const cart = await CartService.clearCart(userId);
+      return res.status(200).json({
+        message: "Cart cleared successfully",
+        cart
+      });
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+}

@@ -35,7 +35,8 @@ app.get('/', (_req: Request, res: Response) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/wishlist',wishlistRoute)
-app.use('/api/cart', cartRoutes);
+app.use("/api/cart", cartRoutes);
+
 
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
