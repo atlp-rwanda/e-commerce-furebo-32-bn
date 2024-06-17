@@ -9,7 +9,7 @@ import "../utils/cloudinary.utils";
 import { Op } from "sequelize";
 
 dotenv.config();
-
+// dotenv.config();
 export const createProduct = async function (req: Request, res: Response) {
   try {
     const collection = await CreateCollectionService.getCollectionByid(
@@ -88,6 +88,19 @@ export const createProduct = async function (req: Request, res: Response) {
   }
 };
 
+export const getAvailableItems = async function (req: Request, res: Response) {
+  const items = await ProductService.getAvailableItems();
+  const user = req.user;
+  if (!user) {
+        return res.status(401).json({ status: 401, error: "Unauthorized access" });
+  }
+   return res.status(200).json({
+       status: 200,
+       message: "Items retrieved successfully",
+       items: items
+   });
+}
+
 //search products
 
 export const searchProducts = async (req: Request, res: Response) => {
@@ -113,4 +126,59 @@ export const searchProducts = async (req: Request, res: Response) => {
   const products = await ProductService.getProducts(query);
 
   return res.status(200).json({ products });
+};
+
+export const getAvailableProducts = async (req: Request, res: Response) => {
+  try {
+    const seller_id = req.params.seller_id;
+    const products = await ProductService.getAvailableProductsBySeller(
+      seller_id
+    );
+
+    if (!products || products.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No available products found for this seller." });
+    }
+
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({ error: error });
+  }
+};
+export const updateProductAvailability = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const id = req.params.id;
+    const { availability } = req.body;
+
+    const product = await ProductService.getProductByid(id);
+
+    if (!product) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Product not found",
+      });
+    }
+
+    product.availability = availability;
+
+    await product.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Product availability updated successfully",
+      data: {
+        product,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating product availability:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while updating the product availability",
+    });
+  }
 };

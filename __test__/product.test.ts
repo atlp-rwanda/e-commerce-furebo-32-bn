@@ -1,15 +1,11 @@
-import { Request, Response } from "express";
-import sinon from "sinon";
-import {
-  createProduct,
-  searchProducts,
-} from "../src/controllers/product.controller";
-import { CreateCollectionService } from "../src/services/collection.services";
-import { ProductService } from "../src/services/Product.services";
-import cloudinary from "cloudinary";
-import { UserService } from "../src/services/user.services";
-import { createCollection } from "../src/controllers/collection.controller";
-// import { upload } from '../src/middlewares/multer.middleware';
+import { Request, Response } from 'express';
+import sinon from 'sinon';
+import { CreateCollectionService, GetCollectionService } from '../src/services/collection.services';
+import { ProductService } from '../src/services/Product.services';
+import cloudinary from 'cloudinary';
+import { UserService } from '../src/services/user.services';
+import { createCollection, getSellerItems } from '../src/controllers/collection.controller';
+import { createProduct, getAvailableItems, searchProducts, getAvailableProducts, updateProductAvailability,} from "../src/controllers/product.controller";
 import Collection from "../src/database/models/collection.model";
 import Product from "../src/database/models/Product.model";
 import { Op } from "sequelize";
@@ -279,6 +275,7 @@ describe("createCollection", () => {
 
 import multer, { diskStorage } from "multer";
 import path from "path";
+import User from '../src/database/models/user.model';
 
 jest.mock("multer", () => {
   const multer = () => ({
@@ -345,226 +342,287 @@ describe("fileStorage Tests", () => {
   });
 });
 
-describe("CreateCollectionService", () => {
-  describe("createCollection", () => {
-    it("should create a collection", async () => {
-      const mockCollection = {
-        id: "1",
-        CollectionName: "Test Collection",
-        description: "Test Description",
-        seller_id: "123",
-      };
-      const createStub = sinon
-        .stub(Collection, "create")
-        .resolves(mockCollection as any);
-
-      const collectionData = {
-        CollectionName: "Test Collection",
-        description: "Test Description",
-        seller_id: "123",
-      };
-
-      const createdCollection = await CreateCollectionService.createCollection(
-        collectionData
-      );
-
-      expect(createStub.calledOnceWith(collectionData)).toBe(true);
-      expect(createdCollection).toEqual(mockCollection);
-
-      createStub.restore();
+describe('CreateCollectionService', () => {
+    describe('createCollection', () => {
+      it('should create a collection', async () => {
+        const mockCollection = {
+          id: '1',
+          CollectionName: 'Test Collection',
+          description: 'Test Description',
+          seller_id: '123'
+        };
+        const createStub = sinon.stub(Collection, 'create').resolves(mockCollection as any);
+  
+        const collectionData = {
+          CollectionName: 'Test Collection',
+          description: 'Test Description',
+          seller_id: '123'
+        };
+  
+        const createdCollection = await CreateCollectionService.createCollection(collectionData);
+  
+        expect(createStub.calledOnceWith(collectionData)).toBe(true);
+        expect(createdCollection).toEqual(mockCollection);
+  
+        createStub.restore();
+      });
     });
+  
+    describe('getCollectionByName', () => {
+      it('should find a collection by name', async () => {
+        const mockCollection = {
+          id: '1',
+          CollectionName: 'Test Collection',
+          description: 'Test Description',
+          seller_id: '123'
+        };
+        const findOneStub = sinon.stub(Collection, 'findOne').resolves(mockCollection as any);
+  
+        const result = await CreateCollectionService.getCollectionByName('Test Collection');
+  
+        expect(findOneStub.calledOnceWith({ where: { CollectionName: 'Test Collection' } })).toBe(true);
+        expect(result).toEqual(mockCollection);
+  
+        findOneStub.restore();
+      });
+  
+      it('should return null if collection not found by name', async () => {
+        const findOneStub = sinon.stub(Collection, 'findOne').resolves(null);
+  
+        const result = await CreateCollectionService.getCollectionByName('Nonexistent Collection');
+  
+        expect(findOneStub.calledOnceWith({ where: { CollectionName: 'Nonexistent Collection' } })).toBe(true);
+        expect(result).toBeNull();
+  
+        findOneStub.restore();
+      });
+    });
+  
+    describe('getCollectionById', () => {
+      it('should find a collection by id', async () => {
+        const mockCollection = {
+          id: '1',
+          CollectionName: 'Test Collection',
+          description: 'Test Description',
+          seller_id: '123'
+        };
+        const findOneStub = sinon.stub(Collection, 'findOne').resolves(mockCollection as any);
+  
+        const result = await CreateCollectionService.getCollectionByid('1');
+  
+        expect(findOneStub.calledOnceWith({ where: { id: '1' } })).toBe(true);
+        expect(result).toEqual(mockCollection);
+  
+        findOneStub.restore();
+      });
+  
+      it('should return null if collection not found by id', async () => {
+        const findOneStub = sinon.stub(Collection, 'findOne').resolves(null);
+  
+        const result = await CreateCollectionService.getCollectionByid('999');
+  
+        expect(findOneStub.calledOnceWith({ where: { id: '999' } })).toBe(true);
+        expect(result).toBeNull();
+  
+        findOneStub.restore();
+      });
+    });
+
   });
 
-  describe("getCollectionByName", () => {
-    it("should find a collection by name", async () => {
-      const mockCollection = {
-        id: "1",
-        CollectionName: "Test Collection",
-        description: "Test Description",
-        seller_id: "123",
-      };
-      const findOneStub = sinon
-        .stub(Collection, "findOne")
-        .resolves(mockCollection as any);
+describe('GetCollectionService', () => {
+  const mockCollections = [
+    { id: '1', CollectionName: 'Test Collection 1', description: 'Test Description 1', seller_id: '123' },
+    { id: '2', CollectionName: 'Test Collection 2', description: 'Test Description 2', seller_id: '123' }
+  ];
+  describe('getAllCollections', () => {
+    it('should return all collections', async () => {
+      const findAllStub = sinon.stub(Collection, 'findAll').resolves(mockCollections as any);
 
-      const result = await CreateCollectionService.getCollectionByName(
-        "Test Collection"
-      );
+      const result = await GetCollectionService.getAllCollections();
 
-      expect(
-        findOneStub.calledOnceWith({
-          where: { CollectionName: "Test Collection" },
-        })
-      ).toBe(true);
-      expect(result).toEqual(mockCollection);
+      expect(findAllStub.calledOnce).toBe(true);
+      expect(result).toEqual(mockCollections);
 
-      findOneStub.restore();
+      findAllStub.restore();
     });
 
-    it("should return null if collection not found by name", async () => {
-      const findOneStub = sinon.stub(Collection, "findOne").resolves(null);
+    it('should return an empty array if no collections are found', async () => {
+      const findAllStub = sinon.stub(Collection, 'findAll').resolves([]);
 
-      const result = await CreateCollectionService.getCollectionByName(
-        "Nonexistent Collection"
-      );
+      const result = await GetCollectionService.getAllCollections();
 
-      expect(
-        findOneStub.calledOnceWith({
-          where: { CollectionName: "Nonexistent Collection" },
-        })
-      ).toBe(true);
-      expect(result).toBeNull();
-
-      findOneStub.restore();
-    });
-  });
-
-  describe("getCollectionById", () => {
-    it("should find a collection by id", async () => {
-      const mockCollection = {
-        id: "1",
-        CollectionName: "Test Collection",
-        description: "Test Description",
-        seller_id: "123",
-      };
-      const findOneStub = sinon
-        .stub(Collection, "findOne")
-        .resolves(mockCollection as any);
-
-      const result = await CreateCollectionService.getCollectionByid("1");
-
-      expect(findOneStub.calledOnceWith({ where: { id: "1" } })).toBe(true);
-      expect(result).toEqual(mockCollection);
-
-      findOneStub.restore();
-    });
-
-    it("should return null if collection not found by id", async () => {
-      const findOneStub = sinon.stub(Collection, "findOne").resolves(null);
-
-      const result = await CreateCollectionService.getCollectionByid("999");
-
-      expect(findOneStub.calledOnceWith({ where: { id: "999" } })).toBe(true);
-      expect(result).toBeNull();
-
-      findOneStub.restore();
-    });
-  });
-});
-
-describe("ProductService", () => {
-  describe("createProduct", () => {
-    it("should create a product", async () => {
-      const productData = { name: "Test Product", price: 10 };
-      const createStub = sinon
-        .stub(Product, "create")
-        .resolves(productData as any);
-
-      const result = await ProductService.createProduct(productData);
-
-      expect(createStub.calledOnceWith(productData)).toBeTruthy();
-      expect(result).toEqual(productData);
-
-      createStub.restore();
-    });
-  });
-
-  describe("getProductByName", () => {
-    it("should return product by name", async () => {
-      const productName = "Test Product";
-      const productData = { name: productName, price: 10 };
-      const findOneStub = sinon
-        .stub(Product, "findOne")
-        .resolves(productData as any);
-
-      const result = await ProductService.getProductByName(productName);
-
-      expect(
-        findOneStub.calledOnceWith({ where: { productName } })
-      ).toBeTruthy();
-      expect(result).toEqual(productData);
-
-      findOneStub.restore();
-    });
-  });
-
-  describe("getProductById", () => {
-    it("should return product by id", async () => {
-      const productId = "123";
-      const productData = { id: productId, name: "Test Product", price: 10 };
-      const findOneStub = sinon
-        .stub(Product, "findOne")
-        .resolves(productData as any);
-
-      const result = await ProductService.getProductByid(productId);
-
-      expect(
-        findOneStub.calledOnceWith({ where: { id: productId } })
-      ).toBeTruthy();
-      expect(result).toEqual(productData);
-
-      findOneStub.restore();
-    });
-  });
-
-  describe("getProducts", () => {
-    let findAllStub: sinon.SinonStub;
-
-    beforeEach(() => {
-      findAllStub = sinon.stub(Product, "findAll");
-    });
-
-    afterEach(() => {
-      sinon.restore();
-    });
-
-    it("should return products based on the query", async () => {
-      const query = {
-        where: {
-          productName: { $like: "%Test%" },
-        },
-      };
-      const products = [{ name: "Test Product", price: 100 }];
-      findAllStub.resolves(products);
-
-      const result = await ProductService.getProducts(query);
-
-      expect(findAllStub.calledOnceWith(query)).toBe(true);
-      expect(result).toEqual(products);
-    });
-
-    it("should return an empty array if no products match the query", async () => {
-      const query = {
-        where: {
-          productName: { $like: "%Nonexistent%" },
-        },
-      };
-      findAllStub.resolves([]);
-
-      const result = await ProductService.getProducts(query);
-
-      expect(findAllStub.calledOnceWith(query)).toBe(true);
+      expect(findAllStub.calledOnce).toBe(true);
       expect(result).toEqual([]);
-    });
 
-    it("should handle errors and throw them", async () => {
-      const query = {
-        where: {
-          productName: { $like: "%Error%" },
-        },
-      };
-      const error = new Error("Something went wrong");
-      findAllStub.rejects(error);
-
-      try {
-        await ProductService.getProducts(query);
-      } catch (e) {
-        expect(findAllStub.calledOnceWith(query)).toBe(true);
-        expect(e).toEqual(error);
-      }
+      findAllStub.restore();
     });
   });
+  describe('getSellerItems', () => {
+    it('should return all items for a seller', async () => {
+      const findAllStub = sinon.stub(Collection, 'findAll').resolves(mockCollections as any);
+
+      const result = await GetCollectionService.getSellerItem('123');
+
+      expect(findAllStub.calledOnceWith({ where: { seller_id: '123' } })).toBe(true);
+      expect(result).toEqual(mockCollections);
+
+      findAllStub.restore();
+    });
+
+    it('should return an empty array if no items are found for a seller', async () => {
+      const findAllStub = sinon.stub(Collection, 'findAll').resolves([]);
+
+      const result = await GetCollectionService.getSellerItem('123');
+
+      expect(findAllStub.calledOnceWith({ where: { seller_id: '123' } })).toBe(true);
+      expect(result).toEqual([]);
+
+      findAllStub.restore();
+    });
+
+    it('should return 401 if the user is not a seller', async () => {
+        const getUserByIdStub = sinon.stub(UserService, 'getUserByid').resolves(null);
+        const req = { params: { seller_id: '123' } };
+        const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+
+        await getSellerItems(req as unknown as Request, res as unknown as Response);
+
+        expect(getUserByIdStub.calledOnceWith('123')).toBe(true);
+        expect(res.status.calledOnceWith(401)).toBe(true);
+        expect(res.json.calledOnceWith({ status: 401, error: "Unauthorized access" })).toBe(true);
+
+        getUserByIdStub.restore();
+    });
+
+    it('should return 200 and the items for a seller', async () => {
+      const mockUser = {
+        id: '123',
+        role: 'buyer',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashedPassword'
+      } as User;
+      
+        const getUserByIdStub = sinon.stub(UserService, 'getUserByid').resolves(mockUser as any);
+        const req = { params: { seller_id: '123' } };
+        const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+
+        await getSellerItems(req as unknown as Request, res as unknown as Response);
+
+        expect(getUserByIdStub('123'));
+        expect(res.status(200));
+        expect(res.json({ status: 200, message: "Items retrieved successfully"}));
+
+        getUserByIdStub.restore();
+    });
+    it('should return 500 if an error occurs', async () => {
+      const getUserByIdStub = sinon.stub(UserService, 'getUserByid');
+      
+      const req = { params: { seller_id: '123' } } as unknown as Request;
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub()
+      } as unknown as Response;
+
+      await getSellerItems(req, res);
+
+      expect(res.status(500));
+      expect(res.json({ status: 500, error: "Internal server error" }));
+
+      getUserByIdStub.restore();
+    });
 });
+});
+
+describe('ProductService', () => {
+    describe('createProduct', () => {
+      it('should create a product', async () => {
+        const productData = { name: 'Test Product', price: 10 };
+        const createStub = sinon.stub(Product, 'create').resolves(productData as any);
+  
+        const result = await ProductService.createProduct(productData);
+  
+        expect(createStub.calledOnceWith(productData)).toBeTruthy();
+        expect(result).toEqual(productData);
+  
+        createStub.restore(); 
+      });
+    });
+  
+    describe('getProductByName', () => {
+      it('should return product by name', async () => {
+        const productName = 'Test Product';
+        const productData = { name: productName, price: 10 };
+        const findOneStub = sinon.stub(Product, 'findOne').resolves(productData as any);
+  
+        const result = await ProductService.getProductByName(productName);
+  
+        expect(findOneStub.calledOnceWith({ where: { productName } })).toBeTruthy();
+        expect(result).toEqual(productData);
+  
+        findOneStub.restore();
+      });
+    });
+  
+    describe('getProductById', () => {
+      it('should return product by id', async () => {
+        const productId = '123';
+        const productData = { id: productId, name: 'Test Product', price: 10 };
+        const findOneStub = sinon.stub(Product, 'findOne').resolves(productData as any);
+  
+        const result = await ProductService.getProductByid(productId);
+  
+        expect(findOneStub.calledOnceWith({ where: { id: productId } })).toBeTruthy();
+        expect(result).toEqual(productData);
+  
+        findOneStub.restore();
+      });
+    });
+
+    describe('getAvailableItems', () => {
+      const mockItems = [
+        { id: '1', name: 'Test Product 1', price: 10, availability: true },
+        { id: '2', name: 'Test Product 2', price: 20, availability: true }
+      ];
+        it('should return all available items', async () => {
+          const findAllStub = sinon.stub(Product, 'findAll').resolves(mockItems as any);
+    
+          const result = await ProductService.getAvailableItems();
+    
+          expect(findAllStub.calledOnceWith({ where: { availability: true } })).toBeTruthy();
+          expect(result).toEqual(mockItems);
+    
+          findAllStub.restore();
+        });
+    
+        it('should return an empty array if no items are available', async () => {
+          const findAllStub = sinon.stub(Product, 'findAll').resolves([]);
+    
+          const result = await ProductService.getAvailableItems();
+    
+          expect(findAllStub.calledOnceWith({ where: { availability: true } })).toBeTruthy();
+          expect(result).toEqual([]);
+    
+          findAllStub.restore();
+      });
+
+      it('should return 200 and the available items', async () => {
+        const findAllStub = sinon.stub(Product, 'findAll').resolves(mockItems as any);
+        const req = {};
+        const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
+  
+        await getAvailableItems(req as unknown as Request, res as unknown as Response);
+  
+        expect(findAllStub.calledOnceWith({ where: { availability: true } })).toBeTruthy();
+        expect(res.status(200));
+        expect(res.json({ products: mockItems }));
+  
+        findAllStub.restore();
+      });
+    });
+  });
 
 describe("searchProducts", () => {
   let req: Partial<Request>;
@@ -664,5 +722,140 @@ describe("searchProducts", () => {
     ).toBe(true);
     expect(statusStub.calledOnceWith(200)).toBe(true);
     expect(jsonStub.calledOnceWith({ products })).toBe(true);
+  });
+});
+
+describe("getAvailableProducts", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let findAllStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: {},
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    findAllStub = sinon.stub(Product, "findAll");
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should return 200 and a list of available products", async () => {
+    const mockProducts = [
+      {
+        id: "1",
+        productName: "Product 1",
+        description: "Description 1",
+        price: 100,
+        quantity: 10,
+        seller_id: "123",
+        expireDate: "2024-12-31",
+        Collection_id: "1",
+        images: ["http://example.com/image1.jpg"],
+        category: "Category 1",
+      },
+      {
+        id: "2",
+        productName: "Product 2",
+        description: "Description 2",
+        price: 200,
+        quantity: 5,
+        seller_id: "123",
+        expireDate: "2024-12-31",
+        Collection_id: "2",
+        images: ["http://example.com/image2.jpg"],
+        category: "Category 2",
+      },
+    ];
+
+    findAllStub.resolves(mockProducts);
+    req.params = { seller_id: "123" };
+
+    await getAvailableProducts(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(200)).toBe(true);
+    expect(jsonStub.calledOnceWith(mockProducts)).toBe(true);
+  });
+
+  it ("should return 404 if no available products are found", async () => {
+    findAllStub.resolves([]);
+    req.params = { seller_id: "123" };
+
+    await getAvailableProducts(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "No available products found for this seller." })).toBe(true);
+  });
+});
+
+describe("updateProductAvailability", ( ) => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: {},
+      body: {},
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    getProductByIdStub = sinon.stub(ProductService, "getProductByid");
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should return 404 if product is not found", async () => {
+    getProductByIdStub.resolves(null);
+    req.params = { id: "1" };
+    req.body = { availability: true };
+
+    await updateProductAvailability(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ status: "fail", message: "Product not found" })).toBe(true);
+  });
+
+  it("should update product availability", async () => {
+    const product = {
+      id: "1",
+      productName: "Product 1",
+      description: "Description 1",
+      price: 100,
+      quantity: 10,
+      seller_id: "123",
+      expireDate: "2024-12-31",
+      Collection_id: "1",
+      images: ["http://example.com/image1.jpg"],
+      category: "Category 1",
+      availability: true,
+    };
+
+    getProductByIdStub.resolves(product);
+    req.params = { id: "1" };
+    req.body = { availability: false };
+
+    await updateProductAvailability(req as Request, res as Response);
+
+    expect(product.availability).toBe(false);
+    expect(statusStub.calledOnceWith(200));
+    expect(jsonStub.calledOnceWith({ status: "success", message: "Product availability updated successfully" }));
   });
 });

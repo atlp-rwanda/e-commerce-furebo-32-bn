@@ -1,7 +1,7 @@
 import { Request,Response } from "express";
 
 import { createCollectionAttributes } from "../types/collection.types";
-import { CreateCollectionService } from "../services/collection.services";
+import { CreateCollectionService, GetCollectionService } from "../services/collection.services";
 import { UserService } from "../services/user.services";
 import "../utils/cloudinary.utils"
 
@@ -25,4 +25,22 @@ export const createCollection=async function(req:Request,res:Response){
         message:"Collection created successfully",
         createdCollection:createdCollection
     })
+}
+
+export const getSellerItems = async function (req: Request, res: Response) {
+    const seller = await UserService.getUserByid(req.params.seller_id);
+ try {
+    if (seller?.role !== 'seller') {
+        return res.status(401).json({ status: 401, error: "Unauthorized access" });
+    }
+    const items = await GetCollectionService.getSellerItem(seller.id);
+    return res.status(200).json({
+        status: 200,
+        message: "Items retrieved successfully",
+        items: items
+    });
+ }
+catch (error) {
+        return res.status(500).json({ status: 500, error: "Internal server error" });
+    }
 }
