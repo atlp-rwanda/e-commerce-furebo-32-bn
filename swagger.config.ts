@@ -594,7 +594,7 @@ const options = {
           },
         },
       },
-      "/createProduct/{collection_id}": {
+      "/api/createProduct/{collection_id}": {
         post: {
           summary: "Create a new Product",
           description: "Create a new Product with in ",
@@ -907,11 +907,13 @@ const options = {
           parameters: [
             {
               name: "seller_id",
+
               in: "path",
               required: true,
               schema: {
                 type: "string",
               },
+
               description: "ID of the seller to retrieve products for",
             },
           ],
@@ -995,6 +997,7 @@ const options = {
                 type: "string",
               },
               description: "Product ID",
+
             },
           ],
           requestBody: {
@@ -1003,17 +1006,22 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
+
+                    
                     availability: {
                       type: "boolean",
                       example: true,
                     },
                   },
                   required: ["availability"],
+
                 },
               },
             },
           },
           responses: {
+
+           
             "200": {
               description: "Product availability updated successfully",
             },
@@ -1028,6 +1036,297 @@ const options = {
             },
             "500": {
               description: "Internal server error",
+
+            },
+          },
+        },
+      },
+     
+      "/api/cart": {
+        post: {
+          summary: "Create Cart",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            201: {
+              description: "Cart created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      cartId: { type: "string" },
+                      items: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            productId: { type: "string" },
+                            quantity: { type: "number" },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Internal server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/cart/add/{productId}": {
+        post: {
+          summary: "Add Item to Cart",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "productId",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "ID of the product to add to cart",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Item added to cart successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      cart: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          items: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                productId: { type: "string" },
+                                quantity: { type: "number" },
+                              },
+                            },
+                          },
+                          total: { type: "number" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Internal server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/cart/view": {
+        get: {
+          summary: "View Cart",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Cart retrieved successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      items: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            productId: { type: "string" },
+                            quantity: { type: "number" },
+                            productName: { type: "string" },
+                            price: { type: "number" },
+                            image: { type: "string" },
+                          },
+                        },
+                      },
+                      total: { type: "number" },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Internal server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/cart/update/{productId}": {
+        patch: {
+          summary: "Update Cart Item",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "productId",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "ID of the product in cart to update",
+            },
+          ],
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    quantity: {
+                      type: "number",
+                      example: 2,
+                    },
+                  },
+                  required: ["quantity"],
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Cart updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      cart: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          items: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                productId: { type: "string" },
+                                quantity: { type: "number" },
+                              },
+                            },
+                          },
+                          total: { type: "number" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Internal server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/cart/clear": {
+        post: {
+          summary: "Clear Cart",
+          tags: ["Cart"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Cart cleared successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                      cart: {
+                        type: "object",
+                        properties: {
+                          id: { type: "string" },
+                          items: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                productId: { type: "string" },
+                                quantity: { type: "number" },
+                              },
+                            },
+                          },
+                          total: { type: "number" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Internal server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: { type: "string" },
+                    },
+                  },
+                },
+              },
             },
           },
         },
