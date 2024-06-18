@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import userRoutes from "./routes/user.route";
+import profileRoutes from "./routes/profile.routes";
 import swaggerUi from 'swagger-ui-express';
 import specs from '../swagger.config';
 import morgan from "morgan";
@@ -38,6 +39,7 @@ app.use('/api/wishlist',wishlistRoute)
 app.use("/api/cart", cartRoutes);
 
 
+app.use('/api/users', profileRoutes);
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 

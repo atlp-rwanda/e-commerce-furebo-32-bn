@@ -24,6 +24,7 @@ export const userSignup = async (req: Request, res: Response) => {
       role: req.body.role,
       phone: req.body.phone,
       updatedAt: new Date(),
+      createdAt: new Date(),
     };
     const email = req.body.email;
     if (email == undefined) {

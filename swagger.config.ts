@@ -452,6 +452,115 @@ const options = {
           },
         },
       },
+      "/api/users/profile": {
+        get: {
+          summary: "View Your Profile",
+          tags: ["User Profile"],
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          responses: {
+            200: {
+              description: "success",
+            },
+            404: {
+              description: "User not found",
+            },
+            500: {
+              description: "An error occurred while fetching the profile",
+            },
+          },
+        },
+      },
+      "/api/users/update-profile": {
+        patch: {
+          summary: "Update user profile",
+          tags: ["User Profile"],
+          description: "Update the user's profile information",
+          security: [
+            {
+              bearerAuth: [],
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    firstName: {
+                      type: "string",
+                      example: "Aime",
+                    },
+                    lastName: {
+                      type: "string",
+                      example: "Brues",
+                    },
+                    email: {
+                      type: "string",
+                      example: "email@gmail.com",
+                    },
+                    phone: {
+                      type: "string",
+                      example: "+250792418795",
+                    },
+                    birthdate: {
+                      type: "string",
+                      example: "2000-01-01",
+                    },
+                    gender: {
+                      type: "string",
+                      example: "male",
+                    },
+                    preferredLanguage: {
+                      type: "string",
+                      example: "kinyarwanda",
+                    },
+                    preferredCurrency: {
+                      type: "string",
+                      example: "USD",
+                    },
+                    whereYouLive: {
+                      type: "string",
+                      example: "KIGALI",
+                    },
+                    billingAddress: {
+                      type: "string",
+                      example: "kabeza",
+                    },
+                    images: {
+                      type: "array",
+                      description: "Image",
+                      items: {
+                        type: "string",
+                        format: "binary",
+                        description: "Image file(s) of the product",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "User profile updated successfully",
+            },
+            "400": {
+              description: "Invalid input",
+            },
+            "404": {
+              description: "User profile not found",
+            },
+            "500": {
+              description: "An error occurred while updating the profile",
+            },
+          },
+        },
+      },
       "/api/users/resetpassword": {
         post: {
           summary: "Reset Password",
@@ -829,39 +938,6 @@ const options = {
               },
               400: {
                 description: "Bad Request",
-              },
-              500: {
-                description: "Internal server error",
-              },
-            },
-          },
-        },
-      },
-
-      "/api/wishlist/{productId}": {
-        post: {
-          summary: "New wishlist request",
-          description: "Add new product on wishlist",
-          tags: ["Product"],
-          parameters: [
-            {
-              name: "productId",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Product ID",
-            },
-          ],
-          responses: {
-            200: {
-              description: "Product added in wishlist successfully",
-              400: {
-                description: "Bad Request",
-              },
-              404: {
-                description: "Not Found",
               },
               500: {
                 description: "Internal server error",
