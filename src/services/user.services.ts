@@ -1,4 +1,3 @@
-import UserProfile from "../database/models/UserProfile";
 import User from "../database/models/user.model";
 import { UserSignupAttributes } from "../types/user.types";
 
@@ -14,12 +13,6 @@ export class UserService {
   static async getUserByEmail(email: string) {
     return await User.findOne({
       where: { email: email },
-      include: [
-        {
-          model: UserProfile,
-          as: "profile",
-        },
-      ],
     });
   }
 

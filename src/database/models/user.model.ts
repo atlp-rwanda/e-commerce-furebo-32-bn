@@ -11,6 +11,8 @@ class User
 {
   declare id: string;
 
+  declare image: string;
+
   declare firstName: string;
 
   declare lastName: string;
@@ -22,6 +24,16 @@ class User
   declare phone: string;
 
   declare birthDate: Date;
+
+  declare gender: string;
+
+  declare preferredLanguage: string;
+
+  declare preferredCurrency: string;
+
+  declare whereYouLive: string;
+
+  declare billingAddress: string;
 
   declare verified: boolean;
 
@@ -45,6 +57,12 @@ User.init(
       defaultValue: DataTypes.UUIDV4,
       onDelete: "CASCADE",
     },
+
+      image: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+
     firstName: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -71,28 +89,64 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    profileURL: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    verified: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
 
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
     },
+
     birthDate: {
       type: DataTypes.DATE,
       allowNull: true,
     },
+
+    gender: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+
+    preferredLanguage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+
+    preferredCurrency: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+
+    whereYouLive: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+
+    billingAddress: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+
     role: {
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: "",
     },
+
+    profileURL: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    
+    
     isActive: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
@@ -106,6 +160,8 @@ User.init(
       allowNull: true,
       type: DataTypes.DATE,
     },
+
+
   },
   {
     timestamps: true,

@@ -18,7 +18,6 @@ import {
   validateUserUpdatePassword,
 } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
-import { updateUserProfile } from "../controllers/profileController";
 
 const userRoutes = express.Router();
 
@@ -47,6 +46,4 @@ userRoutes.patch(
 userRoutes.post("/requestpasswordreset", requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
 userRoutes.get("/verify-email", verifyTokenMiddleware, verifyEmail);
-userRoutes.patch("/update-profile", protectRoute, updateUserProfile);
-// userRoutes.get('/update-profile',verifyTokenMiddleware, updateUserProfile);
 export default userRoutes;
