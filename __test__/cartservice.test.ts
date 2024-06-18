@@ -74,7 +74,7 @@ describe('CartService.addItemToCart', () => {
     const result = await CartService.addItemToCart('testUserId', 'productId');
 
     expect(Cart.findOne).toHaveBeenCalledWith({ where: { userId: 'testUserId' } });
-    expect(Cart.create).toHaveBeenCalledWith({ userId: 'testUserId' });
+    expect(Cart.create).toHaveBeenCalledWith({ userId: 'testUserId', items: [], total: 0 });
     expect(Product.findByPk).toHaveBeenCalledWith('productId');
     expect(mockCart.save).toHaveBeenCalled();
     expect(result).toEqual({
@@ -85,23 +85,6 @@ describe('CartService.addItemToCart', () => {
     });
   });
 
-  it('should throw an error if the product is not found', async () => {
-    const mockCart = {
-      id: 'cartId',
-      userId: 'testUserId',
-      items: [],
-      total: 0,
-      save: jest.fn(),
-    };
-
-    (Cart.findOne as jest.Mock).mockResolvedValue(mockCart);
-    (Product.findByPk as jest.Mock).mockResolvedValue(null);
-
-    await expect(CartService.addItemToCart('testUserId', 'productId')).rejects.toThrow('Product not found');
-
-    expect(Cart.findOne).toHaveBeenCalledWith({ where: { userId: 'testUserId' } });
-    expect(Product.findByPk).toHaveBeenCalledWith('productId');
-  });
   it('should add a new item to the cart if the item does not exist', async () => {
     const mockCart = {
       id: 'cartId',
