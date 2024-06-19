@@ -840,7 +840,7 @@ const options = {
 
       "/api/wishlist/{productId}": {
         post: {
-          summary: "New wishlist request",
+          summary: "New wishlist",
           description: "Add new product on wishlist",
           tags: ["Product"],
           parameters: [
@@ -870,6 +870,48 @@ const options = {
           },
         },
       },
+
+      "/api/wishlist": {
+        delete: {
+          summary: "Delete wishlist",
+          description: "Delete all product in wishlist",
+          tags: ["Product"],
+          responses: {
+            200: {
+              description: "Delete all product in wishlist successfully",
+              400: {
+                description: "Bad Request",
+              },
+              404: {
+                description: "Not Found",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+        get: {
+          summary: "Retrieve wishlist",
+          description: "Get all products in wishlist",
+          tags: ["Product"],
+          responses: {
+            200: {
+              description: "Products are retrieved in wishlist successfully",
+              400: {
+                description: "Bad Request",
+              },
+              404: {
+                description: "Not Found",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
+      
 
       "/google/auth": {
         get: {
