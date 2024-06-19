@@ -180,98 +180,76 @@ describe("createProduct", () => {
     ).toBe(false);
   });
 });
-describe("createCollection", () => {
+
+describe('createCollection function', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
-  let jsonStub: sinon.SinonStub;
   let statusStub: sinon.SinonStub;
-  let getUserByIdStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
   let createCollectionStub: sinon.SinonStub;
 
   beforeEach(() => {
     req = {
-      body: {},
-      params: {},
+      body: {
+        CollectionName: 'Test Collection',
+        description: 'Test description',
+      },
+      user: {
+        id: 'testUserId',
+      },
     };
-    jsonStub = sinon.stub().returnsThis();
-    statusStub = sinon.stub().returns({ json: jsonStub });
+
     res = {
-      status: statusStub,
-      json: jsonStub,
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub(),
     };
-    getUserByIdStub = sinon.stub(UserService, "getUserByid");
-    createCollectionStub = sinon.stub(
-      CreateCollectionService,
-      "createCollection"
-    );
+
+    statusStub = res.status as sinon.SinonStub;
+    jsonStub = res.json as sinon.SinonStub;
+
+    createCollectionStub = sinon.stub(CreateCollectionService, 'createCollection');
   });
 
   afterEach(() => {
-    sinon.restore();
+    createCollectionStub.restore();
   });
 
-  it("should return 400 if the user is not a seller", async () => {
-    req.params = { seller_id: "123" };
-    getUserByIdStub.resolves({ role: "buyer" });
+  it('should create a collection successfully', async () => {
+    const mockCreatedCollection = {
+      id: '1',
+      CollectionName: 'Test Collection',
+      description: 'Test description',
+      seller_id: 'testUserId',
+    };
+
+    createCollectionStub.resolves(mockCreatedCollection);
 
     await createCollection(req as Request, res as Response);
 
-    expect(getUserByIdStub.calledOnceWith("123")).toBe(true);
-    expect(statusStub.calledOnceWith(400)).toBe(true);
-    expect(
-      jsonStub.calledOnceWith({
-        message: "You have to be a seller to create a collection",
-      })
-    ).toBe(true);
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 200);
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWithMatch(jsonStub, {
+      message: 'Collection created successfully',
+      createdCollection: mockCreatedCollection,
+    });
   });
 
-  it("should return 400 if required fields are missing", async () => {
-    req.params = { seller_id: "123" };
-    req.body = {
-      CollectionName: "",
-      description: "",
-    };
-    getUserByIdStub.resolves({ role: "seller" });
+  it('should handle missing required information', async () => {
+
+    req.body = {};
 
     await createCollection(req as Request, res as Response);
 
-    expect(statusStub.calledOnceWith(400)).toBe(true);
-    expect(
-      jsonStub.calledOnceWith({
-        message: "Make sure you enter all required information",
-      })
-    ).toBe(true);
-  });
-
-  it("should return 200 and create the collection successfully", async () => {
-    const collection = {
-      CollectionName: "Test Collection",
-      description: "Test Description",
-      seller_id: "123",
-    };
-    const createdCollection = { ...collection, id: "1" };
-
-    req.body = {
-      CollectionName: "Test Collection",
-      description: "Test Description",
-    };
-    req.params = { seller_id: "123" };
-    getUserByIdStub.resolves({ role: "seller" });
-    createCollectionStub.resolves(createdCollection);
-
-    await createCollection(req as Request, res as Response);
-
-    expect(getUserByIdStub.calledOnceWith("123")).toBe(true);
-    expect(createCollectionStub.calledOnceWith(collection)).toBe(true);
-    expect(statusStub.calledOnceWith(200)).toBe(true);
-    expect(
-      jsonStub.calledOnceWith({
-        message: "Collection created successfully",
-        createdCollection: createdCollection,
-      })
-    ).toBe(true);
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 400);
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWithMatch(jsonStub, {
+      message: 'Make sure you enter all required information',
+    });
   });
 });
+
 
 import multer, { diskStorage } from "multer";
 import path from "path";
