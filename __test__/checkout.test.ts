@@ -1,16 +1,18 @@
 import { Request, Response } from "express";
 import sinon from "sinon";
-import { OrderController } from "../src/controllers/checkout.controller";
-import { orderService } from "../src/services/order.services";
+import { CheckoutController } from "../src/controllers/checkout.controller";
+import { CheckoutService } from "../src/services/Checkout.services";
 
-describe("OrderController.checkout", () => {
+describe("CheckoutController.processCheckout", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
   let statusStub: sinon.SinonStub;
   let jsonStub: sinon.SinonStub;
-  let createOrderStub: sinon.SinonStub;
+  let processOrderStub: sinon.SinonStub;
+
   beforeEach(() => {
     req = {
+      user: { id: "user1" },
       body: {},
     };
     jsonStub = sinon.stub().returnsThis();
@@ -19,82 +21,105 @@ describe("OrderController.checkout", () => {
       status: statusStub,
       json: jsonStub,
     };
-    createOrderStub = sinon.stub(orderService, "createOrder");
+    processOrderStub = sinon.stub(CheckoutService, "processOrder");
   });
 
   afterEach(() => {
     sinon.restore();
   });
 
-  it("should return 400 if required fields are missing", async () => {
+  it("should return 400 if delivery or payment information is missing", async () => {
     req.body = {
-      userId: "",
       deliveryAddress: "",
       paymentMethod: "",
-      products: [],
     };
 
-    await OrderController.checkout(req as Request, res as Response);
+    await CheckoutController.processCheckout(req as Request, res as Response);
 
     expect(statusStub.calledOnceWith(400)).toBe(true);
     expect(
-      jsonStub.calledOnceWith({ message: "All fields are required" })
+      jsonStub.calledOnceWith({
+        message: "Delivery and payment information are required",
+      })
     ).toBe(true);
   });
 
-  it("should create an order and return 201 if all conditions are met", async () => {
+  it("should process an order and return 200 if all conditions are met", async () => {
     const orderData = {
-      userId: "user1",
-      deliveryAddress: { street: "123 Street", city: "City" },
-      paymentMethod: "credit_card",
-      products: [{ id: "product1", price: 100, quantity: 2 }],
+      deliveryAddress: {
+        street: "123 Street",
+        city: "City",
+        country: "string",
+        zipCode: "string",
+      },
+      paymentMethod: {
+        method: "credit_card",
+        cardNumber: "string",
+        expiryDate: "string",
+        cvv: "string",
+      },
     };
 
     req.body = orderData;
 
     const createdOrder = {
       orderId: "order1",
-      ...orderData,
+      userId: "user1",
+      deliveryAddress: orderData.deliveryAddress,
+      paymentMethod: orderData.paymentMethod,
       totalAmount: 200,
       status: "pending",
     };
 
-    createOrderStub.resolves(createdOrder);
+    processOrderStub.resolves(createdOrder);
 
-    await OrderController.checkout(req as Request, res as Response);
+    await CheckoutController.processCheckout(req as Request, res as Response);
 
     expect(
-      createOrderStub.calledOnceWith({
-        buyerId: orderData.userId,
-        deliveryAddress: orderData.deliveryAddress,
-        paymentMethod: orderData.paymentMethod,
-        status: "pending",
-        products: orderData.products,
-        totalAmount: 200,
+      processOrderStub.calledOnceWith(
+        "user1",
+        orderData.deliveryAddress,
+        orderData.paymentMethod
+      )
+    ).toBe(true);
+    expect(statusStub.calledOnceWith(200)).toBe(true);
+    expect(
+      jsonStub.calledOnceWith({
+        message: "Order processed successfully",
+        data: { order: createdOrder },
       })
     ).toBe(true);
-    expect(statusStub.calledOnceWith(201)).toBe(true);
-    expect(jsonStub.calledOnceWith(createdOrder)).toBe(true);
   });
 
-  it("should return 500 if an error occurs", async () => {
+  it("should return 401 if unable to process order", async () => {
     const orderData = {
-      userId: "user1",
-      deliveryAddress: { street: "123 Street", city: "City" },
-      paymentMethod: "credit_card",
-      products: [{ id: "product1", price: 100, quantity: 2 }],
+      deliveryAddress: {
+        street: "123 Street",
+        city: "City",
+        country: "string",
+        zipCode: "string",
+      },
+      paymentMethod: {
+        method: "credit_card",
+        cardNumber: "string",
+        expiryDate: "string",
+        cvv: "string",
+      },
     };
 
     req.body = orderData;
 
-    const error = new Error("Something went wrong");
-    createOrderStub.rejects(error);
+    const error = new Error("Unable to process order");
+    processOrderStub.rejects(error);
 
-    await OrderController.checkout(req as Request, res as Response);
+    await CheckoutController.processCheckout(req as Request, res as Response);
 
-    expect(statusStub.calledOnceWith(500)).toBe(true);
-    expect(jsonStub.calledOnceWith({ message: "Internal server error" })).toBe(
-      true
-    );
+    expect(statusStub.calledOnceWith(401)).toBe(true);
+    expect(
+      jsonStub.calledOnceWith({
+        message: "Unable to process order",
+        error: error.message,
+      })
+    ).toBe(true);
   });
 });

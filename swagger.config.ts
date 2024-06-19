@@ -1073,7 +1073,6 @@ const options = {
                 type: "string",
               },
               description: "Product ID",
-
             },
           ],
           requestBody: {
@@ -1082,22 +1081,17 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
-
-                    
                     availability: {
                       type: "boolean",
                       example: true,
                     },
                   },
                   required: ["availability"],
-
                 },
               },
             },
           },
           responses: {
-
-           
             "200": {
               description: "Product availability updated successfully",
             },
@@ -1112,12 +1106,11 @@ const options = {
             },
             "500": {
               description: "Internal server error",
-
             },
           },
         },
       },
-     
+
       "/api/cart": {
         post: {
           summary: "Create Cart",
@@ -1418,71 +1411,91 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
-                    userId: {
-                      type: "string",
-                      example: "userId_123",
-                    },
                     deliveryAddress: {
-                      type: "string",
-                      example: "123 Main St, Anytown, USA",
+                      type: "object",
+                      properties: {
+                        street: { type: "string" },
+                        city: { type: "string" },
+                        country: { type: "string" },
+                        zipCode: { type: "string" },
+                      },
+                      required: ["street", "city", "country", "zipCode"],
                     },
                     paymentMethod: {
-                      type: "string",
-                      example: "credit_card",
-                    },
-                    products: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          productId: { type: "string" },
-                          quantity: { type: "number" },
-                          price: { type: "number" },
-                        },
-                        required: ["productId", "quantity", "price"],
-                        example: {
-                          productId: "product_123",
-                          quantity: 2,
-                          price: 25.99,
-                        },
+                      type: "object",
+                      properties: {
+                        method: { type: "string" },
+                        cardNumber: { type: "string" },
+                        expiryDate: { type: "string" },
+                        cvv: { type: "string" },
                       },
+                      required: ["method", "cardNumber", "expiryDate", "cvv"],
                     },
                   },
-                  required: [
-                    "userId",
-                    "deliveryAddress",
-                    "paymentMethod",
-                    "products",
-                  ],
+                  required: ["deliveryAddress", "paymentMethod"],
                 },
               },
             },
           },
           responses: {
-            201: {
-              description: "Order created successfully",
+            200: {
+              description: "Order processed successfully",
               content: {
                 "application/json": {
                   schema: {
                     type: "object",
                     properties: {
-                      orderId: { type: "string" },
-                      userId: { type: "string" },
-                      deliveryAddress: { type: "string" },
-                      paymentMethod: { type: "string" },
-                      status: { type: "string" },
-                      products: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            productId: { type: "string" },
-                            quantity: { type: "number" },
-                            price: { type: "number" },
+                      message: {
+                        type: "string",
+                        example: "Order processed successfully",
+                      },
+                      data: {
+                        type: "object",
+                        properties: {
+                          order: {
+                            type: "object",
+                            properties: {
+                              orderId: { type: "string", example: "order_123" },
+                              userId: { type: "string", example: "userId_123" },
+                              deliveryAddress: {
+                                type: "object",
+                                properties: {
+                                  street: { type: "string" },
+                                  city: { type: "string" },
+                                  country: { type: "string" },
+                                  zipCode: { type: "string" },
+                                },
+                              },
+                              paymentMethod: {
+                                type: "object",
+                                properties: {
+                                  method: { type: "string" },
+                                  cardNumber: { type: "string" },
+                                  expiryDate: { type: "string" },
+                                  cvv: { type: "string" },
+                                },
+                              },
+                              status: { type: "string", example: "pending" },
+                              products: {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    images: { type: "string[]" },
+                                    price: { type: "number" },
+                                    quantity: { type: "number" },
+                                    productId: { type: "string" },
+                                    productName: { type: "string" },
+                                  },
+                                },
+                              },
+                              totalAmount: { type: "number"},
+                              updatedAt: { type: "Date" },
+                              createdAt: { type: "Date" },
+                            },
                           },
                         },
                       },
-                      totalAmount: { type: "number" },
                     },
                   },
                 },
@@ -1490,9 +1503,35 @@ const options = {
             },
             400: {
               description: "Bad Request - Invalid input",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: {
+                        type: "string",
+                        example: "Bad Request - Invalid input",
+                      },
+                    },
+                  },
+                },
+              },
             },
             500: {
               description: "Internal Server Error",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      message: {
+                        type: "string",
+                        example: "Internal Server Error",
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },

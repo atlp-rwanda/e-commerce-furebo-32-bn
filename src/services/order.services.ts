@@ -4,14 +4,20 @@ export class OrderService {
   static async getOrdertByid(orderId: string) {
     return await Order.findOne({ where: { orderId: orderId } });
   }
-  static async createOrder(userId: string, items: any[], deliveryInfo: any, paymentInfo: any, totalAmount:any) {
+  static async createOrder(
+    userId: string,
+    items: any[],
+    deliveryAddress: any,
+    paymentMethod: any,
+    totalAmount: any
+  ) {
     try {
       // Create the order
       const order = await Order.create({
         buyerId: userId,
-        deliveryAddress: deliveryInfo,
-        paymentMethod: paymentInfo,
-        status: 'Pending',
+        deliveryAddress: deliveryAddress,
+        paymentMethod: paymentMethod,
+        status: "Pending",
         products: items,
         totalAmount,
       });

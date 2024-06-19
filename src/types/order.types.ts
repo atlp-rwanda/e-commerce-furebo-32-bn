@@ -4,7 +4,7 @@ export interface orderAttributes {
   orderId?: string;
   deliveryAddress: any;
   buyerId: string;
-  paymentMethod: string;
+  paymentMethod: any;
   status: string;
   products: any;
   totalAmount: number;

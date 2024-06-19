@@ -5,14 +5,20 @@ export class CheckoutController {
   static async processCheckout(req: Request, res: Response) {
     try{
     const userId = req.user.id;
-    const { deliveryInfo, paymentInfo } = req.body;
+    const { deliveryAddress, paymentMethod } = req.body;
 
-    if (!deliveryInfo || !paymentInfo) {
-      return res.status(400).json({ message: 'Delivery and payment information are required' });
+    if (!deliveryAddress || !paymentMethod) {
+      return res
+        .status(400)
+        .json({ message: "Delivery and payment information are required" });
     }
 
     try {
-      const order = await CheckoutService.processOrder(userId, deliveryInfo, paymentInfo);
+      const order = await CheckoutService.processOrder(
+        userId,
+        deliveryAddress,
+        paymentMethod
+      );
       return res.status(200).json({
         message: 'Order processed successfully',
         data: {

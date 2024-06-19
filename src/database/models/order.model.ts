@@ -10,7 +10,7 @@ class Order extends Model<orderAttributes, orderCreationAttributes> {
   public orderId!: string;
   public deliveryAddress!: any;
   public buyerId!: string;
-  public paymentMethod!: string;
+  public paymentMethod!: any;
   public status!: string;
   public products!: any;
   public totalAmount!: number;
@@ -28,7 +28,7 @@ Order.init(
     },
     deliveryAddress: { type: DataTypes.JSONB, allowNull: false },
     buyerId: { type: DataTypes.STRING, allowNull: false },
-    paymentMethod: { type: DataTypes.STRING, allowNull: false },
+    paymentMethod: { type: DataTypes.JSONB, allowNull: false },
     status: { type: DataTypes.STRING, allowNull: false },
     products: { type: DataTypes.JSONB, allowNull: false },
     totalAmount: { type: DataTypes.INTEGER, allowNull: false },

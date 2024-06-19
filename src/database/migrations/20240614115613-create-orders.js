@@ -21,7 +21,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       paymentMethod: {
-        type: Sequelize.STRING,
+        type: Sequelize.JSONB,
         allowNull: false,
       },
       status: {
