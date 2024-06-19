@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import sinon from "sinon";
-import { OrderController } from "../src/controllers/order.controller";
+import { OrderController } from "../src/controllers/checkout.controller";
 import { orderService } from "../src/services/order.services";
 
 describe("OrderController.checkout", () => {

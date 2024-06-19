@@ -31,4 +31,29 @@ export class ProductService {
       },
     });
   }
+
+
+  static async updateInventory(productId: string, quantity: number) {
+    try {
+      const product = await Product.findOne({ where: { id: productId } });
+  
+      if (!product) {
+        throw new Error(`Product with ID ${productId} not found`);
+      }
+
+      if (product.quantity < quantity) {
+        throw new Error(`Insufficient inventory for product ID ${productId}`);
+      }
+
+      product.quantity -= quantity;
+      
+      await product.save();
+
+      return product;
+    } catch (error: any) {
+      throw new Error(`Failed to update inventory: ${error.message}`);
+    }
+  }
+
+
 }
