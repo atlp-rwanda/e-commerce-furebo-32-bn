@@ -4,7 +4,7 @@ import { viewAllMessage, createMessage } from "../controllers/chat.controller";
 
 const postRoutes = Router();
 
-postRoutes.get('/post', viewAllMessage);
-postRoutes.post('/post/add', protectRoute, createMessage);
+postRoutes.get('/', viewAllMessage);
+postRoutes.post('/sendmessage', protectRoute, createMessage);
 
-export default postRoutes
+export default postRoutes 
