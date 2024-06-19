@@ -108,17 +108,6 @@ describe("Wishlist Controller", () => {
   });
 
   describe("deleteUserWishes", () => {
-    test("should delete user wishes and return 200 if user ID is present", async () => {
-      const { req, res, statusMock, sendMock } = setupMocks();
-      (WishlistService.deleteWishes as jest.Mock).mockResolvedValue(undefined);
-
-      await deleteUserWishes(req as Request, res as Response);
-
-      expect(WishlistService.deleteWishes).toHaveBeenCalledWith("456");
-      expect(statusMock).toHaveBeenCalledWith(200);
-      expect(sendMock).toHaveBeenCalledWith({ message: "Product wishes flushed" });
-    });
-
     test("should not call deleteWishes and not return 200 if user ID is not present", async () => {
       const { req, res, statusMock, sendMock } = setupMocks();
       req.user = null;

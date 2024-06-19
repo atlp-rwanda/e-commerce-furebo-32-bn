@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response,NextFunction } from 'express';
 import sinon from 'sinon';
 import { CreateCollectionService, GetCollectionService } from '../src/services/collection.services';
 import { ProductService } from '../src/services/Product.services';
@@ -9,6 +9,8 @@ import { createProduct, getAvailableItems, searchProducts, getAvailableProducts,
 import Collection from "../src/database/models/collection.model";
 import Product from "../src/database/models/Product.model";
 import { Op } from "sequelize";
+import { deleteProduct } from '../src/controllers/product.controller';
+import { checkProductOwner } from '../src/middlewares/product.middleware';
 
 describe("createProduct", () => {
   let req: Partial<Request>;
@@ -180,98 +182,76 @@ describe("createProduct", () => {
     ).toBe(false);
   });
 });
-describe("createCollection", () => {
+
+describe('createCollection function', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
-  let jsonStub: sinon.SinonStub;
   let statusStub: sinon.SinonStub;
-  let getUserByIdStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
   let createCollectionStub: sinon.SinonStub;
 
   beforeEach(() => {
     req = {
-      body: {},
-      params: {},
+      body: {
+        CollectionName: 'Test Collection',
+        description: 'Test description',
+      },
+      user: {
+        id: 'testUserId',
+      },
     };
-    jsonStub = sinon.stub().returnsThis();
-    statusStub = sinon.stub().returns({ json: jsonStub });
+
     res = {
-      status: statusStub,
-      json: jsonStub,
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub(),
     };
-    getUserByIdStub = sinon.stub(UserService, "getUserByid");
-    createCollectionStub = sinon.stub(
-      CreateCollectionService,
-      "createCollection"
-    );
+
+    statusStub = res.status as sinon.SinonStub;
+    jsonStub = res.json as sinon.SinonStub;
+
+    createCollectionStub = sinon.stub(CreateCollectionService, 'createCollection');
   });
 
   afterEach(() => {
-    sinon.restore();
+    createCollectionStub.restore();
   });
 
-  it("should return 400 if the user is not a seller", async () => {
-    req.params = { seller_id: "123" };
-    getUserByIdStub.resolves({ role: "buyer" });
+  it('should create a collection successfully', async () => {
+    const mockCreatedCollection = {
+      id: '1',
+      CollectionName: 'Test Collection',
+      description: 'Test description',
+      seller_id: 'testUserId',
+    };
+
+    createCollectionStub.resolves(mockCreatedCollection);
 
     await createCollection(req as Request, res as Response);
 
-    expect(getUserByIdStub.calledOnceWith("123")).toBe(true);
-    expect(statusStub.calledOnceWith(400)).toBe(true);
-    expect(
-      jsonStub.calledOnceWith({
-        message: "You have to be a seller to create a collection",
-      })
-    ).toBe(true);
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 200);
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWithMatch(jsonStub, {
+      message: 'Collection created successfully',
+      createdCollection: mockCreatedCollection,
+    });
   });
 
-  it("should return 400 if required fields are missing", async () => {
-    req.params = { seller_id: "123" };
-    req.body = {
-      CollectionName: "",
-      description: "",
-    };
-    getUserByIdStub.resolves({ role: "seller" });
+  it('should handle missing required information', async () => {
+
+    req.body = {};
 
     await createCollection(req as Request, res as Response);
 
-    expect(statusStub.calledOnceWith(400)).toBe(true);
-    expect(
-      jsonStub.calledOnceWith({
-        message: "Make sure you enter all required information",
-      })
-    ).toBe(true);
-  });
-
-  it("should return 200 and create the collection successfully", async () => {
-    const collection = {
-      CollectionName: "Test Collection",
-      description: "Test Description",
-      seller_id: "123",
-    };
-    const createdCollection = { ...collection, id: "1" };
-
-    req.body = {
-      CollectionName: "Test Collection",
-      description: "Test Description",
-    };
-    req.params = { seller_id: "123" };
-    getUserByIdStub.resolves({ role: "seller" });
-    createCollectionStub.resolves(createdCollection);
-
-    await createCollection(req as Request, res as Response);
-
-    expect(getUserByIdStub.calledOnceWith("123")).toBe(true);
-    expect(createCollectionStub.calledOnceWith(collection)).toBe(true);
-    expect(statusStub.calledOnceWith(200)).toBe(true);
-    expect(
-      jsonStub.calledOnceWith({
-        message: "Collection created successfully",
-        createdCollection: createdCollection,
-      })
-    ).toBe(true);
+    sinon.assert.calledOnce(statusStub);
+    sinon.assert.calledWith(statusStub, 400);
+    sinon.assert.calledOnce(jsonStub);
+    sinon.assert.calledWithMatch(jsonStub, {
+      message: 'Make sure you enter all required information',
+    });
   });
 });
+
 
 import multer, { diskStorage } from "multer";
 import path from "path";
@@ -857,5 +837,140 @@ describe("updateProductAvailability", ( ) => {
     expect(product.availability).toBe(false);
     expect(statusStub.calledOnceWith(200));
     expect(jsonStub.calledOnceWith({ status: "success", message: "Product availability updated successfully" }));
+  });
+});
+
+describe('ProductService', () => {
+describe('deleteProductById', () => {
+  let destroyStub: sinon.SinonStub;
+
+  beforeAll(() => {
+    destroyStub = sinon.stub(Product, 'destroy');
+  });
+
+  afterAll(() => {
+    destroyStub.restore();
+  });
+
+  it('should call Product.destroy with the correct id', async () => {
+    const id = '123';
+    destroyStub.resolves(1);
+
+    const result = await ProductService.deleteProductById(id);
+
+    expect(destroyStub.calledOnce).toBe(true);
+    expect(destroyStub.calledWith({ where: { id } })).toBe(true);
+
+    expect(result).toBe(1);
+  });})})
+
+describe('checkProductOwner', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let next: NextFunction;
+  let getProductByIdStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      user: {
+        id: 'seller123',
+      },
+      params: {
+        product_id: 'product123',
+      },
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    next = jest.fn();
+
+    getProductByIdStub = sinon.stub(ProductService, 'getProductById');
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should call next if seller_id matches product.seller_id', async () => {
+    const product = { seller_id: 'seller123' };
+    getProductByIdStub.resolves(product);
+
+    await checkProductOwner(req as Request, res as Response, next);
+
+    expect(getProductByIdStub.calledOnceWith('product123')).toBeTruthy();
+    expect(next).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
+  });
+
+  it('should return 400 if seller_id does not match product.seller_id', async () => {
+    const product = { seller_id: 'otherSeller' };
+    getProductByIdStub.resolves(product);
+
+    await checkProductOwner(req as Request, res as Response, next);
+
+    expect(getProductByIdStub.calledOnceWith('product123')).toBeTruthy();
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "You don't own the product" });
+  });
+
+  it('should return 400 if product is not found', async () => {
+    getProductByIdStub.resolves(null);
+
+    await checkProductOwner(req as Request, res as Response, next);
+
+    expect(getProductByIdStub.calledOnceWith('product123')).toBeTruthy();
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "You don't own the product" });
+  });
+});
+
+describe('deleteProduct', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+    req = {
+      params: { product_id: '123' },
+      user: { id: '456' },
+    };
+    res = {
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub(),
+    };
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it('should delete the product and return 202 if the user is the owner', async () => {
+    const product = { seller_id: '456' };
+    const deletedProduct = { id: '123', name: 'Test Product' };
+    sandbox.stub(ProductService, 'getProductByid').resolves(product as any);
+    sandbox.stub(ProductService, 'deleteProductById').resolves(deletedProduct as any);
+
+    await deleteProduct(req as Request, res as Response);
+
+    expect((res.status as sinon.SinonStub).calledWith(202)).toBe(true);
+    expect((res.json as sinon.SinonStub).calledWith({
+      message: 'Product deleted successfully',
+      deletedProduct: product,
+    })).toBe(true);
+  });
+  it('should return a 500 status on error', async () => {
+    sinon.stub(ProductService, 'getProductById').rejects(new Error('Test error'));
+
+    await deleteProduct(req as Request, res as Response);
+
+    expect((res.status as sinon.SinonStub).calledWith(500)).toBe(true);
+    expect((res.json as sinon.SinonStub).calledWith({ message: "internal server error" })).toBe(true);
   });
 });
