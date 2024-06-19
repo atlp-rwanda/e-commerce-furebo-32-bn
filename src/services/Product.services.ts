@@ -31,4 +31,7 @@ export class ProductService {
       },
     });
   }
+  static async  deleteProductById(id:string){
+    return await Product.destroy({where:{ id:id }})
+  }
 }
