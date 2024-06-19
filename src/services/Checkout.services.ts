@@ -24,6 +24,8 @@ for (const item of cart.items) {
   }
 
  const order = await OrderService.createOrder(userId, cart.items, deliveryInfo, paymentInfo,totalAmmount);
+// Clear the cart
+await CartService.clearCart(userId);
 
     return order;
 } catch (error: any) {
