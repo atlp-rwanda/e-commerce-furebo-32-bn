@@ -39,7 +39,7 @@ export class OrderService {
     return newOrder
   }
 
-  static async updateOrderStatus(orderId: string, status: string) {
+  static async updateOrderStatus(orderId: string|undefined, status: string) {
     try {
       const [updatedRows, [updatedOrder]] = await Order.update(
         { status },

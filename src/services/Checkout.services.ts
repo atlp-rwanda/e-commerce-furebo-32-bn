@@ -17,7 +17,24 @@ export class CheckoutPaymentService {
       if (!cart || cart.items.length === 0) {
         throw new Error("Cart is empty");
       }
+      console.log(cart.items);
+      const line_items = cart.items.map(
+        (element) => {
+          if(element.price === undefined) throw new Error("Price not found");
+          if(element.image === undefined) throw new Error("Image not found");
 
+          return({
+          price_data: {
+            currency: "rwf",
+            product_data: {
+              name: element.productName,
+              images:[element.image]
+            },
+            unit_amount: Math.floor(element.price * 100),
+          },
+          quantity: element.quantity,
+        })}
+      );
       for (const item of cart.items) {
         const inventorySuccess = await ProductService.updateInventory(
           item.productId,
@@ -37,52 +54,32 @@ export class CheckoutPaymentService {
         paymentMethod,
         totalAmount
       );
+      console.log(order.dataValues.orderId);
 
+      const orderId = order.dataValues.orderId;
       await CartService.clearCart(userId);
 
-      // Step 2: Create a payment method
-
-      const paymentMethodResult = await stripe.paymentMethods.create({
-        type: "card",
-        card: {
-          number: paymentMethod.cardNumber,
-          exp_month: parseInt(paymentMethod.expiryDate.split("/")[0]),
-          exp_year: parseInt(paymentMethod.expiryDate.split("/")[1]),
-          cvc: paymentMethod.cvv,
-        },
-        billing_details: {
-          name: userId, // Replace with actual user name if available
-        },
-      });
-
       // Step 3: Process the payment
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: order.totalAmount * 100, // Amount in cents
-        currency: "usd",
-        payment_method: paymentMethodResult.id,
-        confirm: true,
+      const session = await stripe.checkout.sessions.create({
+        line_items: line_items,
+        mode: "payment",
+        success_url: "http://localhost/3000/complete",
+        cancel_url: "http://localhost/3000/cancel",
       });
 
-      if (paymentIntent.status !== "succeeded") {
-        throw new Error("Payment failed");
-      }
-
-      // Update the order status to Paid
       const updatedOrder = await OrderService.updateOrderStatus(
-        order.orderId,
+        orderId,
         "Paid"
       );
 
       // Return order and payment details
       return {
         order: {
-          orderId: order.orderId,
+          orderId: orderId,
           status: updatedOrder.status,
           totalAmount: totalAmount,
         },
-        payment: {
-          paymentIntentId: paymentIntent.id,
-        },
+        session: session.url,
       };
     } catch (error: any) {
       throw new Error(

@@ -11,3 +11,10 @@ export interface createCartAttributes
   extends Optional<CartAttributes, "id" | "items" | "total"> {}
 
 export interface CartOutputs extends Required<CartAttributes> {}
+
+export type INTUSERPRODUCT = {
+  name: string;
+  unit_amount: number;
+  image: string;
+  quantity: number;
+};
