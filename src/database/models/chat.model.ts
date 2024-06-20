@@ -23,11 +23,13 @@ class Post extends Model<PostAttributes, PostCreationAttributes> implements Post
 
 Post.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
+      id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        onDelete: "CASCADE",
+      },
     userId: {
       type: DataTypes.UUID,
       allowNull: false,

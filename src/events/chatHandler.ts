@@ -1,15 +1,13 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import Emitter from "./emitter";
 
-
 class EventHandler {
-  //@ts-ignore
   private io: SocketIOServer;
-  private Emitter: Emitter;
+  private emitter: Emitter;
 
-  constructor(io: SocketIOServer, Emitter: Emitter) {
+  constructor(io: SocketIOServer, emitter: Emitter) {
     this.io = io;
-    this.Emitter = Emitter;
+    this.emitter = emitter;
     this.initialize();
   }
 
@@ -19,33 +17,20 @@ class EventHandler {
         console.log`(Client disconnected: ${socket.id})`;
       });
 
-      socket.on("connect", () => {
-        console.log`(Client connected: ${socket.id})`;
+      socket.on("joinPublicChatGroup", () => {
+        socket.join("publicChatGroup");
+        console.log`(Client ${socket.id} joined public chat group)`;
       });
 
-
-
-      socket.on("sendmessage", (data) => {
-        this.Emitter.emit("", {
-          title: "your message was received",
-          message: "looks good!",
-          userId: "23",
-        });
+      socket.on("leavePublicChatGroup", () => {
+        socket.leave("publicChatGroup");
+        console.log`(Client ${socket.id} left public chat group)`;
       });
-
     });
-    this.Emitter.on("sendmessage", (data) => {
-      // this.io.emit("groupmessage", {
-      //   id: data?.id,
-      //   title: data?.title,
-      //   message: data?.message,
-      //   userId: data?.userId,
-      // });
-      console.log("messagesent");
-      console.log(data)
-    });
-
-    
+      
+      this.emitter.on("sendPublicMessage", message => {
+          this.io.to("publicChatGroup").emit("groupmessage",message)
+      });
   }
 }
 

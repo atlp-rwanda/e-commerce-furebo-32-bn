@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { viewAllPosts, createPost } from '../services/chat.services';
-import { eventEmitter } from '../app';
 
 export const createMessage = async (req: Request, res: Response) => {
   try {
@@ -15,7 +14,6 @@ export const createMessage = async (req: Request, res: Response) => {
     };
 
     const newMessage = await createPost(message);
-    eventEmitter.emit("sendmessage", newMessage);
     return res.status(200).json(newMessage);
   } catch (error) {
     console.log(error);
@@ -31,4 +29,4 @@ export const viewAllMessage = async (_req: Request, res: Response) => {
     console.log(error);
     res.status(500).json(error);
   }
-};
+}

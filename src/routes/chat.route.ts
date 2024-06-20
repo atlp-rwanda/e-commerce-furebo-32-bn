@@ -2,9 +2,9 @@ import { protectRoute } from "../middlewares/auth.middleware";
 import { Router } from 'express'
 import { viewAllMessage, createMessage } from "../controllers/chat.controller"; 
 
-const postRoutes = Router();
+const chatRoutes = Router();
 
-postRoutes.get('/', viewAllMessage);
-postRoutes.post('/sendmessage', protectRoute, createMessage);
+chatRoutes.get('/messages', viewAllMessage);
+chatRoutes.post('/sendmessages', protectRoute, createMessage);
 
-export default postRoutes 
+export default chatRoutes 
