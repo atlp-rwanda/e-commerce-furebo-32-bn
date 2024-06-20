@@ -41,7 +41,7 @@ app.use("/api/cart", cartRoutes);
 
 
 app.use('/api/users', profileRoutes);
-app.use("/api/", checkoutRoutes);
+app.use("/api", checkoutRoutes);
 // Swagger UI route
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 

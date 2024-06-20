@@ -7,6 +7,7 @@ import {
 } from "../../types/order.types";
 
 class Order extends Model<orderAttributes, orderCreationAttributes> {
+  
   public orderId!: string;
   public deliveryAddress!: any;
   public buyerId!: string;

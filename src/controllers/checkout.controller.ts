@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { CheckoutService } from '../services/Checkout.services';
-
+import { PaymentService } from '../services/payment.service';
 export class CheckoutController {
   static async processCheckout(req: Request, res: Response) {
     try{
-    const userId = req.user.id;
+      const userId = req.user.id;
     const { deliveryAddress, paymentMethod } = req.body;
 
     if (!deliveryAddress || !paymentMethod) {
@@ -19,14 +19,27 @@ export class CheckoutController {
         deliveryAddress,
         paymentMethod
       );
+      // //  // Process the payment
+        const paymentResult = await PaymentService.processPayment(
+          userId,
+          order.orderId,
+          paymentMethod
+        );
+      
       return res.status(200).json({
-        message: 'Order processed successfully',
+        message: "Order and payment processed successfully",
         data: {
           order,
+         payment: paymentResult,
         },
       });
     } catch (error: any) {
-      return res.status(401).json({ message: 'Unable to process order',error: error.message  });
+      return res
+        .status(401)
+        .json({
+          message: "Unable to process order and payment",
+          error: error.message,
+        });
     }
     
     } catch (error: any) {

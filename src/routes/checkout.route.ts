@@ -3,8 +3,8 @@ import { CheckoutController } from "../controllers/checkout.controller";
 import { protectRoute, restrictTo } from "../middlewares/auth.middleware";
 import { userRole } from '../utils/variable.utils';
 
-const checkoutRoutes = express.Router();
+const router= express.Router();
 
-checkoutRoutes.post("/checkout",protectRoute, restrictTo(userRole.buyer),CheckoutController.processCheckout);
+router.post("/checkout",protectRoute, restrictTo(userRole.buyer),CheckoutController.processCheckout);
 
-export default checkoutRoutes;
+export default router;
