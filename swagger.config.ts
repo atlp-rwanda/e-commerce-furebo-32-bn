@@ -1414,20 +1414,23 @@ const options = {
                     deliveryAddress: {
                       type: "object",
                       properties: {
-                        street: { type: "string" },
-                        city: { type: "string" },
-                        country: { type: "string" },
-                        zipCode: { type: "string" },
+                        street: { type: "string", example: "123 Main St" },
+                        city: { type: "string", example: "Springfield" },
+                        country: { type: "string", example: "USA" },
+                        zipCode: { type: "string", example: "12345" },
                       },
                       required: ["street", "city", "country", "zipCode"],
                     },
                     paymentMethod: {
                       type: "object",
                       properties: {
-                        method: { type: "string" },
-                        cardNumber: { type: "string" },
-                        expiryDate: { type: "string" },
-                        cvv: { type: "string" },
+                        method: { type: "string", example: "credit card" },
+                        cardNumber: {
+                          type: "string",
+                          example: "4242424242424242",
+                        },
+                        expiryDate: { type: "string", example: "12/25" },
+                        cvv: { type: "string", example: "123" },
                       },
                       required: ["method", "cardNumber", "expiryDate", "cvv"],
                     },
@@ -1438,7 +1441,7 @@ const options = {
             },
           },
           responses: {
-            200: {
+            "200": {
               description: "Order processed successfully",
               content: {
                 "application/json": {
@@ -1460,19 +1463,34 @@ const options = {
                               deliveryAddress: {
                                 type: "object",
                                 properties: {
-                                  street: { type: "string" },
-                                  city: { type: "string" },
-                                  country: { type: "string" },
-                                  zipCode: { type: "string" },
+                                  street: {
+                                    type: "string",
+                                    example: "123 Main St",
+                                  },
+                                  city: {
+                                    type: "string",
+                                    example: "Springfield",
+                                  },
+                                  country: { type: "string", example: "USA" },
+                                  zipCode: { type: "string", example: "12345" },
                                 },
                               },
                               paymentMethod: {
                                 type: "object",
                                 properties: {
-                                  method: { type: "string" },
-                                  cardNumber: { type: "string" },
-                                  expiryDate: { type: "string" },
-                                  cvv: { type: "string" },
+                                  method: {
+                                    type: "string",
+                                    example: "credit card",
+                                  },
+                                  cardNumber: {
+                                    type: "string",
+                                    example: "4242424242424242",
+                                  },
+                                  expiryDate: {
+                                    type: "string",
+                                    example: "12/25",
+                                  },
+                                  cvv: { type: "string", example: "123" },
                                 },
                               },
                               status: { type: "string", example: "pending" },
@@ -1481,17 +1499,35 @@ const options = {
                                 items: {
                                   type: "object",
                                   properties: {
-                                    images: { type: "string[]" },
-                                    price: { type: "number" },
-                                    quantity: { type: "number" },
-                                    productId: { type: "string" },
-                                    productName: { type: "string" },
+                                    images: {
+                                      type: "array",
+                                      items: { type: "string" },
+                                      example: ["image1.jpg", "image2.jpg"],
+                                    },
+                                    price: { type: "number", example: 29.99 },
+                                    quantity: { type: "number", example: 2 },
+                                    productId: {
+                                      type: "string",
+                                      example: "prod_123",
+                                    },
+                                    productName: {
+                                      type: "string",
+                                      example: "Product Name",
+                                    },
                                   },
                                 },
                               },
-                              totalAmount: { type: "number"},
-                              updatedAt: { type: "Date" },
-                              createdAt: { type: "Date" },
+                              totalAmount: { type: "number", example: 59.98 },
+                              updatedAt: {
+                                type: "string",
+                                format: "date-time",
+                                example: "2024-06-20T14:22:33Z",
+                              },
+                              createdAt: {
+                                type: "string",
+                                format: "date-time",
+                                example: "2024-06-20T14:22:33Z",
+                              },
                             },
                           },
                         },
@@ -1501,7 +1537,7 @@ const options = {
                 },
               },
             },
-            400: {
+            "400": {
               description: "Bad Request - Invalid input",
               content: {
                 "application/json": {
@@ -1517,7 +1553,7 @@ const options = {
                 },
               },
             },
-            500: {
+            "500": {
               description: "Internal Server Error",
               content: {
                 "application/json": {
