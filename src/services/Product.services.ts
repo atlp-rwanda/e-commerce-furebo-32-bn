@@ -31,8 +31,6 @@ export class ProductService {
       },
     });
   }
-
-
   static async updateInventory(productId: string, quantity: number) {
     try {
       const product = await Product.findOne({ where: { id: productId } });
@@ -54,6 +52,7 @@ export class ProductService {
       throw new Error(`Failed to update inventory: ${error.message}`);
     }
   }
-
-
+  static async  deleteProductById(id:string){
+    return await Product.destroy({where:{ id:id }})
+  }
 }

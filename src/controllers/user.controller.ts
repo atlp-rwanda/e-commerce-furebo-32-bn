@@ -301,8 +301,8 @@ export const LoginViaGoogle=async (req:Request,res:Response)=>{
 
 export const googleRedirect= function(){
  return passport.authenticate('google',{
-    successRedirect:'/google/token',
-    failureRedirect:'/google/failure'
+    successRedirect:'/api/google/token',
+    failureRedirect:'/api/google/failure'
   })
 }
 
