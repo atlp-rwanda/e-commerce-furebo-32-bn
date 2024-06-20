@@ -19,7 +19,6 @@ export class CheckoutController {
         cvv: "123"
       }
 
-
       const result = await CheckoutPaymentService.processCheckoutAndPayment(
         userId,
         deliveryAddress,
