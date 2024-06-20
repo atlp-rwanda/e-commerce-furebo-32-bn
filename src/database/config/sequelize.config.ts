@@ -13,10 +13,10 @@ if (!databaseUrl) {
 export const sequelize = new Sequelize(databaseUrl, {
   dialect: "postgres",
   dialectModule: pg,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
-  },
+  // dialectOptions: {
+  //ssl: {
+  // require: true,
+  //rejectUnauthorized: false,
+  //},
+  //},
 });
