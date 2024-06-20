@@ -24,6 +24,7 @@ export const userSignup = async (req: Request, res: Response) => {
       role: req.body.role,
       phone: req.body.phone,
       updatedAt: new Date(),
+      createdAt: new Date(),
     };
     const email = req.body.email;
     if (email == undefined) {
@@ -300,8 +301,8 @@ export const LoginViaGoogle=async (req:Request,res:Response)=>{
 
 export const googleRedirect= function(){
  return passport.authenticate('google',{
-    successRedirect:'/google/token',
-    failureRedirect:'/google/failure'
+    successRedirect:'/api/google/token',
+    failureRedirect:'/api/google/failure'
   })
 }
 
