@@ -8,11 +8,10 @@ module.exports = {
     url: `${process.env.DB_URL}`,
     dialect: "postgres",
     dialectModule: pg,
-    // dialectOptions: {
-    //   require: true,
-    //   rejectUnauthorized: false,
-    //  },
-    // },
+    dialectOptions: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   },
   test: {
     url: `postgres://${process.env.TEST_DB_USER}:${process.env.TEST_DB_PASS}@${process.env.TEST_DB_HOST}/${process.env.TEST_DB_NAME}`,
