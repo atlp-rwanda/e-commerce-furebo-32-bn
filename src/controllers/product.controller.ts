@@ -8,8 +8,11 @@ import { CreateCollectionService } from "../services/collection.services";
 import Product from "../database/models/Product.model";
 import "../utils/cloudinary.utils";
 import { Op } from "sequelize";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import { notificationEventEmitter } from "../events/notificationEvents.event";
 
+dayjs.extend(utc)
 import { imageServices } from "../services/Image.service";
 
 dotenv.config();
@@ -189,6 +192,122 @@ export const updateProductAvailability = async (
       message: "An error occurred while updating the product availability",
     });
   }
+};
+
+export const getProductStats=async(req:Request)=>{
+  const userId=req.user?.id;
+  const {start}=req.query as any
+  const {end}=req.query as any
+  const startDate=dayjs(start).startOf('day').utc().toDate();
+  const endDate=dayjs(end).endOf('day').utc().toDate();
+  try{
+    const products=await Product.findAll({
+      where:{
+        seller_id:userId,
+        createdAt:{
+          [Op.gte]:startDate,
+          [Op.lte]:endDate
+        }
+      }
+    })
+    return products.length
+  }catch(error:any){
+    console.log(error.message);
+    
+  }
+}
+
+export const getAvailableProductStats=async(req:Request)=>{
+  const userId=req.user?.id;
+  const {start}=req.query as any
+  const {end}=req.query as any
+  const startDate=dayjs(start).startOf('day').utc().toDate();
+  const endDate=dayjs(end).endOf('day').utc().toDate();
+  try{
+    const products=await Product.findAll({
+      where:{
+        seller_id:userId,
+        expired:false,
+        availability:true,
+        createdAt:{
+          [Op.gte]:startDate,
+          [Op.lte]:endDate
+        }
+      }
+    })
+    return products.length
+  }catch(error:any){
+    console.log(error.message);
+    
+  }
+}
+
+export const getExpiredProductStats=async(req:Request)=>{
+  const userId=req.user?.id;
+  const {start}=req.query as any
+  const {end}=req.query as any
+  const startDate=dayjs(start).startOf('day').utc().toDate();
+  const endDate=dayjs(end).endOf('day').utc().toDate();
+  try{
+    const products=await Product.findAll({
+      where:{
+        seller_id:userId,
+        expired:true,
+        createdAt:{
+          [Op.gte]:startDate,
+          [Op.lte]:endDate
+        }
+      }
+    })
+    return products.length
+  }catch(error:any){
+    console.log(error.message);
+  }
+}
+const getStockLevelForDate = async (
+  date: Date,
+  sellerId: string
+) => {
+  try {
+    const products= await Product.findAll({
+      where: {
+        seller_id:sellerId,
+        createdAt: {
+          [Op.lte]: date
+        }
+      }
+    });
+    const productsObj = products.map((product) => product.toJSON());
+    let totalStock = 0;
+    for (let i = 0; i < productsObj.length; i++) {
+      const product = productsObj[i];
+      if (product.quantity) {
+        const stockQuantity = parseFloat(
+          String(product.quantity).split(" ")[0]
+        );
+        totalStock += stockQuantity;
+      }
+    }
+    return totalStock;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
+export const getStockStats = async (req: Request) => {
+  const sellerId = req.user.id;
+  const { end } = req.query as any;
+  const { start } = req.query as any;
+  const startDate = dayjs(start).startOf("day").utc().toDate();
+  const endDate = dayjs(end).endOf("day").utc().toDate();
+  const startStockLevel = await getStockLevelForDate(startDate, sellerId);
+  const endStockLevel = await getStockLevelForDate(endDate, sellerId);
+  const stockChange: number = endStockLevel - startStockLevel;
+  if (stockChange > 0) {
+    return parseInt(`+${stockChange}`);
+  }
+  return parseInt(`-${stockChange}`);
 };
 export const deleteProduct = async (req: Request, res: Response) => {
   try {

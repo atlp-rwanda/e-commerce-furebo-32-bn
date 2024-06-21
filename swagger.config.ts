@@ -1989,6 +1989,51 @@ const options = {
           },
         },
       },
+      "/api/stats": {
+        get: {
+          summary: 'Get Product Statistics',
+          description: 'Retrieve statistics for products within a specified date range.',
+          tags: ['Stats'],
+          parameters: [
+            {
+              name: 'start',
+              in: 'query',
+              required: true,
+              schema: {
+                type: 'string',
+                format: 'date',
+                example: '2024-01-01',
+              },
+              description: 'Start date (YYYY-MM-DD) for the statistics query.',
+            },
+            {
+              name: 'end',
+              in: 'query',
+              required: true,
+              schema: {
+                type: 'string',
+                format: 'date',
+                example: '2024-06-25',
+              },
+              description: 'End date (YYYY-MM-DD) for the statistics query.',
+            },
+          ],
+          responses: {
+            200: {
+              description: "Successful response with product statistics.",
+              400: {
+                description: "Bad Request",
+              },
+              404: {
+                description: "Not Found",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
     },
   },
 
