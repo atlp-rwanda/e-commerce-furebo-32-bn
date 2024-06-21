@@ -1,5 +1,5 @@
 import express  from "express";
-import { createProduct, getAvailableItems, searchProducts,getAvailableProducts, updateProductAvailability } from "../controllers/product.controller";
+import { createProduct, getAvailableItems, searchProducts,getAvailableProducts, updateProductAvailability,viewProduct,viewProductBySeller } from "../controllers/product.controller";
 import {
   updateImageByUrl,
   updateProduct,
@@ -31,4 +31,6 @@ router.patch('/updateAllProductImages/:product_id',protectRoute,restrictTo(userR
 router.patch('/updateProductImage/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,updateImageByUrl);
 router.patch('/removeProductImage/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,removeImage);
 router.patch('/addProductImage/:product_id',protectRoute,restrictTo(userRole.seller),upload,checkProductOwner,addImages)
+router.get('/viewProduct/:product_id',protectRoute,viewProduct)
+router.get('/sellerViewProduct/:product_id/:collection_id',protectRoute,restrictTo(userRole.seller),viewProductBySeller)
 export default router;

@@ -339,3 +339,41 @@ export async function removeImage(req:Request,res:Response){
     return res.status(500).json({message:"internal server error"})
   }
 }
+export const viewProduct=async function(req:Request,res:Response){
+
+  const productId=req.params.product_id as string ;
+  const product=await ProductService.getProductByid(productId);
+
+
+  if(!product) return res.status(400).json({message:"Product doesn't exist"});
+
+    if(product?.availability===true){
+      return res.status(200).json({
+        message:"Product is available",
+        product:product
+      })
+    }
+    return res.status(400).json({message:"Product is not available"});
+}
+export const viewProductBySeller=async function (req:Request,res:Response){
+  const productId=req.params.product_id as string ;
+  const product=await ProductService.getProductByid(productId);
+  const seller_id=req.user.id;
+
+  if(!product) return res.status(400).json({message:"Product doesn't exist"});
+  const collectionId=req.params.collection_id as string;
+  const collection=await CreateCollectionService.getCollectionByid(collectionId);
+
+  if(!collection) return res.status(400).json({message:"Collection doesn't exist"});
+
+  if(product?.collection_id!==collectionId){
+    return res.status(400).json({message:"The product doesn't exist in your collection"})
+  }
+
+  if(product?.seller_id!==seller_id) return res.status(400).json({message:"You don't own the product"})
+
+return res.status(200).json({
+  message:"Product found", 
+  product:product
+})
+}
