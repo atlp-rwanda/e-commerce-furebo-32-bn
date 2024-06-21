@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { createProductAttributes } from "../types/product.types";
-import { ProductService} from "../services/Product.services";
+import { ProductService } from "../services/Product.services";
 import cloudinary from "cloudinary";
 import dotenv from "dotenv";
 
@@ -8,6 +8,7 @@ import { CreateCollectionService } from "../services/collection.services";
 import Product from "../database/models/Product.model";
 import "../utils/cloudinary.utils";
 import { Op } from "sequelize";
+import { notificationEventEmitter } from "../events/notificationEvents.event";
 
 import { imageServices } from "../services/Image.service";
 
@@ -82,6 +83,10 @@ export const createProduct = async function (req: Request, res: Response) {
     }
 
     const createdProduct = await ProductService.createProduct(product);
+
+    // Send notification
+    notificationEventEmitter.emit("productCreated", product);
+
     return res.status(200).json({
       message: "Product is created successfully",
       Product: createdProduct,
@@ -95,14 +100,14 @@ export const getAvailableItems = async function (req: Request, res: Response) {
   const items = await ProductService.getAvailableItems();
   const user = req.user;
   if (!user) {
-        return res.status(401).json({ status: 401, error: "Unauthorized access" });
+    return res.status(401).json({ status: 401, error: "Unauthorized access" });
   }
-   return res.status(200).json({
-       status: 200,
-       message: "Items retrieved successfully",
-       items: items
-   });
-}
+  return res.status(200).json({
+    status: 200,
+    message: "Items retrieved successfully",
+    items: items,
+  });
+};
 
 //search products
 
@@ -185,158 +190,166 @@ export const updateProductAvailability = async (
     });
   }
 };
-export const deleteProduct=async (req:Request,res:Response)=>{
-  try{
-    const productId=req.params.product_id;
-    const product = await ProductService.getProductByid(productId)
-  
-    await ProductService.deleteProductById(productId)
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.product_id;
+    const product = await ProductService.getProductByid(productId);
+
+    await ProductService.deleteProductById(productId);
     return res.status(202).json({
-      message:"Product deleted successfully",
-      deletedProduct:product,
-    })
+      message: "Product deleted successfully",
+      deletedProduct: product,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "internal server error" });
   }
-  catch(error){
-    return res.status(500).json({message:"internal server error"})
- }
-}
+};
 
-export const updateProduct=async function(req:Request,res:Response){
-  const productId=req.params.product_id;
-  const product=await ProductService.getProductByid(productId) as Product;
-  const{productName,price,quantity,availabilty,expireDate,category,description}=req.body;
+export const updateProduct = async function (req: Request, res: Response) {
+  const productId = req.params.product_id;
+  const product = (await ProductService.getProductByid(productId)) as Product;
+  const {
+    productName,
+    price,
+    quantity,
+    availabilty,
+    expireDate,
+    category,
+    description,
+  } = req.body;
 
-  const updatedProduct=await product.update({
-    productName:productName,
-    description:description,
-    price:price,
-    quantity:quantity,
-    availability:availabilty,
-    expireDate:expireDate,
-    category:category
-  })
+  const updatedProduct = await product.update({
+    productName: productName,
+    description: description,
+    price: price,
+    quantity: quantity,
+    availability: availabilty,
+    expireDate: expireDate,
+    category: category,
+  });
+  notificationEventEmitter.emit("productDeleted", product);
   return res.status(200).json({
-    message:"Product updated successfully",
-    updatedProduct:updatedProduct
-  })
-}
-export const addImages=async function (req:Request,res:Response) {
-    try{
-      const productId=req.params.product_id;
-    const product=await ProductService.getProductByid(productId) as Product;
-    const files= req.files as Express.Multer.File[];
+    message: "Product updated successfully",
+    updatedProduct: updatedProduct,
+  });
+};
+export const addImages = async function (req: Request, res: Response) {
+  try {
+    const productId = req.params.product_id;
+    const product = (await ProductService.getProductByid(productId)) as Product;
+    const files = req.files as Express.Multer.File[];
 
-    if (product?.images.length+files.length>8){
-      return res.status(400).json({message:"Images can't exceed 8"})
+    if (product?.images.length + files.length > 8) {
+      return res.status(400).json({ message: "Images can't exceed 8" });
     }
-    if(!files){
-      return res.status(400).json({message:"Add an image to continue"})
+    if (!files) {
+      return res.status(400).json({ message: "Add an image to continue" });
     }
-    const imageUrls= await imageServices.uploadImages(files) ;
-    let  newImages=[...product.images]
-    newImages.push(...imageUrls)
-    const updatedProduct=await product.update({images:newImages})
+    const imageUrls = await imageServices.uploadImages(files);
+    let newImages = [...product.images];
+    newImages.push(...imageUrls);
+    const updatedProduct = await product.update({ images: newImages });
     await updatedProduct.save();
     return res.status(200).json({
-      message:"Images added successfully",
-      updatedproduct:updatedProduct
-    })
-    }
-    catch(error){
-      return res.status(500).json({message:"internal server error"})
-    }
+      message: "Images added successfully",
+      updatedproduct: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "internal server error" });
   }
+};
 
-  export async function updateImageByUrl(req:Request,res:Response){
-  try{
-    const productId=req.params.product_id;
-    const imageUrl=req.body.imageUrl as string
-    const product=await ProductService.getProductByid(productId) as Product;
-    const files=req.files as Express.Multer.File[];
+export async function updateImageByUrl(req: Request, res: Response) {
+  try {
+    const productId = req.params.product_id;
+    const imageUrl = req.body.imageUrl as string;
+    const product = (await ProductService.getProductByid(productId)) as Product;
+    const files = req.files as Express.Multer.File[];
 
-    if(!product.images.includes(imageUrl)){
-      res.status(400).json({message:"The image doesn't exist"})
+    if (!product.images.includes(imageUrl)) {
+      res.status(400).json({ message: "The image doesn't exist" });
     }
-    if( !files){
-      return res.status(400).json({message:"Please upload new image"})
+    if (!files) {
+      return res.status(400).json({ message: "Please upload new image" });
     }
-    const imagePublicId= imageServices.obtainPublicId(imageUrl)
-    await cloudinary.v2.uploader.destroy(imagePublicId)
+    const imagePublicId = imageServices.obtainPublicId(imageUrl);
+    await cloudinary.v2.uploader.destroy(imagePublicId);
 
-    const imageUrls=await imageServices.uploadImages(files);
-    const newImages=[...product?.images].filter(url=>url!==imageUrl)
+    const imageUrls = await imageServices.uploadImages(files);
+    const newImages = [...product?.images].filter((url) => url !== imageUrl);
     newImages.push(...imageUrls);
 
-    const updatedProduct=await product?.update({images:newImages})
+    const updatedProduct = await product?.update({ images: newImages });
 
     return res.status(200).json({
-      message:"Images added successfully",
-      updatedproduct:updatedProduct
-    })
-  }
-  catch(error){
-    return res.status(500).json({message:"internal server error"})
+      message: "Images added successfully",
+      updatedproduct: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "internal server error" });
   }
 }
 
-export async function UpdateAllImages(req:Request,res:Response){
-  try{
-    const productId=req.params.product_id;
-    const product=await ProductService.getProductByid(productId) as Product;
-    const files=req.files as Express.Multer.File[];
+export async function UpdateAllImages(req: Request, res: Response) {
+  try {
+    const productId = req.params.product_id;
+    const product = (await ProductService.getProductByid(productId)) as Product;
+    const files = req.files as Express.Multer.File[];
 
-    if(!files||files.length>8||files.length<4){
-      return res.status(400).json({message:"Please upload at least 4 images and not exceeding 8"})
+    if (!files || files.length > 8 || files.length < 4) {
+      return res.status(400).json({
+        message: "Please upload at least 4 images and not exceeding 8",
+      });
     }
 
     await Promise.all(
-      [...product.images].map(async(url)=>{
-        let public_id=imageServices.obtainPublicId(url)
-        return await cloudinary.v2.uploader.destroy(public_id)
+      [...product.images].map(async (url) => {
+        let public_id = imageServices.obtainPublicId(url);
+        return await cloudinary.v2.uploader.destroy(public_id);
       })
-    )
-  
-    const imageUrls=await imageServices.uploadImages(files)
-  
-    const updatedProduct=await product?.update({images:[...imageUrls]})
+    );
+
+    const imageUrls = await imageServices.uploadImages(files);
+
+    const updatedProduct = await product?.update({ images: [...imageUrls] });
     return res.status(200).json({
-      message:"Images updated successfully",
-      updatedproduct:updatedProduct
-    })
-  }
-  catch(error){
-    return res.status(500).json({message:"internal server error"})
+      message: "Images updated successfully",
+      updatedproduct: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "internal server error" });
   }
 }
 
-export async function removeImage(req:Request,res:Response){
-  try{
-    const productId=req.params.product_id;
-  const product=await ProductService.getProductByid(productId) as Product;
-  const imageUrl=req.body.imageUrl as string
-  const public_id= imageServices.obtainPublicId(imageUrl)
+export async function removeImage(req: Request, res: Response) {
+  try {
+    const productId = req.params.product_id;
+    const product = (await ProductService.getProductByid(productId)) as Product;
+    const imageUrl = req.body.imageUrl as string;
+    const public_id = imageServices.obtainPublicId(imageUrl);
 
-  if(!product.images.includes(imageUrl)){
-    return res.status(400).json({message:"The image doesn't exist"})
-  }
+    if (!product.images.includes(imageUrl)) {
+      return res.status(400).json({ message: "The image doesn't exist" });
+    }
 
-  if(product?.images.length===4){
-    return res.status(400).json({message:"You can't delete an image because you have 4 images"})
-  }
-  
-  await cloudinary.v2.uploader.destroy(public_id)
+    if (product?.images.length === 4) {
+      return res.status(400).json({
+        message: "You can't delete an image because you have 4 images",
+      });
+    }
 
-  const newImages=[...product.images.filter(image=>image!=imageUrl)]
+    await cloudinary.v2.uploader.destroy(public_id);
 
-  const updatedProduct=await product?.update({images:newImages})
+    const newImages = [...product.images.filter((image) => image != imageUrl)];
 
-  return res.status(200).json({
-    message:"Images removed successfully",
-    updatedproduct:updatedProduct
-  })
-  }
-  catch(error){
-    return res.status(500).json({message:"internal server error"})
+    const updatedProduct = await product?.update({ images: newImages });
+
+    return res.status(200).json({
+      message: "Images removed successfully",
+      updatedproduct: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "internal server error" });
   }
 }
 export const viewProduct=async function(req:Request,res:Response){
