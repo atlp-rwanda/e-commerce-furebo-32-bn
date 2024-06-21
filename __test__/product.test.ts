@@ -1,5 +1,5 @@
 import { Request, Response,NextFunction } from 'express';
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 import { CreateCollectionService, GetCollectionService } from '../src/services/collection.services';
 import { ProductService } from '../src/services/Product.services';
 import cloudinary from 'cloudinary';
@@ -1520,5 +1520,158 @@ describe('imageServices', () => {
 
       stubUpload.restore();
     });
+  });
+});
+
+import { viewProduct } from "../src/controllers/product.controller";
+
+
+describe('viewProduct', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: SinonStub;
+  let jsonStub: SinonStub;
+  let productStub: SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: { product_id: 'productId' }
+    };
+
+    statusStub = sinon.stub().returnsThis() as unknown as SinonStub;
+    jsonStub = sinon.stub() as unknown as SinonStub;
+
+    res = {
+      status: statusStub,
+      json: jsonStub
+    };
+
+    productStub = sinon.stub(ProductService, 'getProductByid');
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should return 400 if product does not exist', async () => {
+    productStub.resolves(null);
+
+    await viewProduct(req as Request, res as Response);
+
+    sinon.assert.calledWith(statusStub, 400);
+    sinon.assert.calledWith(jsonStub, { message: "Product doesn't exist" });
+  });
+
+  it('should return 200 if the product is available', async () => {
+    const product = { availability: true };
+
+    productStub.resolves(product);
+
+    await viewProduct(req as Request, res as Response);
+
+    sinon.assert.calledWith(statusStub, 200);
+    sinon.assert.calledWith(jsonStub, {
+      message: "Product is available",
+      product: product
+    });
+  });
+
+  it('should return 400 if the product is not available', async () => {
+    const product = { availability: false };
+
+    productStub.resolves(product);
+
+    await viewProduct(req as Request, res as Response);
+
+    sinon.assert.calledWith(statusStub, 400);
+    sinon.assert.calledWith(jsonStub, { message: "Product is not available" });
+  });
+});
+
+import { viewProductBySeller } from "../src/controllers/product.controller"; 
+
+describe('viewProductBySeller', () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let getCollectionByIdStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: {
+        product_id: 'product1',
+        collection_id: 'collection1'
+      },
+      user: {
+        id: 'seller1'
+      }
+    };
+
+    res = {
+      status: sinon.stub().returnsThis(),
+      json: sinon.stub()
+    };
+
+    statusStub = res.status as sinon.SinonStub;
+    jsonStub = res.json as sinon.SinonStub;
+
+    getProductByIdStub = sinon.stub(ProductService, 'getProductByid');
+    getCollectionByIdStub = sinon.stub(CreateCollectionService, 'getCollectionByid');
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it('should return 400 if product does not exist', async () => {
+    getProductByIdStub.resolves(null);
+
+    await viewProductBySeller(req as Request, res as Response);
+
+    sinon.assert.calledOnceWithExactly(statusStub, 400);
+    sinon.assert.calledOnceWithExactly(jsonStub, { message: "Product doesn't exist" });
+  });
+
+  it('should return 400 if collection does not exist', async () => {
+    getProductByIdStub.resolves({ collection_id: 'collection1', seller_id: 'seller1' });
+    getCollectionByIdStub.resolves(null);
+
+    await viewProductBySeller(req as Request, res as Response);
+
+    sinon.assert.calledOnceWithExactly(statusStub, 400);
+    sinon.assert.calledOnceWithExactly(jsonStub, { message: "Collection doesn't exist" });
+  });
+
+  it('should return 400 if product does not belong to collection', async () => {
+    getProductByIdStub.resolves({ collection_id: 'collection2', seller_id: 'seller1' });
+    getCollectionByIdStub.resolves({ id: 'collection1' });
+
+    await viewProductBySeller(req as Request, res as Response);
+
+    sinon.assert.calledOnceWithExactly(statusStub, 400);
+    sinon.assert.calledOnceWithExactly(jsonStub, { message: "The product doesn't exist in your collection" });
+  });
+
+  it('should return 400 if seller does not own the product', async () => {
+    getProductByIdStub.resolves({ collection_id: 'collection1', seller_id: 'seller2' });
+    getCollectionByIdStub.resolves({ id: 'collection1' });
+
+    await viewProductBySeller(req as Request, res as Response);
+
+    sinon.assert.calledOnceWithExactly(statusStub, 400);
+    sinon.assert.calledOnceWithExactly(jsonStub, { message: "You don't own the product" });
+  });
+
+  it('should return 200 and the product if all checks pass', async () => {
+    const product = { id: 'product1', collection_id: 'collection1', seller_id: 'seller1' };
+    getProductByIdStub.resolves(product);
+    getCollectionByIdStub.resolves({ id: 'collection1' });
+
+    await viewProductBySeller(req as Request, res as Response);
+
+    sinon.assert.calledOnceWithExactly(statusStub, 200); 
+    sinon.assert.calledOnceWithExactly(jsonStub, { message: "Product found", product });
   });
 });

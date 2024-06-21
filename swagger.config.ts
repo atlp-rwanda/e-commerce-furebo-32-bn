@@ -1009,7 +1009,6 @@ const options = {
           },
         },
       },
-      
 
       "/api/google/auth": {
         get: {
@@ -1137,7 +1136,6 @@ const options = {
                 type: "string",
               },
               description: "Product ID",
-
             },
           ],
           requestBody: {
@@ -1146,22 +1144,17 @@ const options = {
                 schema: {
                   type: "object",
                   properties: {
-
-                    
                     availability: {
                       type: "boolean",
                       example: true,
                     },
                   },
                   required: ["availability"],
-
                 },
               },
             },
           },
           responses: {
-
-           
             "200": {
               description: "Product availability updated successfully",
             },
@@ -1176,12 +1169,11 @@ const options = {
             },
             "500": {
               description: "Internal server error",
-
             },
           },
         },
       },
-     
+
       "/api/cart": {
         post: {
           summary: "Create Cart",
@@ -1472,347 +1464,347 @@ const options = {
         },
       },
       "/api/deleteProduct/{product_id}": {
-  delete: {
-    summary: "Delete a product in a collection",
-    description: "Delete a product with the provided id of the product",
-    tags: ["Product"],
-    parameters: [
-      {
-        name: "product_id",
-        in: "path",
-        required: true,
-        schema: {
-          type: "string",
-        },
-        description: "Product ID",
-      },
-    ],
-    responses: {
-      202: {
-        description: "Product deleted successfully",
-        content: {
-          "application/json": {
-            schema: {
-              type:"object",
-              properties: {
-                deletedProduct:{
-                  type:"object",
-                  description:"deleted Product"
-                }
+        delete: {
+          summary: "Delete a product in a collection",
+          description: "Delete a product with the provided id of the product",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
               },
-          }
-        }
-      },
-      400: {
-        description: "Bad Request"
-      },
-      500: {
-        description: "Internal server error"
-      }
-    }
-  }
-  }
-},
-      "/api/updateProduct/{product_id}": {
-    patch: {
-      summary: "Update image of the product",
-      description: "Update image of the product by secure Url",
-      tags: ["Product"],
-      parameters: [
-        {
-          name: "product_id",
-          in: "path",
-          required: true,
-          schema: {
-            type: "string",
-          },
-          description: "Product ID",
-        },
-      ],
-      requestBody: {
-        description: "Product details",
-         required: true,
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: {
-                productName: {
-                  type: "string",
-                  description: "Name of the collection"
-                },
-                description: {
-                  type: "string",
-                  description: "Description of the collection"
-                },
-                price: {
-                  type: "number",
-                  description: "Name of the collection"
-                },
-                quantity: {
-                  type: "number",
-                  description: "Quantinty Of the products"
-                },
-                expireDate: {
-                  type: "string",
-                  description: "expiration date of the product",
-                  format:"date"
-                },
-                availabilty:{
-                  type:"boolean",
-                  description:"Availability of the product"
-                },
-                category: {
-                  type: "string",
-                  description: "Category of the product",
-                },
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: "Images added successfully",
-          content: {
-            "application/json": {
-              schema: {
-                type:"object",
-                properties: {
-                  id:{type:"string"},
-                  productName: { type: "string" },
-                  description: { type: "string" },
-                  price: { type: "number" },
-                  quantity: { type: "number" },
-                  seller_id: { type: "string" },
-                  expireDate: { type: "string" },
-                  Collection_id: { type: "string" },
-                  images: { type: "array" },
-                  category:{type:"string"},
-                  availability:{type:"boolean"}
-                },
-            }
-          }
-        },
-      },
-        400: {
-          description: "Bad Request"
-        },
-        500: {
-          description: "Internal server error"
-        }
-        }
-      }
-    },
-    "/api/updateAllProductImages/{product_id}": {
-      patch: {
-        summary: "Update all images of the product",
-        description: "Update all images of the product ",
-        tags: ["Product"],
-        parameters: [
-          {
-            name: "product_id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string",
+              description: "Product ID",
             },
-            description: "Product ID",
-          },
-        ],
-        requestBody: {
-          description: "Product details",
-           required: true,
-          content: {
-            "multipart/form-data": {
-              schema: {
-                type: "object",
-                properties: {
-                  images: {
-                    type: "array",
-                    description: "Images",
-                    items:{
-                       type: "string",
-                       format: "binary",
-                        description: "Image file(s) of the product"
+          ],
+          responses: {
+            202: {
+              description: "Product deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      deletedProduct: {
+                        type: "object",
+                        description: "deleted Product",
+                      },
                     },
-                  }
-                }
-              }
-            }
-          }
-        },
-        responses: {
-          200: {
-            description: "Images added successfully",
-            content: {
-              "application/json": {
-                schema: {
-                  type:"object",
-                  properties: {
-                    id:{type:"string"},
-                    productName: { type: "string" },
-                    description: { type: "string" },
-                    price: { type: "number" },
-                    quantity: { type: "number" },
-                    seller_id: { type: "string" },
-                    expireDate: { type: "string" },
-                    Collection_id: { type: "string" },
-                    images: { type: "array" },
-                    category:{type:"string"}
                   },
-              }
-            }
-          },
-          400: {
-            description: "Bad Request"
-          },
-          500: {
-            description: "Internal server error"
-          }
-        }
-      }
-    }
-  },
-  "/api/updateProductImage/{product_id}": {
-    patch: {
-      summary: "Update image of the product",
-      description: "Update image of the product by secure Url",
-      tags: ["Product"],
-      parameters: [
-        {
-          name: "product_id",
-          in: "path",
-          required: true,
-          schema: {
-            type: "string",
-          },
-          description: "Product ID",
-        },
-      ],
-      requestBody: {
-        description: "Images details",
-         required: true,
-        content: {
-          "multipart/form-data": {
-            schema: {
-              type: "object",
-              properties: {
-                imageUrl:{
-                  type:"string",
-                  description:"secure Url of the image"
                 },
-                images: {
-                  type: "array",
-                  description: "Images",
-                  items:{
-                     type: "string",
-                     format: "binary",
-                      description: "Image file(s) of the product"
-                  },
-                }
-              }
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: "Images added successfully",
-          content: {
-            "application/json": {
-              schema: {
-                type:"object",
-                properties: {
-                  id:{type:"string"},
-                  productName: { type: "string" },
-                  description: { type: "string" },
-                  price: { type: "number" },
-                  quantity: { type: "number" },
-                  seller_id: { type: "string" },
-                  expireDate: { type: "string" },
-                  Collection_id: { type: "string" },
-                  images: { type: "array" },
-                  category:{type:"string"}
-                },
-            }
-          }
-        },
-      },
-        400: {
-          description: "Bad Request"
-        },
-        500: {
-          description: "Internal server error"
-        }
-        }
-      }
-    },
-    "/api/removeProductImage/{product_id}": {
-      patch: {
-        summary: "Remove image of the product",
-        description: "Remove images of the product by secure Url ",
-        tags: ["Product"],
-        parameters: [
-          {
-            name: "product_id",
-            in: "path",
-            required: true,
-            schema: {
-              type: "string",
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
             },
-            description: "Product ID",
           },
-        ],
-        requestBody: {
-          description: "Image details",
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  imageUrl:{
-                    type:"string",
-                    description:"secure Url of the image"
-                  },
-                }
-              }
-            }
-          }
         },
-        responses: {
-          200: {
-            description: "Images added successfully",
+      },
+      "/api/updateProduct/{product_id}": {
+        patch: {
+          summary: "Update image of the product",
+          description: "Update image of the product by secure Url",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            description: "Product details",
+            required: true,
             content: {
               "application/json": {
                 schema: {
-                  type:"object",
+                  type: "object",
                   properties: {
-                    id:{type:"string"},
-                    productName: { type: "string" },
-                    description: { type: "string" },
-                    price: { type: "number" },
-                    quantity: { type: "number" },
-                    seller_id: { type: "string" },
-                    expireDate: { type: "string" },
-                    Collection_id: { type: "string" },
-                    images: { type: "array" },
-                    category:{type:"string"}
+                    productName: {
+                      type: "string",
+                      description: "Name of the collection",
+                    },
+                    description: {
+                      type: "string",
+                      description: "Description of the collection",
+                    },
+                    price: {
+                      type: "number",
+                      description: "Name of the collection",
+                    },
+                    quantity: {
+                      type: "number",
+                      description: "Quantinty Of the products",
+                    },
+                    expireDate: {
+                      type: "string",
+                      description: "expiration date of the product",
+                      format: "date",
+                    },
+                    availabilty: {
+                      type: "boolean",
+                      description: "Availability of the product",
+                    },
+                    category: {
+                      type: "string",
+                      description: "Category of the product",
+                    },
                   },
-                }
-              }
-            }
+                },
+              },
+            },
           },
-          400: {
-            description: "Bad Request"
+          responses: {
+            200: {
+              description: "Images added successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                      availability: { type: "boolean" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
           },
-          500: {
-            description: "Internal server error"
-          }
-        }
-      }
-    },
+        },
+      },
+      "/api/updateAllProductImages/{product_id}": {
+        patch: {
+          summary: "Update all images of the product",
+          description: "Update all images of the product ",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            description: "Product details",
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    images: {
+                      type: "array",
+                      description: "Images",
+                      items: {
+                        type: "string",
+                        format: "binary",
+                        description: "Image file(s) of the product",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Images added successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+              400: {
+                description: "Bad Request",
+              },
+              500: {
+                description: "Internal server error",
+              },
+            },
+          },
+        },
+      },
+      "/api/updateProductImage/{product_id}": {
+        patch: {
+          summary: "Update image of the product",
+          description: "Update image of the product by secure Url",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            description: "Images details",
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    imageUrl: {
+                      type: "string",
+                      description: "secure Url of the image",
+                    },
+                    images: {
+                      type: "array",
+                      description: "Images",
+                      items: {
+                        type: "string",
+                        format: "binary",
+                        description: "Image file(s) of the product",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Images added successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/removeProductImage/{product_id}": {
+        patch: {
+          summary: "Remove image of the product",
+          description: "Remove images of the product by secure Url ",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            description: "Image details",
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    imageUrl: {
+                      type: "string",
+                      description: "secure Url of the image",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Images added successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      productName: { type: "string" },
+                      description: { type: "string" },
+                      price: { type: "number" },
+                      quantity: { type: "number" },
+                      seller_id: { type: "string" },
+                      expireDate: { type: "string" },
+                      Collection_id: { type: "string" },
+                      images: { type: "array" },
+                      category: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
       "/api/addProductImage/{product_id}": {
         patch: {
           summary: "Remove image of the product",
@@ -1840,16 +1832,16 @@ const options = {
                     images: {
                       type: "array",
                       description: "Images",
-                      items:{
+                      items: {
                         type: "string",
                         format: "binary",
-                          description: "Image file(s) of the product"
+                        description: "Image file(s) of the product",
                       },
-                    }
-                  }
-                }
-              }
-            }
+                    },
+                  },
+                },
+              },
+            },
           },
           responses: {
             200: {
@@ -1857,9 +1849,9 @@ const options = {
               content: {
                 "application/json": {
                   schema: {
-                    type:"object",
+                    type: "object",
                     properties: {
-                      id:{type:"string"},
+                      id: { type: "string" },
                       productName: { type: "string" },
                       description: { type: "string" },
                       price: { type: "number" },
@@ -1868,188 +1860,130 @@ const options = {
                       expireDate: { type: "string" },
                       Collection_id: { type: "string" },
                       images: { type: "array" },
-                      category:{type:"string"}
+                      category: { type: "string" },
                     },
-                  }
-                }
-              }
+                  },
+                },
+              },
             },
             400: {
-              description: "Bad Request"
+              description: "Bad Request",
             },
             500: {
-              description: "Internal server error"
-            }
-          }
-        }
-      },
-      "/api/checkout": {
-        post: {
-          summary: "Create a new order",
-          tags: ["Order"],
-          security: [{ bearerAuth: [] }],
-          requestBody: {
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    deliveryAddress: {
-                      type: "object",
-                      properties: {
-                        street: { type: "string", example: "123 Main St" },
-                        city: { type: "string", example: "Springfield" },
-                        country: { type: "string", example: "USA" },
-                        zipCode: { type: "string", example: "12345" },
-                      },
-                      required: ["street", "city", "country", "zipCode"],
-                    },
-                    paymentMethod: {
-                      type: "object",
-                      properties: {
-                        method: { type: "string", example: "credit card" },
-                        cardNumber: {
-                          type: "string",
-                          example: "4242424242424242",
-                        },
-                        expiryDate: { type: "string", example: "12/25" },
-                        cvv: { type: "string", example: "123" },
-                      },
-                      required: ["method", "cardNumber", "expiryDate", "cvv"],
-                    },
-                  },
-                  required: ["deliveryAddress", "paymentMethod"],
-                },
-              },
+              description: "Internal server error",
             },
           },
+        },
+      },
+      "/api/viewProduct/{product_id}": {
+        get: {
+          summary: "View Product",
+          description: "View Product by providing its id",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
           responses: {
-            "200": {
-              description: "Order processed successfully",
+            200: {
+              description: "Collection created successfully",
               content: {
                 "application/json": {
                   schema: {
                     type: "object",
                     properties: {
-                      message: {
-                        type: "string",
-                        example: "Order processed successfully",
-                      },
-                      data: {
+                      product: {
                         type: "object",
-                        properties: {
-                          order: {
-                            type: "object",
-                            properties: {
-                              orderId: { type: "string", example: "order_123" },
-                              userId: { type: "string", example: "userId_123" },
-                              deliveryAddress: {
-                                type: "object",
-                                properties: {
-                                  street: {
-                                    type: "string",
-                                    example: "123 Main St",
-                                  },
-                                  city: {
-                                    type: "string",
-                                    example: "Springfield",
-                                  },
-                                  country: { type: "string", example: "USA" },
-                                  zipCode: { type: "string", example: "12345" },
-                                },
-                              },
-                              paymentMethod: {
-                                type: "object",
-                                properties: {
-                                  method: {
-                                    type: "string",
-                                    example: "credit card",
-                                  },
-                                  cardNumber: {
-                                    type: "string",
-                                    example: "4242424242424242",
-                                  },
-                                  expiryDate: {
-                                    type: "string",
-                                    example: "12/25",
-                                  },
-                                  cvv: { type: "string", example: "123" },
-                                },
-                              },
-                              status: { type: "string", example: "pending" },
-                              products: {
-                                type: "array",
-                                items: {
-                                  type: "object",
-                                  properties: {
-                                    images: {
-                                      type: "array",
-                                      items: { type: "string" },
-                                      example: ["image1.jpg", "image2.jpg"],
-                                    },
-                                    price: { type: "number", example: 29.99 },
-                                    quantity: { type: "number", example: 2 },
-                                    productId: {
-                                      type: "string",
-                                      example: "prod_123",
-                                    },
-                                    productName: {
-                                      type: "string",
-                                      example: "Product Name",
-                                    },
-                                  },
-                                },
-                              },
-                              totalAmount: { type: "number", example: 59.98 },
-                              updatedAt: {
-                                type: "string",
-                                format: "date-time",
-                                example: "2024-06-20T14:22:33Z",
-                              },
-                              createdAt: {
-                                type: "string",
-                                format: "date-time",
-                                example: "2024-06-20T14:22:33Z",
-                              },
-                            },
-                          },
-                        },
+                        description: "requested product",
                       },
                     },
                   },
                 },
               },
             },
-            "400": {
-              description: "Bad Request - Invalid input",
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/sellerViewProduct/{product_id}/{collection_id}": {
+        get: {
+          summary: "View Product By seller",
+          description: "Seller can view product in his collection",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+            {
+              name: "collection_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Collection ID",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Product found",
               content: {
                 "application/json": {
                   schema: {
                     type: "object",
                     properties: {
-                      message: {
-                        type: "string",
-                        example: "Bad Request - Invalid input",
+                      product: {
+                        type: "object",
+                        description: "Requested product",
                       },
                     },
                   },
                 },
               },
             },
-            "500": {
-              description: "Internal Server Error",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      message: {
-                        type: "string",
-                        example: "Internal Server Error",
-                      },
-                    },
-                  },
-                },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/checkout/": {
+        post: {
+          summary: "Checkout",
+          description: "Make checkout ",
+          tags: ["Order"],
+          responses: {
+            200: {
+              description: "Product added in wishlist successfully",
+              400: {
+                description: "Bad Request",
+              },
+              404: {
+                description: "Not Found",
+              },
+              500: {
+                description: "Internal server error",
               },
             },
           },
@@ -2057,7 +1991,7 @@ const options = {
       },
     },
   },
-  
+
   apis: ["./src/routes/*.ts"],
 };
 
