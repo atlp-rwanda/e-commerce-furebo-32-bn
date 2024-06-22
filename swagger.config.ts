@@ -2034,6 +2034,125 @@ const options = {
           },
         },
       },
+      "/api/order/{orderId}/status": {
+        "get": {
+          "summary": "Get Order Status",
+          "description": "Retrieve the status of a specific order.",
+          "tags": ["Order"],
+          "parameters": [
+            {
+              "name": "orderId",
+              "in": "path",
+              "description": "ID of the order to retrieve status for",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Order status retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "orderId": {
+                        "type": "string",
+                        "description": "ID of the order"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Status of the order"
+                      },
+                      "expectedDeliveryDate": {
+                        "type": "string",
+                        "description": "Expected delivery date of the order"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "404": {
+              "description": "Order not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        },
+        "patch": {
+          "summary": "Update Order Status",
+          "description": "Update the status of a specific order.",
+          "tags": ["Order"],
+          "parameters": [
+            {
+              "name": "orderId",
+              "in": "path",
+              "description": "ID of the order to update status for",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "New status of the order"
+                    }
+                  },
+                  "required": ["status"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Order status updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "description": "New status of the order"
+                      },
+                      "expectedDeliveryDate": {
+                        "type": "string",
+                        "description": "Updated expected delivery date of the order"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "404": {
+              "description": "Order not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+        
+      }
+      
     },
   },
 

@@ -11,17 +11,25 @@ import collectionRoute from "./routes/collection.route"
 import wishlistRoute from "./routes/wishlist.route"
 import productStatsRoute from "./routes/productStats.route"
 import checkoutRoutes from "./routes/checkout.route";
+import orderStatusroutes from "./routes/orderstatus.routes"
 import session from "express-session";
 import passport from "passport";
 import LoginByGoogleRoute from "../src/routes/Login-by-google.route";
 import dotenv from 'dotenv'
-
-const app = express();
+import { initSocket } from './socketio';
+import http from 'http';
 
 dotenv.config()
 
+const app = express();
 
-app.use(session({secret:process.env.GOOGLE_SECRET2 as string}));
+const server = http.createServer(app);
+// Initialize Socket.IO
+initSocket(server);
+
+app.use(session({secret:process.env.GOOGLE_SECRET2 as string,
+
+}));
 app.use(passport.initialize());
 app.use(passport.session())
 
@@ -31,7 +39,7 @@ app.use(morgan("dev"))
 
 app.use ('/api',productRoutes)
 app.use('/api',collectionRoute)
-
+app.use('/api',orderStatusroutes)
 app.get('/', (_req: Request, res: Response) => {
     return res.json({ message: "welcome to ATLP Backend APIs" });
 });
@@ -51,3 +59,4 @@ app.use('/api',LoginByGoogleRoute)
 
 
 export default app;
+export { server };

@@ -46,3 +46,5 @@ export const AccountStatusMessages = {
     ACCOUNT_DISABLED_SUBJECT: "Account Disabled",
     DEFAULT_ACTIVATION_REASON: "You are allowed to login again"
   };
+
+export const validStatus = ['pending', 'paid', 'processing', 'shipped', 'delivered', 'on hold', 'cancelled'];
