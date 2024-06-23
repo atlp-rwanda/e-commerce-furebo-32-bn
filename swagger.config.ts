@@ -1989,6 +1989,62 @@ const options = {
           },
         },
       },
+      "/api/notifications/": {
+        get: {
+          summary: "Get Notifications",
+          tags: ["Notifications"],
+
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Notifications retrieved successfully",
+            },
+            404: {
+              description: "Invalid token",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/notifications/read": {
+        patch: {
+          summary: "Mark Notifications as read",
+          tags: ["Notifications"],
+
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    notification_ids: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                      },
+                    },
+                  },
+                  required: ["notification_ids"],
+                },
+              },
+            },
+          },
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Notifications  Marked as Read",
+            },
+            404: {
+              description: "Invalid token",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
     },
   },
 

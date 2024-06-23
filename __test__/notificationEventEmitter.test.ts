@@ -25,6 +25,13 @@ describe("Notification Event Emitter", () => {
     productName: "Test Product",
   };
 
+  const deliveryAddressMock = {
+    street: "123 Main St",
+    city: "Anytown",
+    country: "USA",
+    zipCode: "12345",
+  };
+
   beforeEach(() => {
     (User.findByPk as jest.Mock).mockReset();
     (sendEmail as jest.Mock).mockReset();
@@ -95,7 +102,11 @@ describe("Notification Event Emitter", () => {
     it("should send email and create notification on product bought", async () => {
       (User.findByPk as jest.Mock).mockResolvedValue(userMock);
 
-      notificationEventEmitter.emit("productBought", productMock);
+      notificationEventEmitter.emit(
+        "productBought",
+        productMock.seller_id,
+        deliveryAddressMock
+      );
 
       expect(User.findByPk).toHaveBeenCalledWith(productMock.seller_id);
       await new Promise(process.nextTick); // Wait for async operations
@@ -103,14 +114,35 @@ describe("Notification Event Emitter", () => {
       expect(sendEmail).toHaveBeenCalledWith(
         userMock.email,
         "Product Bought successfully",
-        "Product with name: Test Product has been Bought",
-        "<p>Product with name: <b>Test Product</b> has been Bought</p>"
+        `Payment for products successfully processed, Location: ${deliveryAddressMock.street} ${deliveryAddressMock.city} ${deliveryAddressMock.country} ${deliveryAddressMock.zipCode}`,
+        `<p>Payment for products successfully processed, Location: ${deliveryAddressMock.street} ${deliveryAddressMock.city} ${deliveryAddressMock.country} ${deliveryAddressMock.zipCode}</p>`
       );
       expect(NotificationService.createNotification).toHaveBeenCalledWith({
         notification: "Product Bought",
-        description: `Product: ${productMock.productName} has been Bought`,
+        description: "payment successfully",
         user_id: productMock.seller_id,
       });
+    });
+
+    it("should log an error if there is an issue finding the user", async () => {
+      const error = new Error("User not found");
+      console.error = jest.fn();
+
+      // Mock the User model to throw an error
+      (User.findByPk as jest.Mock).mockRejectedValue(error);
+
+      // Trigger the event
+      notificationEventEmitter.emit(
+        "productBought",
+        productMock.seller_id,
+        deliveryAddressMock
+      );
+
+      // Check if console.error was called
+      await new Promise(process.nextTick); // Wait for async operations
+      expect(console.error).toHaveBeenCalledWith(
+        `Error sending notification: ${error}`
+      );
     });
   });
 });
