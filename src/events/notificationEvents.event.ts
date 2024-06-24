@@ -65,25 +65,28 @@ notificationEventEmitter.on("productDeleted", async (product) => {
   }
 });
 
-notificationEventEmitter.on("productBought", async (product) => {
-  try {
-    const user = await User.findByPk(product.seller_id);
-    if (user) {
-      const subject = "Product Bought successfully";
-      const text = `Product with name: ${product.productName} has been Bought`;
-      const html = `<p>Product with name: <b>${product.productName}</b> has been Bought</p>`;
-      sendEmail(user.email, subject, text, html);
+notificationEventEmitter.on(
+  "productBought",
+  async (userId, deliveryAddress) => {
+    try {
+      const user = await User.findByPk(userId);
+      if (user) {
+        const subject = "Product Bought successfully";
+        const text = `Payment for products successfully processed, Location: ${deliveryAddress.street} ${deliveryAddress.city} ${deliveryAddress.country} ${deliveryAddress.zipCode}`;
+        const html = `<p>Payment for products successfully processed, Location: ${deliveryAddress.street} ${deliveryAddress.city} ${deliveryAddress.country} ${deliveryAddress.zipCode}</p>`;
+        sendEmail(user.email, subject, text, html);
 
-      const notification = {
-        notification: "Product Bought",
-        description: `Product: ${product.productName} has been Bought`,
-        user_id: product.seller_id,
-      };
+        const notification = {
+          notification: "Product Bought",
+          description: `payment successfully`,
+          user_id: userId,
+        };
 
-      await NotificationService.createNotification(notification);
-      console.log("Product Bought notification sent.");
+        await NotificationService.createNotification(notification);
+        console.log("Product Bought notification sent.");
+      }
+    } catch (error) {
+      console.error(`Error sending notification: ${error}`);
     }
-  } catch (error) {
-    console.error(`Error sending notification: ${error}`);
   }
-});
+);
