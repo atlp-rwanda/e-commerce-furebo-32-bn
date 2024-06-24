@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { CheckoutPaymentService } from "../services/Checkout.services";
+import { OrderService } from "../services/order.services";
 
 export class CheckoutController {
   static async processCheckout(req: Request, res: Response) {
@@ -35,4 +36,32 @@ export class CheckoutController {
       });
     }
   }
+  static async completePayment(req: Request, res: Response) {
+    try {
+      const orderId = req.params.orderId;
+      const updatedOrder = await OrderService.updateOrderStatus(
+        orderId,
+        "Paid"
+      );
+      res.status(200).json({
+        updatedOrder
+      })
+    } catch (error: any) {
+    }
+  }
+  static async cancelPayment(req: Request, res: Response) {
+    try {
+      const orderId = req.params.orderId;
+      const updatedOrder = await OrderService.updateOrderStatus(
+        orderId,
+        "Canceled"
+      );
+      res.status(200).json({
+        updatedOrder
+      })
+    } catch (error: any) {
+    }
+  }
 }
+
+
