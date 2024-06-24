@@ -37,6 +37,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      expectedDeliveryDate: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
