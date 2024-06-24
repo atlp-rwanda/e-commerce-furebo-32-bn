@@ -15,7 +15,8 @@ export interface ProductAttributes {
     createdAt?: Date;
     updatedAt?: Date;
     expired?:boolean;
-  }
+    reviews?:any[];
+}
 
 
   export interface createProductAttributes
@@ -33,6 +34,8 @@ export interface ProductAttributes {
     |"category"
     |"availability"
     |"expired"
+    |"reviews"
+    
   > {}
 
 export interface UserOutputs extends Required<ProductAttributes> {}

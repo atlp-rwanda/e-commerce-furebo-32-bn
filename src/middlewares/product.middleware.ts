@@ -11,4 +11,3 @@ export const checkProductOwner=async function(req:Request,res:Response,next:Next
     }
     next(); 
 }
-

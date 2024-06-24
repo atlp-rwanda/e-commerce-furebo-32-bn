@@ -377,3 +377,119 @@ return res.status(200).json({
   product:product
 })
 }
+
+// review a product
+
+export const reviewProduct = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.product_id;
+    const { review, rating } = req.body;
+    const user = req.user;
+
+    const product = await ProductService.getProductByid(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (!review || !rating) {
+      return res
+        .status(400)
+        .json({ message: "Please provide a review and rating" });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res
+        .status(400)
+        .json({ message: "Rating should be between 1 and 5" });
+    }
+    if (!Array.isArray(product.reviews)) {
+      product.reviews = [];
+    }
+    const existingReview = product.reviews.find(
+      (review) => review.user === user.id);
+    if (existingReview) {
+      existingReview.review = review;
+      existingReview.rating = rating;
+    } else {
+      const newReview = {
+        id: product.reviews.length.toString(),
+        review,
+        rating,
+        user: user.id,
+      };
+      product.reviews = [...product.reviews, newReview];
+      
+    }
+    await product.save();
+
+    const updatedProduct = await ProductService.getProductByid(productId);
+    return res.status(201).json({
+      message: "Review added successfully",
+      updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error adding review:", error);
+    return res.status(500).json({message: "Internal server error"});
+  }
+};
+
+export const getReviews = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.product_id;
+    const product = await ProductService.getProductByid(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (!product.reviews || product.reviews.length === 0) {
+      return res.status(404).json({ message: "No reviews found" });
+    }
+
+    return res.status(200).json({
+      message: "Reviews retrieved successfully",
+      reviews: product.reviews,
+    });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteReview = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.product_id;
+    const reviewId = req.params.review_id;
+    const product = await ProductService.getProductByid(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (!product.reviews || product.reviews.length === 0) {
+      return res.status(404).json({ message: "No reviews found" });
+    }
+
+    const reviewIndex = product.reviews.findIndex(
+      (review) => review.id === reviewId
+    );
+
+    if (reviewIndex === -1) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    product.reviews = product.reviews.filter(
+      (review) => review.id !== reviewId
+    );
+    await product.save();
+
+    return res.status(200).json({
+      message: "Review deleted successfully",
+      updatedProduct: product,
+    });
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

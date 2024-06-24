@@ -5,7 +5,7 @@ import { ProductService } from '../src/services/Product.services';
 import cloudinary from 'cloudinary';
 import { UserService } from '../src/services/user.services';
 import { createCollection, getSellerItems } from '../src/controllers/collection.controller';
-import { createProduct, getAvailableItems, searchProducts, getAvailableProducts, updateProductAvailability,} from "../src/controllers/product.controller";
+import { createProduct, getAvailableItems, searchProducts, getAvailableProducts, updateProductAvailability, reviewProduct, getReviews, deleteReview,} from "../src/controllers/product.controller";
 import Collection from "../src/database/models/collection.model";
 import Product from "../src/database/models/Product.model";
 import { Op } from "sequelize";
@@ -1675,3 +1675,220 @@ describe('viewProductBySeller', () => {
     sinon.assert.calledOnceWithExactly(jsonStub, { message: "Product found", product });
   });
 });
+
+describe("reviewProduct", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let saveStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: { product_id: "1" },
+      body: { review: "Great product", rating: 5 },
+      user: { id: "123" },
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    getProductByIdStub = sinon.stub(ProductService, "getProductByid");
+    saveStub = sinon.stub().resolves();
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should add a new review if no existing review is found", async () => {
+    const product: { reviews: { user: string, review: string, rating: number }[], save: () => Promise<void> } = { reviews: [], save: saveStub };
+    getProductByIdStub.resolves(product as any);
+  
+    await reviewProduct(req as Request, res as Response);
+  
+    expect(getProductByIdStub.calledTwice).toBe(true);
+    expect(product.reviews.length).toBe(1);
+    expect(product.reviews[0].review).toBe("Great product");
+    expect(product.reviews[0].rating).toBe(5);
+    expect(product.reviews[0].user).toBe("123");
+    expect(statusStub.calledOnceWith(201)).toBe(true);
+    expect(jsonStub.calledOnce).toBe(true);
+  });
+
+  it("should update the review if an existing review is found", async () => {
+    const product = { reviews: [{ user: "123", review: "Old review", rating: 3 }], save: saveStub };
+    getProductByIdStub.resolves(product as any);
+
+    await reviewProduct(req as Request, res as Response);
+
+    expect(getProductByIdStub.calledTwice).toBe(true);
+    expect(product.reviews.length).toBe(1);
+    expect(product.reviews[0].review).toBe("Great product");
+    expect(product.reviews[0].rating).toBe(5);
+    expect(statusStub.calledOnceWith(201)).toBe(true);
+    expect(jsonStub.calledOnce).toBe(true);
+  });
+
+  it("should return 404 if product is not found", async () => {
+    getProductByIdStub.resolves(null);
+
+    await reviewProduct(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "Product not found" })).toBe(true);
+  });
+
+  it("should return 400 if review or rating is not provided", async () => {
+    req.body = {};
+    const product = { reviews: [], save: saveStub };
+    getProductByIdStub.resolves(product as any);
+
+    await reviewProduct(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(400)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "Please provide a review and rating" })).toBe(true);
+  });
+
+  it("should return 400 if rating is not between 1 and 5", async () => {
+    req.body = { review: "Great product", rating: 6 };
+    const product = { reviews: [], save: saveStub };
+    getProductByIdStub.resolves(product as any);
+
+    await reviewProduct(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(400)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "Rating should be between 1 and 5" })).toBe(true);
+  });
+});
+
+describe("getReviews", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: { product_id: "1" },
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    getProductByIdStub = sinon.stub(ProductService, "getProductByid");
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should return 200 and the reviews if found", async () => {
+    const product = { reviews: [{ review: "Great product", rating: 5, user: "123" }] };
+    getProductByIdStub.resolves(product as any);
+
+    await getReviews(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(200)).toBe(true);
+    expect(jsonStub.calledOnceWith({
+      message: "Reviews retrieved successfully",
+      reviews: product.reviews,
+    })).toBe(true);
+  });
+
+  it("should return 404 if product is not found", async () => {
+    getProductByIdStub.resolves(null);
+
+    await getReviews(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "Product not found" })).toBe(true);
+  });
+
+  it("should return 404 if no reviews are found", async () => {
+    const product = { reviews: [] };
+    getProductByIdStub.resolves(product as any);
+
+    await getReviews(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "No reviews found" })).toBe(true);
+  });
+});
+
+describe("deleteReview", () => {
+  let req: Partial<Request>;
+  let res: Partial<Response>;
+  let statusStub: sinon.SinonStub;
+  let jsonStub: sinon.SinonStub;
+  let getProductByIdStub: sinon.SinonStub;
+  let saveStub: sinon.SinonStub;
+
+  beforeEach(() => {
+    req = {
+      params: { product_id: "1", review_id: "0" },
+    };
+    jsonStub = sinon.stub().returnsThis();
+    statusStub = sinon.stub().returns({ json: jsonStub });
+    res = {
+      status: statusStub,
+      json: jsonStub,
+    };
+    getProductByIdStub = sinon.stub(ProductService, "getProductByid");
+    saveStub = sinon.stub().resolves();
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  it("should delete the review if found", async () => {
+    const product = { reviews: [{ id: "0", review: "Great product", rating: 5, user: "123" }], save: saveStub };
+    getProductByIdStub.resolves(product as any);
+
+    await deleteReview(req as Request, res as Response);
+
+    expect(product.reviews.length).toBe(0);
+    expect(statusStub.calledOnceWith(200)).toBe(true);
+    expect(jsonStub.calledOnceWith({
+      message: "Review deleted successfully",
+      updatedProduct: product,
+    })).toBe(true);
+  });
+
+  it("should return 404 if product is not found", async () => {
+    getProductByIdStub.resolves(null);
+
+    await deleteReview(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "Product not found" })).toBe(true);
+  });
+
+  it("should return 404 if no reviews are found", async () => {
+    const product = { reviews: [] };
+    getProductByIdStub.resolves(product as any);
+
+    await deleteReview(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "No reviews found" })).toBe(true);
+  });
+
+  it("should return 404 if review is not found", async () => {
+    const product = { reviews: [{ id: "1", review: "Another review", rating: 4, user: "124" }], save: saveStub };
+    getProductByIdStub.resolves(product as any);
+
+    await deleteReview(req as Request, res as Response);
+
+    expect(statusStub.calledOnceWith(404)).toBe(true);
+    expect(jsonStub.calledOnceWith({ message: "Review not found" })).toBe(true);
+  });
+});
+

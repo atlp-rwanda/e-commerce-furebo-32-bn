@@ -68,6 +68,11 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      reviews: {
+        type: Sequelize.JSONB,
+        defaultValue: [],
+        allowNull: true
+      },
     });
   },
 
