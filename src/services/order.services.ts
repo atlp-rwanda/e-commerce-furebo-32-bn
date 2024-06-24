@@ -39,6 +39,15 @@ export class OrderService {
     return newOrder
   }
 
+
+  static async getOrderByItsId(id: string) {
+    const newOrder = await Order.findOne({ where: { orderId: id } });
+    if (!newOrder) {
+      throw new Error("Order not found");
+    }
+    return newOrder
+  }
+
   static async updateOrderStatus(orderId: string|undefined, status: string) {
     try {
       const [updatedRows, [updatedOrder]] = await Order.update(
@@ -55,4 +64,34 @@ export class OrderService {
       throw new Error(`Failed to update order status: ${error.message}`);
     }
   }
+
+
+  static async updateOrderStatusAsAdmin(orderId: string, status: string, expectedDeliveryDate: Date | null) {
+    try {
+        const updateValues: Partial<Order> = {
+            status: status,
+            expectedDeliveryDate: expectedDeliveryDate !== null ? expectedDeliveryDate : undefined
+        };
+
+        const [updatedRows] = await Order.update(updateValues, {
+            where: { orderId: orderId },
+            returning: true
+        });
+
+        if (updatedRows === 0) {
+            throw new Error("Order not found");
+        }
+
+        const updatedOrder = await Order.findOne({ where: { orderId: orderId } });
+        return updatedOrder;
+    } catch (error: any) {
+        throw new Error(`Failed to update order status: ${error.message}`);
+    }
 }
+
+
+
+  
+
+  }
+  

@@ -15,6 +15,7 @@ class Order extends Model<orderAttributes, orderCreationAttributes> {
   public status!: string;
   public products!: any;
   public totalAmount!: number;
+  public expectedDeliveryDate?: Date;
   static associate(): void {
     Order.belongsTo(User, { foreignKey: "buyerId" });
   }
@@ -33,6 +34,7 @@ Order.init(
     status: { type: DataTypes.STRING, allowNull: false },
     products: { type: DataTypes.JSONB, allowNull: false },
     totalAmount: { type: DataTypes.INTEGER, allowNull: false },
+    expectedDeliveryDate: { type: DataTypes.DATE, allowNull: true },
   },
   {
     sequelize,

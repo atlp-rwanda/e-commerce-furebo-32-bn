@@ -21,4 +21,5 @@ export interface orderCreationAttributes
     | "status"
     | "products"
     | "totalAmount"
+    | "expectedDeliveryDate"
   > {}
