@@ -63,13 +63,13 @@ export class CheckoutPaymentService {
       const session = await stripe.checkout.sessions.create({
         line_items: line_items,
         mode: "payment",
-        success_url: "http://localhost/3000/complete",
-        cancel_url: "http://localhost/3000/cancel",
+        success_url: `http://localhost:3000/api/complete/${orderId}`,
+        cancel_url: `http://localhost:3000/api/cancel/${orderId}`,
       });
 
       const updatedOrder = await OrderService.updateOrderStatus(
         orderId,
-        "Paid"
+        "Pending"
       );
 
       // Return order and payment details

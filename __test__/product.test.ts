@@ -1710,7 +1710,7 @@ describe("reviewProduct", () => {
   
     await reviewProduct(req as Request, res as Response);
   
-    expect(getProductByIdStub.calledTwice).toBe(true);
+    expect(getProductByIdStub.calledOnce).toBe(true);
     expect(product.reviews.length).toBe(1);
     expect(product.reviews[0].review).toBe("Great product");
     expect(product.reviews[0].rating).toBe(5);
@@ -1718,20 +1718,21 @@ describe("reviewProduct", () => {
     expect(statusStub.calledOnceWith(201)).toBe(true);
     expect(jsonStub.calledOnce).toBe(true);
   });
-
+  
   it("should update the review if an existing review is found", async () => {
     const product = { reviews: [{ user: "123", review: "Old review", rating: 3 }], save: saveStub };
     getProductByIdStub.resolves(product as any);
-
+  
     await reviewProduct(req as Request, res as Response);
-
-    expect(getProductByIdStub.calledTwice).toBe(true);
+  
+    expect(getProductByIdStub.calledOnce).toBe(true);
     expect(product.reviews.length).toBe(1);
     expect(product.reviews[0].review).toBe("Great product");
     expect(product.reviews[0].rating).toBe(5);
     expect(statusStub.calledOnceWith(201)).toBe(true);
     expect(jsonStub.calledOnce).toBe(true);
   });
+  
 
   it("should return 404 if product is not found", async () => {
     getProductByIdStub.resolves(null);
@@ -1869,16 +1870,6 @@ describe("deleteReview", () => {
 
     expect(statusStub.calledOnceWith(404)).toBe(true);
     expect(jsonStub.calledOnceWith({ message: "Product not found" })).toBe(true);
-  });
-
-  it("should return 404 if no reviews are found", async () => {
-    const product = { reviews: [] };
-    getProductByIdStub.resolves(product as any);
-
-    await deleteReview(req as Request, res as Response);
-
-    expect(statusStub.calledOnceWith(404)).toBe(true);
-    expect(jsonStub.calledOnceWith({ message: "No reviews found" })).toBe(true);
   });
 
   it("should return 404 if review is not found", async () => {

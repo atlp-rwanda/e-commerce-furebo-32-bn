@@ -718,15 +718,15 @@ const options = {
                   properties: {
                     productName: {
                       type: "string",
-                      description: "Name of the collection",
+                      description: "Product Name",
                     },
                     description: {
                       type: "string",
-                      description: "Description of the collection",
+                      description: "Product Description",
                     },
                     price: {
                       type: "number",
-                      description: "Name of the collection",
+                      description: "Price of the product",
                     },
                     quantity: {
                       type: "number",
@@ -1920,6 +1920,7 @@ const options = {
       "/api/sellerViewProduct/{product_id}/{collection_id}": {
         get: {
           summary: "View Product By seller",
+
           description: "Seller can view product in his collection",
           tags: ["Product"],
           parameters: [
@@ -1968,7 +1969,7 @@ const options = {
           },
         },
       },
-      "/api/reviewProduct/:product_id": {
+      "/api/reviewProduct/{product_id}": {
         post: {
           summary: "Review Product",
           description: "Review a product by providing its id",
@@ -2035,7 +2036,7 @@ const options = {
           },
         },
       },
-      "/api/getReviews/:product_id": {
+      "/api/getReviews/{product_id}": {
         get: {
           summary: "Get Reviews",
           description: "Get reviews of a product by providing its id",
@@ -2077,11 +2078,11 @@ const options = {
           },
         },
       },
-      "/api/deleteReview/:product_id/:review_id": {
+      "/api/deleteReview/{product_id}/{review_id}": {
         delete: {
           summary: "Delete Review",
-          description: "Delete a review by providing its id",
           tags: ["Product"],
+          description: "Delete a review by providing its id",
           parameters: [
             {
               name: "product_id",
@@ -2149,33 +2150,90 @@ const options = {
           },
         },
       },
+      "/api/notifications/": {
+        get: {
+          summary: "Get Notifications",
+          tags: ["Notifications"],
+
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Notifications retrieved successfully",
+            },
+            404: {
+              description: "Invalid token",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/notifications/read": {
+        patch: {
+          summary: "Mark Notifications as read",
+          tags: ["Notifications"],
+
+          requestBody: {
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    notification_ids: {
+                      type: "array",
+                      items: {
+                        type: "string",
+                      },
+                    },
+                  },
+                  required: ["notification_ids"],
+                },
+              },
+            },
+          },
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Notifications  Marked as Read",
+            },
+            404: {
+              description: "Invalid token",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
       "/api/stats": {
         get: {
-          summary: 'Get Product Statistics',
-          description: 'Retrieve statistics for products within a specified date range.',
-          tags: ['Stats'],
+          summary: "Get Product Statistics",
+          description:
+            "Retrieve statistics for products within a specified date range.",
+          tags: ["Stats"],
           parameters: [
             {
-              name: 'start',
-              in: 'query',
+              name: "start",
+              in: "query",
               required: true,
               schema: {
-                type: 'string',
-                format: 'date',
-                example: '2024-01-01',
+                type: "string",
+                format: "date",
+                example: "2024-01-01",
               },
-              description: 'Start date (YYYY-MM-DD) for the statistics query.',
+              description: "Start date (YYYY-MM-DD) for the statistics query.",
             },
             {
-              name: 'end',
-              in: 'query',
+              name: "end",
+              in: "query",
               required: true,
               schema: {
-                type: 'string',
-                format: 'date',
-                example: '2024-06-25',
+                type: "string",
+                format: "date",
+                example: "2024-06-25",
               },
-              description: 'End date (YYYY-MM-DD) for the statistics query.',
+              description: "End date (YYYY-MM-DD) for the statistics query.",
             },
           ],
           responses: {
@@ -2195,124 +2253,123 @@ const options = {
         },
       },
       "/api/order/{orderId}/status": {
-        "get": {
-          "summary": "Get Order Status",
-          "description": "Retrieve the status of a specific order.",
-          "tags": ["Order"],
-          "parameters": [
+        get: {
+          summary: "Get Order Status",
+          description: "Retrieve the status of a specific order.",
+          tags: ["Order"],
+          parameters: [
             {
-              "name": "orderId",
-              "in": "path",
-              "description": "ID of the order to retrieve status for",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
+              name: "orderId",
+              in: "path",
+              description: "ID of the order to retrieve status for",
+              required: true,
+              schema: {
+                type: "string",
+              },
+            },
           ],
-          "responses": {
+          responses: {
             "200": {
-              "description": "Order status retrieved successfully",
-              "content": {
+              description: "Order status retrieved successfully",
+              content: {
                 "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "orderId": {
-                        "type": "string",
-                        "description": "ID of the order"
+                  schema: {
+                    type: "object",
+                    properties: {
+                      orderId: {
+                        type: "string",
+                        description: "ID of the order",
                       },
-                      "status": {
-                        "type": "string",
-                        "description": "Status of the order"
+                      status: {
+                        type: "string",
+                        description: "Status of the order",
                       },
-                      "expectedDeliveryDate": {
-                        "type": "string",
-                        "description": "Expected delivery date of the order"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Bad Request"
-            },
-            "404": {
-              "description": "Order not found"
-            },
-            "500": {
-              "description": "Internal server error"
-            }
-          }
-        },
-        "patch": {
-          "summary": "Update Order Status",
-          "description": "Update the status of a specific order.",
-          "tags": ["Order"],
-          "parameters": [
-            {
-              "name": "orderId",
-              "in": "path",
-              "description": "ID of the order to update status for",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "description": "New status of the order"
-                    }
+                      expectedDeliveryDate: {
+                        type: "string",
+                        description: "Expected delivery date of the order",
+                      },
+                    },
                   },
-                  "required": ["status"]
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Order status updated successfully",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string",
-                        "description": "New status of the order"
-                      },
-                      "expectedDeliveryDate": {
-                        "type": "string",
-                        "description": "Updated expected delivery date of the order"
-                      }
-                    }
-                  }
-                }
-              }
+                },
+              },
             },
             "400": {
-              "description": "Bad Request"
+              description: "Bad Request",
             },
             "404": {
-              "description": "Order not found"
+              description: "Order not found",
             },
             "500": {
-              "description": "Internal server error"
-            }
-          }
-        }
-        
-      }
-      
+              description: "Internal server error",
+            },
+          },
+        },
+        patch: {
+          summary: "Update Order Status",
+          description: "Update the status of a specific order.",
+          tags: ["Order"],
+          parameters: [
+            {
+              name: "orderId",
+              in: "path",
+              description: "ID of the order to update status for",
+              required: true,
+              schema: {
+                type: "string",
+              },
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      description: "New status of the order",
+                    },
+                  },
+                  required: ["status"],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Order status updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      status: {
+                        type: "string",
+                        description: "New status of the order",
+                      },
+                      expectedDeliveryDate: {
+                        type: "string",
+                        description:
+                          "Updated expected delivery date of the order",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "400": {
+              description: "Bad Request",
+            },
+            "404": {
+              description: "Order not found",
+            },
+            "500": {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
     },
   },
 
