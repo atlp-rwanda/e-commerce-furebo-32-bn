@@ -9,6 +9,7 @@ import productRoutes from "./routes/product.route"
 import cartRoutes from "./routes/cart.route";
 import collectionRoute from "./routes/collection.route"
 import wishlistRoute from "./routes/wishlist.route"
+import productStatsRoute from "./routes/productStats.route"
 import checkoutRoutes from "./routes/checkout.route";
 import session from "express-session";
 import passport from "passport";
@@ -37,6 +38,7 @@ app.get('/', (_req: Request, res: Response) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/wishlist',wishlistRoute)
+app.use('/api/stats',productStatsRoute)
 app.use("/api/cart", cartRoutes);
 
 
