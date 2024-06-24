@@ -718,15 +718,15 @@ const options = {
                   properties: {
                     productName: {
                       type: "string",
-                      description: "Name of the collection",
+                      description: "Product Name",
                     },
                     description: {
                       type: "string",
-                      description: "Description of the collection",
+                      description: "Product Description",
                     },
                     price: {
                       type: "number",
-                      description: "Name of the collection",
+                      description: "Price of the product",
                     },
                     quantity: {
                       type: "number",
@@ -1920,6 +1920,7 @@ const options = {
       "/api/sellerViewProduct/{product_id}/{collection_id}": {
         get: {
           summary: "View Product By seller",
+
           description: "Seller can view product in his collection",
           tags: ["Product"],
           parameters: [
@@ -1953,6 +1954,166 @@ const options = {
                       product: {
                         type: "object",
                         description: "Requested product",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/reviewProduct/{product_id}": {
+        post: {
+          summary: "Review Product",
+          description: "Review a product by providing its id",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          requestBody: {
+            description: "Review details",
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    review: {
+                      type: "string",
+                      description: "Review of the product",
+                    },
+                    rating: {
+                      type: "number",
+                      description: "Rating of the product",
+                    }
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Review added successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      review: {
+                        type: "object",
+                        description: "Review of the product",
+                      },
+                      rating: {
+                        type: "number",
+                        description: "Rating of the product",
+                      }
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/getReviews/{product_id}": {
+        get: {
+          summary: "Get Reviews",
+          description: "Get reviews of a product by providing its id",
+          tags: ["Product"],
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Reviews found",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      reviews: {
+                        type: "array",
+                        description: "Reviews of the product",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Bad Request",
+            },
+            500: {
+              description: "Internal server error",
+            },
+          },
+        },
+      },
+      "/api/deleteReview/{product_id}/{review_id}": {
+        delete: {
+          summary: "Delete Review",
+          tags: ["Product"],
+          description: "Delete a review by providing its id",
+          parameters: [
+            {
+              name: "product_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Product ID",
+            },
+            {
+              name: "review_id",
+              in: "path",
+              required: true,
+              schema: {
+                type: "string",
+              },
+              description: "Review ID",
+            },
+          ],
+          responses: {
+            200: {
+              description: "Review deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      review: {
+                        type: "object",
+                        description: "Deleted review",
                       },
                     },
                   },

@@ -38,6 +38,8 @@ class Product
 
   declare expired: boolean;
 
+  declare reviews:any[];
+
   static associate(): void {
     Product.belongsTo(User, { foreignKey: 'sellerId' })
     Product.belongsTo(Collection, { foreignKey: 'collectionId' })
@@ -123,6 +125,11 @@ Product.init(
       type:DataTypes.BOOLEAN,
       defaultValue:false
     },
+    reviews:{
+      type:DataTypes.JSONB,
+      defaultValue:[],
+      allowNull:true
+    }
   },
   {
     timestamps: true,

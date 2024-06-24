@@ -14,6 +14,7 @@ import { notificationEventEmitter } from "../events/notificationEvents.event";
 
 dayjs.extend(utc)
 import { imageServices } from "../services/Image.service";
+import { validateReviewData } from "../validations/product.validate";
 
 dotenv.config();
 // dotenv.config();
@@ -513,8 +514,78 @@ export const viewProductBySeller = async function (
   if (product?.seller_id !== seller_id)
     return res.status(400).json({ message: "You don't own the product" });
 
-  return res.status(200).json({
-    message: "Product found",
-    product: product,
-  });
+return res.status(200).json({
+  message:"Product found", 
+  product:product
+})
+}
+
+// review a product
+
+export const reviewProduct = async (req: Request, res: Response) => {
+  try {
+    const { review, rating } = req.body;
+    const product = await ProductService.getProductByid(req.params.product_id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    if (!validateReviewData(review, rating, res)) return;
+    const user = req.user;
+    const existingReview = product.reviews?.find(r => r.user === user.id);
+    if (existingReview) {
+      existingReview.review = review;
+      existingReview.rating = rating;
+    } else {
+      product.reviews = [
+        ...(product.reviews || []),
+        { id: (product.reviews?.length || 0).toString(), review, rating, user: user.id }
+      ];
+    }
+    await product.save();
+    res.status(201).json({ message: "Review added successfully", updatedProduct: product });
+  } catch (error) {
+    console.error("Error adding review:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getReviews = async (req: Request, res: Response) => {
+  try {
+    const product = await ProductService.getProductByid(req.params.product_id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    if (!product.reviews?.length) {
+      return res.status(404).json({ message: "No reviews found" });
+    }
+    res.status(200).json({ message: "Reviews retrieved successfully", reviews: product.reviews });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteReview = async (req: Request, res: Response) => {
+  try {
+    const productId = req.params.product_id;
+    const reviewId = req.params.review_id;
+    const product = await ProductService.getProductByid(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    const reviewIndex = product.reviews.findIndex(
+      (review) => review.id === reviewId
+    );
+    if (reviewIndex === -1 || !product.reviews || product.reviews.length === 0) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+    product.reviews = product.reviews.filter(
+      (review) => review.id !== reviewId
+    );
+    await product.save();
+    return res.status(200).json({message: "Review deleted successfully", updatedProduct: product});
+  } catch (error) {
+    console.error("Error deleting review:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
