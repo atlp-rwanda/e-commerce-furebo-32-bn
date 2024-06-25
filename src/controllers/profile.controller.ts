@@ -65,7 +65,6 @@ export const updateProfile = async (req: Request, res: Response) => {
       const { 
         firstName,
         lastName,
-        email,
         phone,
         birthDate,
         gender, 
@@ -75,7 +74,7 @@ export const updateProfile = async (req: Request, res: Response) => {
         billingAddress,
     }=req.body;
     const image=imageUrls[0];
-    await user.update({ firstName, lastName, email,phone, gender, birthDate, preferredLanguage, preferredCurrency, whereYouLive, billingAddress,image });
+    await user.update({ firstName, lastName, phone, gender, birthDate, preferredLanguage, preferredCurrency, whereYouLive, billingAddress,image });
       
       return res.status(200).json({
         status: "success",

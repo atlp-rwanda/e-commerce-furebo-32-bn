@@ -37,6 +37,7 @@
     "sinon": "^18.0.0",
     "socket.io": "^4.7.5",
     "stripe": "^15.12.0",
+    "socket.io": "^4.7.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "ts-node": "^10.9.2"
@@ -47,7 +48,8 @@
     "test": "jest --detectOpenHandles --coverage",
     "test:coverage": "nyc jest --coverage",
     "build": "tsc",
-    "migrate": "sequelize db:migrate"
+    "migrate": "sequelize db:migrate",
+    "migrate:undo": "sequelize db:migrate:undo"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

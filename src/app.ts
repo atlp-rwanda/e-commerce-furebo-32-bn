@@ -20,6 +20,12 @@ import orderStatusroutes from "./routes/orderstatus.routes";
 import { initSocket } from "./socketio";
 import http from "http";
 dotenv.config();
+import chatRoutes from "./routes/chat.route";
+import { createServer, Server as HTTPServer } from "http";
+import { Server as SocketIOServer } from "socket.io";
+import Emitter from "./events/emitter";
+
+
 
 const app = express();
 
@@ -50,10 +56,12 @@ app.use("/api/notifications", notificatioRoute);
 
 app.use("/api/users", profileRoutes);
 app.use("/api", checkoutRoutes);
+app.use('/api/chats', chatRoutes)
 // Swagger UI route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/api", LoginByGoogleRoute);
+
 
 export default app;
 export { server };
