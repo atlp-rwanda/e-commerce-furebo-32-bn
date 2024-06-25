@@ -3,8 +3,8 @@ import {sequelize} from '../config/sequelize.config';
 import User from './user.model';
 
 interface PostAttributes {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   content: string;
   name: string;
 }
@@ -12,9 +12,9 @@ interface PostAttributes {
 interface PostCreationAttributes extends Optional<PostAttributes, 'id'> {}
 
 class Post extends Model<PostAttributes, PostCreationAttributes> implements PostAttributes {
-  public id!: number;
+  public id!: string;
 
-  public userId!: number;
+  public userId!: string;
 
   public content!: string;
 

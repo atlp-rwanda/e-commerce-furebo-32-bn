@@ -499,10 +499,6 @@ const options = {
                       type: "string",
                       example: "Brues",
                     },
-                    email: {
-                      type: "string",
-                      example: "email@gmail.com",
-                    },
                     phone: {
                       type: "string",
                       example: "+250792418795",
