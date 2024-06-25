@@ -63,8 +63,8 @@ export class CheckoutPaymentService {
       const session = await stripe.checkout.sessions.create({
         line_items: line_items,
         mode: "payment",
-        success_url: `http://localhost:3000/api/complete/${orderId}`,
-        cancel_url: `http://localhost:3000/api/cancel/${orderId}`,
+        success_url: `https://e-commerce-furebo-32-bn-1.onrender.com/api/complete/${orderId}`,
+        cancel_url: `https://e-commerce-furebo-32-bn-1.onrender.com/api/cancel/${orderId}`,
       });
 
       const updatedOrder = await OrderService.updateOrderStatus(
