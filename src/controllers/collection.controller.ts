@@ -23,11 +23,8 @@ export const createCollection=async function(req:Request,res:Response){
 }
 
 export const getSellerItems = async function (req: Request, res: Response) {
-    const seller = await UserService.getUserByid(req.params.seller_id);
+    const seller = req.user;
  try {
-    if (seller?.role !== 'seller') {
-        return res.status(401).json({ status: 401, error: "Unauthorized access" });
-    }
     const items = await GetCollectionService.getSellerItem(seller.id);
     return res.status(200).json({
         status: 200,

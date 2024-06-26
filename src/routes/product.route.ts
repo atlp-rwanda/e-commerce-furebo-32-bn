@@ -20,7 +20,7 @@ const router = express.Router();
 router.post('/createProduct/:collection_id',protectRoute,restrictTo(userRole.seller),upload,createProduct);
 router.get('/availableItems',protectRoute, getAvailableItems);
 router.post("/searchProduct", protectRoute, searchProducts);
-router.get("/availableProducts/:seller_id", protectRoute, getAvailableProducts);
+router.get("/availableProducts/:seller_id", protectRoute,restrictTo(userRole.seller), getAvailableProducts);
 router.patch(
   "/updateAvailability/:id",
   protectRoute,restrictTo(userRole.seller),

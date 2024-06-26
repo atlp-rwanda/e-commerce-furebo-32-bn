@@ -783,22 +783,11 @@ const options = {
           },
         },
       },
-      "/seller/collection/{seller_id}": {
+      "/api/seller/collection/{seller_id}": {
         get: {
           summary: "Get Seller Items",
           description: "Get all items of a seller",
           tags: ["Product"],
-          parameters: [
-            {
-              name: "seller_id",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Seller ID",
-            },
-          ],
           responses: {
             200: {
               description: "Seller Items",
@@ -1033,25 +1022,12 @@ const options = {
           },
         },
       },
-      "/availableProducts/{seller_id}": {
+      "/api/availableProducts/{seller_id}": {
         get: {
           summary: "Get available products by a particular seller",
           description:
             "Retrieve a list of available products for a specific seller.",
           tags: ["Product"],
-          parameters: [
-            {
-              name: "seller_id",
-
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-              },
-
-              description: "ID of the seller to retrieve products for",
-            },
-          ],
           responses: {
             200: {
               description: "A list of available products",
@@ -1118,7 +1094,7 @@ const options = {
           },
         },
       },
-      "/updateAvailability/:id": {
+      "/api/updateAvailability/{id}": {
         patch: {
           summary: "Update product availability",
           tags: ["Product"],

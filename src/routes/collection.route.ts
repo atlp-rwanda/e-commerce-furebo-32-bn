@@ -7,6 +7,6 @@ import { userRole } from "../utils/variable.utils";
 const router=express.Router();
 
 router.post('/createCollection/:seller_id',protectRoute,restrictTo(userRole.seller),createCollection)
-router.get('/seller/collection/:seller_id',protectRoute,getSellerItems)
+router.get('/seller/collection/:seller_id',protectRoute, restrictTo(userRole.seller), getSellerItems)
 
 export default router;

@@ -142,7 +142,7 @@ export const searchProducts = async (req: Request, res: Response) => {
 
 export const getAvailableProducts = async (req: Request, res: Response) => {
   try {
-    const seller_id = req.params.seller_id;
+    const seller_id = req.user.id;
     const products = await ProductService.getAvailableProductsBySeller(
       seller_id
     );
