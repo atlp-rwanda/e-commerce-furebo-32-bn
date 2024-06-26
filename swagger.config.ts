@@ -309,17 +309,6 @@ const options = {
           summary: "User updating his/her password",
           tags: ["Authentication"],
           security: [{ bearerAuth: [] }],
-          parameters: [
-            {
-              name: "id",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "User ID",
-            },
-          ],
           requestBody: {
             content: {
               "application/json": {
@@ -783,7 +772,7 @@ const options = {
           },
         },
       },
-      "/api/seller/collection/{seller_id}": {
+      "/api/seller/{seller_id}/items": {
         get: {
           summary: "Get Seller Items",
           description: "Get all items of a seller",

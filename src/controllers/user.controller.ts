@@ -242,7 +242,7 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
 export const updatePassword = async (req: Request, res: Response) => {
   try {
     const { oldPassword, newPassword, confirmNewPassword } = req.body;
-    const id = req.params.id;
+    const id = req.user.id;
 
     // Fetch the user by ID
     const user = await UserService.getUserByid(id);
