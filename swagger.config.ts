@@ -783,7 +783,7 @@ const options = {
           },
         },
       },
-      "/seller/collection/{seller_id}": {
+      "/api/seller/collection/{seller_id}": {
         get: {
           summary: "Get Seller Items",
           description: "Get all items of a seller",
@@ -1033,7 +1033,7 @@ const options = {
           },
         },
       },
-      "/availableProducts/{seller_id}": {
+      "/api/availableProducts/{seller_id}": {
         get: {
           summary: "Get available products by a particular seller",
           description:
@@ -1118,7 +1118,7 @@ const options = {
           },
         },
       },
-      "/updateAvailability/:id": {
+      "/api/updateAvailability/{id}": {
         patch: {
           summary: "Update product availability",
           tags: ["Product"],
