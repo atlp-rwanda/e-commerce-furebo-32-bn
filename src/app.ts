@@ -4,6 +4,7 @@ import profileRoutes from "./routes/profile.routes";
 import swaggerUi from "swagger-ui-express";
 import specs from "../swagger.config";
 import morgan from "morgan";
+import cors from 'cors';
 import bodyParser from "body-parser";
 import productRoutes from "./routes/product.route";
 import cartRoutes from "./routes/cart.route";
@@ -32,6 +33,10 @@ const app = express();
 const server = http.createServer(app);
 // Initialize Socket.IO
 initSocket(server);
+
+app.use(cors({
+  origin: 'https://e-commerce-furebo-32-fn.vercel.app',
+}));
 
 app.use(session({ secret: process.env.GOOGLE_SECRET2 as string }));
 app.use(passport.initialize());
