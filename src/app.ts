@@ -35,7 +35,8 @@ const server = http.createServer(app);
 initSocket(server);
 
 app.use(cors({
-  origin: 'https://e-commerce-furebo-32-fn.vercel.app',
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 }));
 
 app.use(session({ secret: process.env.GOOGLE_SECRET2 as string }));
