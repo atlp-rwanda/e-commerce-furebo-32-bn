@@ -102,7 +102,6 @@ export const createProduct = async function (req: Request, res: Response) {
 
 export const getAvailableItems = async function (req: Request, res: Response) {
   const items = await ProductService.getAvailableItems();
-
   const itemsWithTotalRatings = items.map((item) => {
     const totalReviewRating = item.reviews.reduce(
       (sum, review) => sum + review.rating,
