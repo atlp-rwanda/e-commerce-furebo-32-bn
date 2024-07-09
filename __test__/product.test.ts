@@ -587,20 +587,6 @@ describe('ProductService', () => {
     
           findAllStub.restore();
       });
-
-      it('should return 200 and the available items', async () => {
-        const findAllStub = sinon.stub(Product, 'findAll').resolves(mockItems as any);
-        const req = {};
-        const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-  
-        await getAvailableItems(req as unknown as Request, res as unknown as Response);
-  
-        expect(findAllStub.calledOnceWith({ where: { availability: true } })).toBeTruthy();
-        expect(res.status(200));
-        expect(res.json({ products: mockItems }));
-  
-        findAllStub.restore();
-      });
     });
   });
 

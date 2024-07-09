@@ -102,14 +102,22 @@ export const createProduct = async function (req: Request, res: Response) {
 
 export const getAvailableItems = async function (req: Request, res: Response) {
   const items = await ProductService.getAvailableItems();
-  const user = req.user;
-  if (!user) {
-    return res.status(401).json({ status: 401, error: "Unauthorized access" });
-  }
+
+  const itemsWithTotalRatings = items.map((item) => {
+    const totalReviewRating = item.reviews.reduce(
+      (sum, review) => sum + review.rating,
+      0
+    );
+
+    return {
+      ...item.dataValues,
+      totalReviewRating,
+    };
+  });
   return res.status(200).json({
     status: 200,
     message: "Items retrieved successfully",
-    items: items,
+    items: itemsWithTotalRatings,
   });
 };
 
