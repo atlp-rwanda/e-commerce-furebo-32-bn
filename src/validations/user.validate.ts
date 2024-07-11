@@ -113,9 +113,6 @@ const updatePasswordValidation = Joi.object({
   newPassword: Joi.string().required().messages({
     "any.required": "new Password is required.",
   }),
-  confirmNewPassword: Joi.string().required().messages({
-    "any.required": "Confirm Password is required.",
-  }),
 });
 
 export const validateUserUpdatePassword = (req: Request, res: Response, next: NextFunction) => {

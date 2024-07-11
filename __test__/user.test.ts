@@ -329,7 +329,6 @@ describe("User", () => {
         .send({
           oldPassword: process.env.TEST_USER_PASS,
           newPassword: "newPassword123",
-          confirmNewPassword: "newPassword123",
         });
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Authorization header missing");
@@ -342,7 +341,6 @@ describe("User", () => {
         .send({
           oldPassword: process.env.TEST_USER_PASS,
           newPassword: "newPassword123",
-          confirmNewPassword: "newPassword123",
         });
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Unauthorized request, Try again");
@@ -355,25 +353,9 @@ describe("User", () => {
         .send({
           oldPassword: "wrongPassword@123",
           newPassword: "newPassword@123",
-          confirmNewPassword: "newPassword@123",
         });
       expect(res.statusCode).toBe(401);
       expect(res.body.message).toBe("Enter correct old password");
-    });
-
-    test("update password with mismatched new passwords", async () => {
-      const res = await request(app)
-        .patch(`/api/users/${userId}/updatepassword`)
-        .set("Authorization", `Bearer ${token}`)
-        .send({
-          oldPassword: process.env.TEST_USER_PASS,
-          newPassword: "newPassword123@123",
-          confirmNewPassword: "differentPassword@123",
-        });
-      expect(res.statusCode).toBe(400);
-      expect(res.body.message).toBe(
-        "New password and confirm password do not match"
-      );
     });
 
     test("update password successfully", async () => {
@@ -383,7 +365,6 @@ describe("User", () => {
         .send({
           oldPassword: process.env.TEST_USER_PASS,
           newPassword: "newPassword@123",
-          confirmNewPassword: "newPassword@123",
         });
       expect(res.statusCode).toBe(200);
       expect(res.body.message).toBe("Password updated successfully");
@@ -396,7 +377,6 @@ describe("User", () => {
         .send({
           oldPassword: process.env.TEST_USER_PASS,
           newPassword: "newPassword@123",
-          confirmNewPassword: "newPassword@123",
         });
       expect(res.statusCode).toBe(500);
       expect(res.body.message).toBe(
