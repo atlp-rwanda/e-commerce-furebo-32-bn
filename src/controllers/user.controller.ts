@@ -241,7 +241,7 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
 
 export const updatePassword = async (req: Request, res: Response) => {
   try {
-    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+    const { oldPassword, newPassword} = req.body;
     const id = req.params.id;
 
     // Fetch the user by ID
@@ -262,13 +262,6 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if new password and confirm password match
-    if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({
-        status: "fail",
-        message: "New password and confirm password do not match",
-      });
-    }
 
     const hashedPassword = await hashPassword(newPassword);
     user.password = hashedPassword;
