@@ -12,18 +12,14 @@ interface OTPStore {
 const otpStore: OTPStore = {}; // Store OTPs with expiry times
 
 function generateOTP(): string {
-  return crypto.randomInt(100000, 999999).toString();
+  return crypto.randomInt(100000, 999999).toString().padStart(6, "0");
 }
 
-export const sendOTP = (
+export const sendOTP = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  const subject = "OTP Verification";
-  const text = `Please verify your email by entering this OTP: "${generateOTP()}"`;
-  const html = `<p>Please verify your email by entering this OTP:</p><b>${generateOTP()}</b>`;
-
+): Promise<void> => {
   const { email } = req.body;
   if (!email) {
     res.status(400).send("Email is required");
@@ -35,7 +31,19 @@ export const sendOTP = (
 
   otpStore[email] = { otp, expiry };
 
-  sendEmail(email, subject, text, html);
+  const subject = "OTP Verification";
+  const text = `Please verify your email by entering this OTP: "${otp}"`;
+  const html = `
+    <p>Please verify your email by entering this OTP:</p>
+    <b>${otp}</b>
+  `;
+
+  try {
+    sendEmail(email, subject, text, html);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).send("Error sending OTP email");
+  }
 
   next();
 };
@@ -69,5 +77,6 @@ export const verifyOTP = (
   }
 
   delete otpStore[email]; // OTP verified, remove from store
+  res.status(200).send("OTP verified successfully");
   next();
 };
