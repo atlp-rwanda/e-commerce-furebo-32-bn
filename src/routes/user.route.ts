@@ -18,6 +18,7 @@ import {
   validateUserUpdatePassword,
 } from "../validations/user.validate";
 import { userRole } from "../utils/variable.utils";
+import { verifyOTP } from "../middlewares/otp.middleware";
 
 const userRoutes = express.Router();
 
@@ -46,4 +47,5 @@ userRoutes.patch(
 userRoutes.post("/requestpasswordreset", requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
 userRoutes.get("/verify-email", verifyTokenMiddleware, verifyEmail);
+userRoutes.get("/verify-otp", verifyOTP);
 export default userRoutes;
