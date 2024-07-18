@@ -31,7 +31,7 @@ export const userSignup = async (req: Request, res: Response) => {
     }
 
     const createdUser = await UserService.register(user);
-    const token = await generateToken(createdUser, "1h");
+    const token = await generateToken(createdUser, "1d");
 
     const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
     const subject = "Email Verification";
