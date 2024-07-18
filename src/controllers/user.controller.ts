@@ -378,3 +378,26 @@ export const resetPassword = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAllUsers = async (_req: Request, res: Response) => {
+  try {
+    const users = await UserService.getAllUsers();
+    const usersWithoutPasswords = users.map((user) => {
+      const userWithoutPassword = { ...user.dataValues };
+      delete userWithoutPassword.password;
+      return userWithoutPassword;
+    });
+    return res.status(200).json({
+      status: "success",
+      data: {
+        users: usersWithoutPasswords,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while fetching users",
+    });
+  }
+};

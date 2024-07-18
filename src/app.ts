@@ -13,10 +13,15 @@ import passport from "passport";
 import LoginByGoogleRoute from "../src/routes/Login-by-google.route";
 import dotenv from 'dotenv'
 
+import cors from 'cors';
+
 const app = express();
 
 dotenv.config()
-
+app.use(cors({
+    origin: 'http://localhost:3000', 
+    credentials: true, 
+  }));
 
 app.use(session({secret:process.env.GOOGLE_SECRET2 as string}));
 app.use(passport.initialize());

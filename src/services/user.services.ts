@@ -20,4 +20,13 @@ export class UserService {
   static async getAllUsers() {
     return await User.findAll();
   }
+  static async updateRole(id: string, role: string) {
+    const user = await UserService.getUserByid(id);
+    if (user) {
+      user.role = role;
+      await user.save();
+      return user;
+    }
+    return null;
+  }
 }

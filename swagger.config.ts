@@ -126,7 +126,49 @@ const options = {
             },
           },
         },
-      },
+        },
+        "/api/users/users": {
+          get: {
+            summary: "Get all users",
+            tags: ["Authentication"], // Adjust tags as necessary
+            security: [
+              {
+                bearerAuth: [], // Specify authentication requirements if any
+              },
+            ],
+            responses: {
+              200: {
+                description: "List of users",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        users: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              firstName: { type: "string" },
+                              lastName: { type: "string" },
+                              email: { type: "string" },
+                              role: { type: "string" },
+                              phone: { type: "string" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              500: {
+                description: "Internal Server Error",
+              },
+            },
+          },
+        },
+      
 
       // User Login Route Documentation
       "/api/users/login": {

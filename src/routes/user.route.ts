@@ -11,6 +11,7 @@ import {
   updatePassword,
   requestPasswordReset,
   resetPassword,
+  getAllUsers,
 } from "../controllers/user.controller";
 import {
   validateUser,
@@ -37,6 +38,7 @@ userRoutes.patch(
 
 userRoutes.post("/login", validateUserLogin, userLogin);
 userRoutes.post("/logout", protectRoute, userLogout);
+userRoutes.get('/users', getAllUsers);
 userRoutes.patch(
   "/:id/updatepassword",
   protectRoute,
