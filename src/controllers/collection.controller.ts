@@ -6,16 +6,11 @@ import { UserService } from "../services/user.services";
 import "../utils/cloudinary.utils"
 
 export const createCollection=async function(req:Request,res:Response){
-    const seller=await UserService.getUserByid(req.params.seller_id)
-
-    if(seller?.role!=='seller'){
-        return res.status(400).json({message:"You have to be a seller to create a collection"})
-    }
 
     const collection:createCollectionAttributes={
         CollectionName:req.body.CollectionName,
         description:req.body.description,
-        seller_id:req.params.seller_id
+        seller_id:req.user?.id
     }
     if(!collection.CollectionName|| !collection.description||!collection.seller_id){
         return res.status(400).json({message:"Make sure you enter all required information"})
@@ -28,7 +23,7 @@ export const createCollection=async function(req:Request,res:Response){
 }
 
 export const getSellerItems = async function (req: Request, res: Response) {
-    const seller = await UserService.getUserByid(req.params.seller_id);
+    const seller = await UserService.getUserByid(req.user?.id);
  try {
     if (seller?.role !== 'seller') {
         return res.status(401).json({ status: 401, error: "Unauthorized access" });

@@ -24,13 +24,14 @@ export const userSignup = async (req: Request, res: Response) => {
       role: req.body.role,
       phone: req.body.phone,
       updatedAt: new Date(),
+      createdAt: new Date(),
     };
     const email = req.body.email;
     if (email == undefined) {
     }
 
     const createdUser = await UserService.register(user);
-    const token = await generateToken(createdUser, "1h");
+    const token = await generateToken(createdUser, "1d");
 
     const verificationLink = `${process.env.FRONTEND_URL}/api/users/verify-email?token=${token}`;
     const subject = "Email Verification";
@@ -240,7 +241,7 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
 
 export const updatePassword = async (req: Request, res: Response) => {
   try {
-    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+    const { oldPassword, newPassword} = req.body;
     const id = req.params.id;
 
     // Fetch the user by ID
@@ -261,13 +262,6 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if new password and confirm password match
-    if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({
-        status: "fail",
-        message: "New password and confirm password do not match",
-      });
-    }
 
     const hashedPassword = await hashPassword(newPassword);
     user.password = hashedPassword;
@@ -300,8 +294,8 @@ export const LoginViaGoogle=async (req:Request,res:Response)=>{
 
 export const googleRedirect= function(){
  return passport.authenticate('google',{
-    successRedirect:'/google/token',
-    failureRedirect:'/google/failure'
+    successRedirect:'/api/google/token',
+    failureRedirect:'/api/google/failure'
   })
 }
 
@@ -401,3 +395,4 @@ export const getAllUsers = async (_req: Request, res: Response) => {
     });
   }
 };
+

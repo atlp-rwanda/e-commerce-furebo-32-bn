@@ -98,15 +98,8 @@ export class CartService {
       if (itemIndex === -1) {
         throw new Error("Product not found in cart");
       }
-  
-      console.log(`Product found in cart at index: ${itemIndex}`);
-  
-      // Update the quantity of the product
+
       cart.items[itemIndex].quantity = quantity;
-  
-      console.log(`Updated product quantity: ${JSON.stringify(cart.items[itemIndex])}`);
-  
-      // Recalculate the total
       const updatedItems = await Promise.all(cart.items.map(async item => {
         const product = await Product.findByPk(item.productId);
         if (!product) {
@@ -119,22 +112,15 @@ export class CartService {
           total: item.quantity * product.price
         };
       }));
-  
-      console.log(`Updated items with prices: ${JSON.stringify(updatedItems)}`);
-  
-      // Update the cart total and items
       cart.total = updatedItems.reduce((total, item) => total + item.total, 0);
       cart.items = updatedItems.map(item => ({
         productId: item.productId,
         quantity: item.quantity
       }));
   
-      console.log(`Recalculated cart total: ${cart.total}`);
-  
       // Save the updated cart
       const updatedCart=await cart.save();
-  
-      console.log(`Cart saved successfully`,updatedCart.items);
+
   
       return updatedCart;
     } catch (error:any) {

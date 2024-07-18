@@ -82,3 +82,15 @@ export const validateRequest =
     }
     return next()
   }
+
+  export const validateReviewData = (review: string, rating: number, res: Response) => {
+    if (!review || !rating) {
+      res.status(400).json({ message: "Please provide a review and rating" });
+      return false;
+    }
+    if (rating < 1 || rating > 5) {
+      res.status(400).json({ message: "Rating should be between 1 and 5" });
+      return false;
+    }
+    return true;
+  };

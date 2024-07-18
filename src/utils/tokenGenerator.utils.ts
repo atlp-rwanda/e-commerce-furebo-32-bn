@@ -10,6 +10,7 @@ const generateToken = async (user: UserAttributes, expiresIn: string = "30d") =>
       role: user.role,
       email: user.email,
       id: user.id,
+      firstName: user.firstName,
     },
     process.env.JWT_SECRET || "",
     {

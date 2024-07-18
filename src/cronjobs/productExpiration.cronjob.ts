@@ -1,7 +1,8 @@
-import cron from 'node-cron';
-import Product from '../database/models/Product.model';
-import { Op } from 'sequelize';
-import { productEventEmitter } from '../events/productEvents.event';
+import cron from "node-cron";
+import Product from "../database/models/Product.model";
+import { Op } from "sequelize";
+import { productEventEmitter } from "../events/productEvents.event";
+import { notificationEventEmitter } from "../events/notificationEvents.event";
 
 export const checkForExpiredProducts = async () => {
   const currentDate = new Date();
@@ -18,7 +19,8 @@ export const checkForExpiredProducts = async () => {
       product.expired = true;
       product.availability = false;
       await product.save();
-      productEventEmitter.emit('productExpired', product);
+      productEventEmitter.emit("productExpired", product);
+      notificationEventEmitter.emit("productExpired", product);
     }
   } catch (error) {
     console.error("Error checking product expiration:", error);
@@ -27,7 +29,7 @@ export const checkForExpiredProducts = async () => {
 
 // Run checkForExpiredProducts() at midnight every day
 export const scheduleProductExpirationCheck = () => {
-    cron.schedule('0 0 * * *', async () => {
-      await checkForExpiredProducts();
-    });
-  };
+  cron.schedule("0 0 * * *", async () => {
+    await checkForExpiredProducts();
+  });
+};
