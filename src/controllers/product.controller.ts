@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { notificationEventEmitter } from "../events/notificationEvents.event";
 
-dayjs.extend(utc)
+dayjs.extend(utc);
 import { imageServices } from "../services/Image.service";
 import { validateReviewData } from "../validations/product.validate";
 
@@ -123,19 +123,22 @@ export const getAvailableItems = async function (req: Request, res: Response) {
 //search products
 
 export const searchProducts = async (req: Request, res: Response) => {
-  const { search, price_range, category } = req.query;
+  const { search, min, max, category } = req.query;
 
   const query: any = {
     where: {},
   };
 
   if (search) {
-    query.where.productName = { [Op.like]: `%${search}%` };
+    query.where.productName = { [Op.iLike]: `%${search}%` };
   }
 
-  if (price_range) {
-    const [min, max] = (price_range as string).split(",").map(Number);
-    query.where.price = { [Op.between]: [min, max] };
+  if (min && max) {
+    query.where.price = { [Op.between]: [Number(min), Number(max)] };
+  } else if (min) {
+    query.where.price = { [Op.gte]: Number(min) };
+  } else if (max) {
+    query.where.price = { [Op.lte]: Number(max) };
   }
 
   if (category) {
@@ -202,88 +205,83 @@ export const updateProductAvailability = async (
   }
 };
 
-export const getProductStats=async(req:Request)=>{
-  const userId=req.user?.id;
-  const {start}=req.query as any
-  const {end}=req.query as any
-  const startDate=dayjs(start).startOf('day').utc().toDate();
-  const endDate=dayjs(end).endOf('day').utc().toDate();
-  try{
-    const products=await Product.findAll({
-      where:{
-        seller_id:userId,
-        createdAt:{
-          [Op.gte]:startDate,
-          [Op.lte]:endDate
-        }
-      }
-    })
-    return products.length
-  }catch(error:any){
-    console.log(error.message);
-    
-  }
-}
-
-export const getAvailableProductStats=async(req:Request)=>{
-  const userId=req.user?.id;
-  const {start}=req.query as any
-  const {end}=req.query as any
-  const startDate=dayjs(start).startOf('day').utc().toDate();
-  const endDate=dayjs(end).endOf('day').utc().toDate();
-  try{
-    const products=await Product.findAll({
-      where:{
-        seller_id:userId,
-        expired:false,
-        availability:true,
-        createdAt:{
-          [Op.gte]:startDate,
-          [Op.lte]:endDate
-        }
-      }
-    })
-    return products.length
-  }catch(error:any){
-    console.log(error.message);
-    
-  }
-}
-
-export const getExpiredProductStats=async(req:Request)=>{
-  const userId=req.user?.id;
-  const {start}=req.query as any
-  const {end}=req.query as any
-  const startDate=dayjs(start).startOf('day').utc().toDate();
-  const endDate=dayjs(end).endOf('day').utc().toDate();
-  try{
-    const products=await Product.findAll({
-      where:{
-        seller_id:userId,
-        expired:true,
-        createdAt:{
-          [Op.gte]:startDate,
-          [Op.lte]:endDate
-        }
-      }
-    })
-    return products.length
-  }catch(error:any){
-    console.log(error.message);
-  }
-}
-const getStockLevelForDate = async (
-  date: Date,
-  sellerId: string
-) => {
+export const getProductStats = async (req: Request) => {
+  const userId = req.user?.id;
+  const { start } = req.query as any;
+  const { end } = req.query as any;
+  const startDate = dayjs(start).startOf("day").utc().toDate();
+  const endDate = dayjs(end).endOf("day").utc().toDate();
   try {
-    const products= await Product.findAll({
+    const products = await Product.findAll({
       where: {
-        seller_id:sellerId,
+        seller_id: userId,
         createdAt: {
-          [Op.lte]: date
-        }
-      }
+          [Op.gte]: startDate,
+          [Op.lte]: endDate,
+        },
+      },
+    });
+    return products.length;
+  } catch (error: any) {
+    console.log(error.message);
+  }
+};
+
+export const getAvailableProductStats = async (req: Request) => {
+  const userId = req.user?.id;
+  const { start } = req.query as any;
+  const { end } = req.query as any;
+  const startDate = dayjs(start).startOf("day").utc().toDate();
+  const endDate = dayjs(end).endOf("day").utc().toDate();
+  try {
+    const products = await Product.findAll({
+      where: {
+        seller_id: userId,
+        expired: false,
+        availability: true,
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate,
+        },
+      },
+    });
+    return products.length;
+  } catch (error: any) {
+    console.log(error.message);
+  }
+};
+
+export const getExpiredProductStats = async (req: Request) => {
+  const userId = req.user?.id;
+  const { start } = req.query as any;
+  const { end } = req.query as any;
+  const startDate = dayjs(start).startOf("day").utc().toDate();
+  const endDate = dayjs(end).endOf("day").utc().toDate();
+  try {
+    const products = await Product.findAll({
+      where: {
+        seller_id: userId,
+        expired: true,
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate,
+        },
+      },
+    });
+    return products.length;
+  } catch (error: any) {
+    console.log(error.message);
+  }
+};
+const getStockLevelForDate = async (date: Date, sellerId: string) => {
+  try {
+    const products = await Product.findAll({
+      where: {
+        seller_id: sellerId,
+        createdAt: {
+          [Op.lte]: date,
+        },
+      },
     });
     const productsObj = products.map((product) => product.toJSON());
     let totalStock = 0;
@@ -521,11 +519,11 @@ export const viewProductBySeller = async function (
   if (product?.seller_id !== seller_id)
     return res.status(400).json({ message: "You don't own the product" });
 
-return res.status(200).json({
-  message:"Product found", 
-  product:product
-})
-}
+  return res.status(200).json({
+    message: "Product found",
+    product: product,
+  });
+};
 
 // review a product
 
@@ -538,18 +536,25 @@ export const reviewProduct = async (req: Request, res: Response) => {
     }
     if (!validateReviewData(review, rating, res)) return;
     const user = req.user;
-    const existingReview = product.reviews?.find(r => r.user === user.id);
+    const existingReview = product.reviews?.find((r) => r.user === user.id);
     if (existingReview) {
       existingReview.review = review;
       existingReview.rating = rating;
     } else {
       product.reviews = [
         ...(product.reviews || []),
-        { id: (product.reviews?.length || 0).toString(), review, rating, user: user.id }
+        {
+          id: (product.reviews?.length || 0).toString(),
+          review,
+          rating,
+          user: user.id,
+        },
       ];
     }
     await product.save();
-    res.status(201).json({ message: "Review added successfully", updatedProduct: product });
+    res
+      .status(201)
+      .json({ message: "Review added successfully", updatedProduct: product });
   } catch (error) {
     console.error("Error adding review:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -565,7 +570,10 @@ export const getReviews = async (req: Request, res: Response) => {
     if (!product.reviews?.length) {
       return res.status(404).json({ message: "No reviews found" });
     }
-    res.status(200).json({ message: "Reviews retrieved successfully", reviews: product.reviews });
+    res.status(200).json({
+      message: "Reviews retrieved successfully",
+      reviews: product.reviews,
+    });
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -583,14 +591,21 @@ export const deleteReview = async (req: Request, res: Response) => {
     const reviewIndex = product.reviews.findIndex(
       (review) => review.id === reviewId
     );
-    if (reviewIndex === -1 || !product.reviews || product.reviews.length === 0) {
+    if (
+      reviewIndex === -1 ||
+      !product.reviews ||
+      product.reviews.length === 0
+    ) {
       return res.status(404).json({ message: "Review not found" });
     }
     product.reviews = product.reviews.filter(
       (review) => review.id !== reviewId
     );
     await product.save();
-    return res.status(200).json({message: "Review deleted successfully", updatedProduct: product});
+    return res.status(200).json({
+      message: "Review deleted successfully",
+      updatedProduct: product,
+    });
   } catch (error) {
     console.error("Error deleting review:", error);
     return res.status(500).json({ message: "Internal server error" });
