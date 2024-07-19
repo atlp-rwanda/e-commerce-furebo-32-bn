@@ -20,8 +20,9 @@ dotenv.config();
 // dotenv.config();
 export const createProduct = async function (req: Request, res: Response) {
   try {
+    const collection_id = req.body.collection_id;
     const collection = await CreateCollectionService.getCollectionByid(
-      req.params.collection_id
+      collection_id
     );
 
     if (!collection) {
@@ -50,7 +51,7 @@ export const createProduct = async function (req: Request, res: Response) {
       seller_id: req.user?.id,
       price: req.body.price,
       expireDate: req.body.expireDate,
-      collection_id: req.params.collection_id,
+      collection_id: req.body.collection_id,
       quantity: req.body.quantity,
       description: req.body.description,
       images: imageUrls,
@@ -117,6 +118,18 @@ export const getAvailableItems = async function (req: Request, res: Response) {
     status: 200,
     message: "Items retrieved successfully",
     items: itemsWithTotalRatings,
+  });
+};
+
+export const getAvailableItemsBySeller = async function (
+  req: Request,
+  res: Response
+) {
+  const items = await ProductService.getProductsBySeller(req.user.id);
+  return res.status(200).json({
+    status: 200,
+    message: "Items retrieved successfully",
+    items: items,
   });
 };
 

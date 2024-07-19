@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3002;
 
 const options = {
   definition: {
@@ -126,7 +126,49 @@ const options = {
             },
           },
         },
-      },
+        },
+        "/api/users/users": {
+          get: {
+            summary: "Get all users",
+            tags: ["Authentication"], // Adjust tags as necessary
+            security: [
+              {
+                bearerAuth: [], // Specify authentication requirements if any
+              },
+            ],
+            responses: {
+              200: {
+                description: "List of users",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        users: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              firstName: { type: "string" },
+                              lastName: { type: "string" },
+                              email: { type: "string" },
+                              role: { type: "string" },
+                              phone: { type: "string" },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              500: {
+                description: "Internal Server Error",
+              },
+            },
+          },
+        },
+      
 
       // User Login Route Documentation
       "/api/users/login": {
@@ -831,6 +873,108 @@ const options = {
           },
         },
       },
+        "/api/updateCollection/{id}": {
+      "put": {
+        "summary": "Update an existing collection",
+        "description": "Update the collection with the provided details",
+        "tags": ["Product"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Collection ID"
+          }
+        ],
+        "requestBody": {
+          "description": "Updated collection details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "CollectionName": {
+                    "type": "string",
+                    "description": "Name of the collection"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the collection"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Collection updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "CollectionName": {
+                      "type": "string",
+                      "description": "Name of the collection"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description of the collection"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Collection not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/deleteCollection/{id}": {
+      "delete": {
+        "summary": "Delete a collection",
+        "description": "Delete the collection with the provided ID",
+        "tags": ["Product"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Collection ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection deleted successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Collection not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
       "/api/availableItems": {
         get: {
           summary: "Get Available Items In all collections",
@@ -2126,26 +2270,113 @@ const options = {
         },
       },
       "/api/checkout/": {
-        post: {
-          summary: "Checkout",
-          description: "Make checkout ",
-          tags: ["Order"],
-          responses: {
-            200: {
-              description: "Product added in wishlist successfully",
-              400: {
-                description: "Bad Request",
+  "post": {
+    "summary": "Checkout",
+    "description": "Make checkout",
+    "tags": ["Order"],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "street": {
+                "type": "string",
+                "example": "123 Main St"
               },
-              404: {
-                description: "Not Found",
+              "city": {
+                "type": "string",
+                "example": "Metropolis"
               },
-              500: {
-                description: "Internal server error",
+              "country": {
+                "type": "string",
+                "example": "Countryland"
               },
+              "zipCode": {
+                "type": "string",
+                "example": "12345"
+              }
             },
-          },
-        },
+            "required": ["street", "city", "country", "zipCode"]
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Order and payment processed successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Order and payment processed successfully"
+                },
+                "data": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
       },
+      "401": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Unable to process order and payment"
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+      ,
       "/api/notifications/": {
         get: {
           summary: "Get Notifications",

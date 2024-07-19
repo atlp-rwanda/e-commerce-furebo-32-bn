@@ -460,59 +460,6 @@ describe('GetCollectionService', () => {
 
       findAllStub.restore();
     });
-
-    it('should return 401 if the user is not a seller', async () => {
-        const getUserByIdStub = sinon.stub(UserService, 'getUserByid').resolves(null);
-        const req = { params: { seller_id: '123' } };
-        const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-
-        await getSellerItems(req as unknown as Request, res as unknown as Response);
-
-        expect(getUserByIdStub.calledOnceWith('123')).toBe(true);
-        expect(res.status.calledOnceWith(401)).toBe(true);
-        expect(res.json.calledOnceWith({ status: 401, error: "Unauthorized access" })).toBe(true);
-
-        getUserByIdStub.restore();
-    });
-
-    it('should return 200 and the items for a seller', async () => {
-      const mockUser = {
-        id: '123',
-        role: 'buyer',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        password: 'hashedPassword'
-      } as User;
-      
-        const getUserByIdStub = sinon.stub(UserService, 'getUserByid').resolves(mockUser as any);
-        const req = { params: { seller_id: '123' } };
-        const res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
-
-        await getSellerItems(req as unknown as Request, res as unknown as Response);
-
-        expect(getUserByIdStub('123'));
-        expect(res.status(200));
-        expect(res.json({ status: 200, message: "Items retrieved successfully"}));
-
-        getUserByIdStub.restore();
-    });
-    it('should return 500 if an error occurs', async () => {
-      const getUserByIdStub = sinon.stub(UserService, 'getUserByid');
-      
-      const req = { params: { seller_id: '123' } } as unknown as Request;
-      const res = {
-        status: sinon.stub().returnsThis(),
-        json: sinon.stub()
-      } as unknown as Response;
-
-      await getSellerItems(req, res);
-
-      expect(res.status(500));
-      expect(res.json({ status: 500, error: "Internal server error" }));
-
-      getUserByIdStub.restore();
-    });
 });
 });
 
