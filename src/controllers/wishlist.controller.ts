@@ -107,3 +107,21 @@ export const getUserWishes = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const deleteItemFromWishlist = async (req: Request, res: Response) => {
+  const productId = req.params.productId;
+  const userId = req.user.id;
+  const productExist = await ProductService.getProductByid(productId);
+  if (!productExist) {
+    res.status(404).json({ message: "Product not found" });
+  }
+  if (await isUserFound(userId)) {
+    return res.status(400).json({ message: "User not found" });
+  }
+  const wishlistExist = await WishlistService.getProductByid(productId,userId);
+  if (!wishlistExist) {
+    return res.status(404).json({ message: "Wishlist not found" });
+  }
+  await WishlistService.deleteWish(productId, userId);
+  res.status(200).send({ message: "Product deleted from wishlist" });
+};
