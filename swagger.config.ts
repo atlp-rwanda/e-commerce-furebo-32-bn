@@ -873,6 +873,108 @@ const options = {
           },
         },
       },
+        "/api/updateCollection/{id}": {
+      "put": {
+        "summary": "Update an existing collection",
+        "description": "Update the collection with the provided details",
+        "tags": ["Product"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Collection ID"
+          }
+        ],
+        "requestBody": {
+          "description": "Updated collection details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "CollectionName": {
+                    "type": "string",
+                    "description": "Name of the collection"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the collection"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Collection updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "CollectionName": {
+                      "type": "string",
+                      "description": "Name of the collection"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Description of the collection"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Collection not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/deleteCollection/{id}": {
+      "delete": {
+        "summary": "Delete a collection",
+        "description": "Delete the collection with the provided ID",
+        "tags": ["Product"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Collection ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Collection deleted successfully"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Collection not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
       "/api/availableItems": {
         get: {
           summary: "Get Available Items In all collections",

@@ -39,3 +39,41 @@ catch (error) {
         return res.status(500).json({ status: 500, error: "Internal server error" });
     }
 }
+
+export const updateCollection = async function (req: Request, res: Response) {
+  const { id } = req.params;
+  const { CollectionName, description } = req.body;
+  try {
+    const collection = await CreateCollectionService.getCollectionByid(id);
+    if (!collection) {
+      return res.status(404).json({ message: "Collection not found" });
+    }
+    collection.CollectionName = CollectionName;
+    collection.description = description;
+    await collection.save();
+    return res.status(200).json({
+      message: "Collection updated successfully",
+      collection: collection,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: 500, error: "Internal server error" });
+  }
+};
+
+export const deleteCollection = async function (req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    const collection = await CreateCollectionService.getCollectionByid(id);
+    if (!collection) {
+      return res.status(404).json({ message: "Collection not found" });
+    }
+    await collection.destroy();
+    return res.status(200).json({ message: "Collection deleted successfully" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: 500, error: "Internal server error" });
+  }
+};
