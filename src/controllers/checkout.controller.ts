@@ -7,12 +7,12 @@ export class CheckoutController {
   static async processCheckout(req: Request, res: Response) {
     try {
       const userId = req.user.id;
-      // const { , paymentMethod } = req.body;
+      const {street,city,country,zipCode}=req.body;
       const deliveryAddress = {
-        street: "123 Main St",
-        city: "Springfield",
-        country: "USA",
-        zipCode: "12345",
+        street: street,
+        city: city,
+        country: country,
+        zipCode: zipCode,
       };
       const paymentMethod = {
         method: "credit card",

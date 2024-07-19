@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3002;
 
 const options = {
   definition: {
@@ -2270,26 +2270,113 @@ const options = {
         },
       },
       "/api/checkout/": {
-        post: {
-          summary: "Checkout",
-          description: "Make checkout ",
-          tags: ["Order"],
-          responses: {
-            200: {
-              description: "Product added in wishlist successfully",
-              400: {
-                description: "Bad Request",
+  "post": {
+    "summary": "Checkout",
+    "description": "Make checkout",
+    "tags": ["Order"],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "street": {
+                "type": "string",
+                "example": "123 Main St"
               },
-              404: {
-                description: "Not Found",
+              "city": {
+                "type": "string",
+                "example": "Metropolis"
               },
-              500: {
-                description: "Internal server error",
+              "country": {
+                "type": "string",
+                "example": "Countryland"
               },
+              "zipCode": {
+                "type": "string",
+                "example": "12345"
+              }
             },
-          },
-        },
+            "required": ["street", "city", "country", "zipCode"]
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Order and payment processed successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Order and payment processed successfully"
+                },
+                "data": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
       },
+      "401": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Unable to process order and payment"
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "500": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+      ,
       "/api/notifications/": {
         get: {
           summary: "Get Notifications",
