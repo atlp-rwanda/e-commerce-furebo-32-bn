@@ -136,19 +136,22 @@ export const getAvailableItemsBySeller = async function (
 //search products
 
 export const searchProducts = async (req: Request, res: Response) => {
-  const { search, price_range, category } = req.query;
+  const { search, min, max, category } = req.query;
 
   const query: any = {
     where: {},
   };
 
   if (search) {
-    query.where.productName = { [Op.like]: `%${search}%` };
+    query.where.productName = { [Op.iLike]: `%${search}%` };
   }
 
-  if (price_range) {
-    const [min, max] = (price_range as string).split(",").map(Number);
-    query.where.price = { [Op.between]: [min, max] };
+  if (min && max) {
+    query.where.price = { [Op.between]: [Number(min), Number(max)] };
+  } else if (min) {
+    query.where.price = { [Op.gte]: Number(min) };
+  } else if (max) {
+    query.where.price = { [Op.lte]: Number(max) };
   }
 
   if (category) {
@@ -580,12 +583,10 @@ export const getReviews = async (req: Request, res: Response) => {
     if (!product.reviews?.length) {
       return res.status(404).json({ message: "No reviews found" });
     }
-    res
-      .status(200)
-      .json({
-        message: "Reviews retrieved successfully",
-        reviews: product.reviews,
-      });
+    res.status(200).json({
+      message: "Reviews retrieved successfully",
+      reviews: product.reviews,
+    });
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -614,12 +615,10 @@ export const deleteReview = async (req: Request, res: Response) => {
       (review) => review.id !== reviewId
     );
     await product.save();
-    return res
-      .status(200)
-      .json({
-        message: "Review deleted successfully",
-        updatedProduct: product,
-      });
+    return res.status(200).json({
+      message: "Review deleted successfully",
+      updatedProduct: product,
+    });
   } catch (error) {
     console.error("Error deleting review:", error);
     return res.status(500).json({ message: "Internal server error" });
