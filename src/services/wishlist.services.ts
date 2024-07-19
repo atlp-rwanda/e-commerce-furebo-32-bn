@@ -14,4 +14,7 @@ export class WishlistService {
   static async getUserWishes(userId: string) {
     return await Wishlist.findAll({ where: { userId } });
   }
+  static async deleteWish(productId: string, userId: string) {
+    return await Wishlist.destroy({ where: { productId, userId } });
+  }
 }
