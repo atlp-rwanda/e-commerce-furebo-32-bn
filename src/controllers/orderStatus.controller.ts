@@ -68,3 +68,32 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+
+export const getAllOrdersByUser = async (req: Request, res: Response) => {
+    try {
+        const userId = req.user.id;
+        const orders = await OrderService.getAllOrdersByUserId(userId);
+
+       
+
+        res.status(200).json({ orders });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+// Get all orders in the database
+export const getAllOrders = async (req: Request, res: Response) => {
+    try {
+        const orders = await OrderService.getAllOrders();
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found' });
+        }
+
+        res.status(200).json({ orders });
+    } catch (err: any) {
+        res.status(500).json({ message: err.message });
+    }
+};
