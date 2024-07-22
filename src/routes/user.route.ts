@@ -49,5 +49,5 @@ userRoutes.patch(
 userRoutes.post("/requestpasswordreset", requestPasswordReset);
 userRoutes.post("/resetpassword", resetPassword);
 userRoutes.get("/verify-email", verifyTokenMiddleware, verifyEmail);
-userRoutes.get("/verify-otp", verifyOTP);
+userRoutes.post("/verify-otp", verifyOTP);
 export default userRoutes;

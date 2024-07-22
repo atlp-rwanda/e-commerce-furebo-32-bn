@@ -22,7 +22,7 @@ export const sendOTP = async (
 ): Promise<void> => {
   const { email } = req.body;
   if (!email) {
-    res.status(400).send("Email is required");
+    res.status(400).json("Email is required");
     return;
   }
 
@@ -42,7 +42,7 @@ export const sendOTP = async (
     sendEmail(email, subject, text, html);
   } catch (error) {
     console.error("Error sending email:", error);
-    res.status(500).send("Error sending OTP email");
+    res.status(500).json("Error sending OTP email");
   }
 
   next();
@@ -55,28 +55,28 @@ export const verifyOTP = (
 ): void => {
   const { email, otp } = req.body;
   if (!email || !otp) {
-    res.status(400).send("Email and OTP are required");
+    res.status(400).json("Email and OTP are required");
     return;
   }
 
   const otpData = otpStore[email];
 
   if (!otpData) {
-    res.status(400).send("OTP not found or expired");
+    res.status(400).json({message: "OTP not found or expired"});
     return;
   }
 
   if (Date.now() > otpData.expiry) {
-    res.status(400).send("OTP expired");
+    res.status(400).json({message: "OTP expired"});
     return;
   }
 
   if (otpData.otp !== otp) {
-    res.status(400).send("Invalid OTP");
+    res.status(400).json({message: "Invalid OTP"});
     return;
   }
 
   delete otpStore[email]; // OTP verified, remove from store
-  res.status(200).send("OTP verified successfully");
+  res.status(200).json({message: "OTP verified successfully"});
   next();
 };
