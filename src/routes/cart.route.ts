@@ -10,5 +10,11 @@ router.post("/add/:productId", protectRoute, restrictTo("buyer"), CartController
 router.get("/view", protectRoute, restrictTo("buyer"), CartController.viewCart);
 router.patch("/update/:productId", protectRoute, restrictTo("buyer"), CartController.updateCartItem);
 router.post("/clear", protectRoute, restrictTo("buyer"), CartController.clearCart);
+router.delete(
+  "/remove/:productId",
+  protectRoute,
+  restrictTo("buyer"),
+  CartController.removeCartItem
+);
 
 export default router;

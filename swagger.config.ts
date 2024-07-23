@@ -1551,6 +1551,82 @@ const options = {
           },
         },
       },
+      "/api/cart/remove/{productId}": {
+    "delete": {
+      "summary": "Remove Item from Cart",
+      "tags": ["Cart"],
+      "security": [{ "bearerAuth": [] }],
+      "parameters": [
+        {
+          "name": "productId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "ID of the product to remove from cart"
+        },
+      ],
+      "responses": {
+        "200": {
+          "description": "Item removed from cart successfully",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string" },
+                  "cart": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "string" },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "productId": { "type": "string" },
+                            "quantity": { "type": "number" }
+                          },
+                        },
+                      },
+                      "total": { "type": "number" }
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        "404": {
+          "description": "Cart or product not found",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string" }
+                },
+              },
+            },
+          },
+        },
+        "500": {
+          "description": "Internal server error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": { "type": "string" }
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
       "/api/cart/clear": {
         post: {
           summary: "Clear Cart",
