@@ -671,7 +671,7 @@ const options = {
           },
         },
       },
-      "/api/createCollection/{seller_id}": {
+      "/api/createCollection": {
         post: {
           summary: "Create a new collection",
           description: "Create a new collection with the provided name",
@@ -730,22 +730,22 @@ const options = {
           },
         },
       },
-      "/api/createProduct/{collection_id}": {
+      "/api/createProduct": {
         post: {
           summary: "Create a new Product",
           description: "Create a new Product with in ",
           tags: ["Product"],
-          parameters: [
-            {
-              name: "collection_id",
-              in: "path",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Collection ID",
-            },
-          ],
+          // parameters: [
+          //   {
+          //     name: "collection_id",
+          //     in: "path",
+          //     required: true,
+          //     schema: {
+          //       type: "string",
+          //     },
+          //     description: "Collection ID",
+          //   },
+          // ],
           requestBody: {
             description: "Product details",
             required: true,

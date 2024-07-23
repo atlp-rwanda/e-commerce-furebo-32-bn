@@ -90,7 +90,13 @@ export class OrderService {
 }
 
 
+static async getAllOrdersByUserId(userId: string) {
+  return await Order.findAll({ where: { buyerId:userId } });
+}
 
+static async getAllOrders() {
+  return await Order.findAll();
+}
   
 
   }
