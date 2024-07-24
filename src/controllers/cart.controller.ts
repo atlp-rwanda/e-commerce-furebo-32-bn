@@ -10,9 +10,9 @@ export class CartController {
       return res.status(201).json({
         message: "Cart created successfully",
         cartId: cart.id,
-        items: cart.items
+        items: cart.items,
       });
-    } catch (error:any) {
+    } catch (error: any) {
       return res.status(500).json({ message: error.message });
     }
   }
@@ -24,48 +24,53 @@ export class CartController {
       const cart = await CartService.addItemToCart(userId, productId);
       return res.status(200).json({
         message: "Item added to cart successfully",
-        cart
+        cart,
       });
-    } catch (error:any) {
+    } catch (error: any) {
       return res.status(500).json({ message: error.message });
     }
   }
 
- 
   static async viewCart(req: Request, res: Response) {
     const userId = req.user.id;
     try {
       const cart = await CartService.viewCart(userId);
       return res.status(200).json(cart);
-    } catch (error:any) {
+    } catch (error: any) {
       return res.status(500).json({ message: error.message });
     }
-  } 
- 
+  }
+
   static async updateCartItem(req: Request, res: Response) {
-    const userId = req.user.id;  
+    const userId = req.user.id;
     const { productId } = req.params || {}; // Ensure productId is defined
     const { quantity } = req.body;
-  
-    if (typeof quantity !== 'number' || quantity < 1) {
+
+    if (typeof quantity !== "number" || quantity < 1) {
       return res.status(400).json({ message: "Invalid quantity" });
     }
-  
+
     try {
-      const cart = await CartService.updateCartItem(userId, productId, quantity);
+      const cart = await CartService.updateCartItem(
+        userId,
+        productId,
+        quantity
+      );
       return res.status(200).json({
         message: "Cart updated successfully",
-        cart
+        cart,
       });
     } catch (error: any) {
-      if (error.message === "Cart not found" || error.message === "Product not found in cart" || error.message.includes("Product with ID")) {
+      if (
+        error.message === "Cart not found" ||
+        error.message === "Product not found in cart" ||
+        error.message.includes("Product with ID")
+      ) {
         return res.status(404).json({ message: error.message });
       }
       return res.status(500).json({ message: "Internal Server Error" });
     }
   }
-  
-  
 
   static async clearCart(req: Request, res: Response) {
     const userId = req.user.id;
@@ -73,7 +78,22 @@ export class CartController {
       const cart = await CartService.clearCart(userId);
       return res.status(200).json({
         message: "Cart cleared successfully",
-        cart
+        cart,
+      });
+    } catch (error: any) {
+      return res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async removeCartItem(req: Request, res: Response) {
+    const userId = req.user.id;
+    const { productId } = req.params;
+
+    try {
+      const cart = await CartService.removeCartItem(userId, productId);
+      return res.status(200).json({
+        message: "Item removed from cart successfully",
+        cart,
       });
     } catch (error: any) {
       return res.status(500).json({ message: error.message });
