@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { viewAllPosts, createPost } from '../services/chat.services';
+import { viewAllPosts, createPost, deleteAllPosts, deletePost } from '../services/chat.services';
 
 export const createMessage = async (req: Request, res: Response) => {
   try {
@@ -30,3 +30,29 @@ export const viewAllMessage = async (_req: Request, res: Response) => {
     res.status(500).json(error);
   }
 }
+
+
+export const deleteSingleMessage = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const deleted = await deletePost(id);
+    if (deleted) {
+      return res.status(200).json({ message: 'Post deleted successfully' });
+    } else {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+export const deleteAllMessages = async (_req: Request, res: Response) => {
+  try {
+    await deleteAllPosts();
+    return res.status(200).json({ message: 'All posts deleted successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
