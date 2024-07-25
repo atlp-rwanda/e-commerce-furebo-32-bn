@@ -159,13 +159,20 @@ export class CartService {
         throw new Error("Product not found in cart");
       }
 
-      const product = await Product.findByPk(productId);
-      if (!product) {
-        throw new Error("Product not found");
-      }
-
       cart.items.splice(itemIndex, 1);
-      cart.total -= product.price;
+
+      const products = await Product.findAll({
+        where: {
+          id: cart.items.map((item) => item.productId),
+        },
+      });
+
+      
+      cart.total = cart.items.reduce((total, item) => {
+        const product = products.find((p) => p.id === item.productId);
+        return total + (product ? product.price * item.quantity : 0);
+      }, 0);
+
 
       const updatedCart = await cart.save();
       return updatedCart;
