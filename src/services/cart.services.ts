@@ -145,40 +145,33 @@ export class CartService {
     return cart;
   }
 
-  static async removeCartItem(userId: string, productId: string) {
-    try {
-      const cart = await Cart.findOne({ where: { userId } });
-      if (!cart) {
-        throw new Error("Cart not found");
-      }
-
-      const itemIndex = cart.items.findIndex(
-        (item) => item.productId === productId
-      );
-      if (itemIndex === -1) {
-        throw new Error("Product not found in cart");
-      }
-
-      cart.items.splice(itemIndex, 1);
-
-      const products = await Product.findAll({
-        where: {
-          id: cart.items.map((item) => item.productId),
-        },
-      });
-
-      
-      cart.total = cart.items.reduce((total, item) => {
-        const product = products.find((p) => p.id === item.productId);
-        return total + (product ? product.price * item.quantity : 0);
-      }, 0);
-
-
-      const updatedCart = await cart.save();
-      return updatedCart;
-    } catch (error: any) {
-      console.error("Error removing item from cart: ", error);
-      throw new Error("Could not remove item from cart");
+// New function to remove an item from the cart
+static async removeItemFromCart(userId: string, productId: string) {
+  try {
+    const cart = await Cart.findOne({ where: { userId } });
+    if (!cart) {
+      throw new Error("Cart not found");
     }
+
+    const itemIndex = cart.items.findIndex((item) => item.productId === productId);
+    if (itemIndex === -1) {
+      throw new Error("Product not found in cart");
+    }
+
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    cart.total -= cart.items[itemIndex].quantity * product.price;
+    cart.items = cart.items.filter((item) => item.productId !== productId);
+
+    const updatedCart = await cart.save();
+    return updatedCart;
+  } catch (error) {
+    console.error("Error removing item from cart: ", error);
+    throw new Error("Could not remove item from cart");
   }
+}
+
 }
