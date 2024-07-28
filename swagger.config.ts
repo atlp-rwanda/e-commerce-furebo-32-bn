@@ -2673,95 +2673,153 @@ const options = {
           },
         },
       },
-      "/api/chats/sendmessages": {
-        post: {
-          summary: "Send public message",
-          tags: ["Chat"],
-          security: [{ bearerAuth: [] }],
-          
-          requestBody: {
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    content: {
-                      type: "string",
-                      example: "hello",
+      
+        "/api/chats/sendmessages": {
+          "post": {
+            "summary": "Send public message",
+            "tags": ["Chat"],
+            "security": [{ "bearerAuth": [] }],
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "content": {
+                        "type": "string",
+                        "example": "hello"
+                      }
                     },
-                  },
-                  required: ["content"],
-                },
+                    "required": ["content"]
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Message sent"
               },
-            },
-          },
-          responses: {
-            "200": {
-              description: "Message sent",
-            },
-            "400": {
-              description: "Bad Request",
-            },
-            "401": {
-              description: "Unauthorized",
-            },
-            "404": {
-              description: "User not found",
-            },
-            "500": {
-              description: "Internal server error",
-            },
-          },
-        },
-      },
-      "/api/chats/messages": {
-    get: {
-      summary: "Get all messages",
-      tags: ["Chat"],
-      security: [{ bearerAuth: [] }],
-      responses: {
-        "200": {
-          description: "A list of all messages",
-          content: {
-            "application/json": {
-              schema: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: {
-                      type: "string",
-                      example: "60d21b8667d0d8992e610c85",
-                    },
-                    content: {
-                      type: "string",
-                      example: "hello",
-                    },
-                    userId: {
-                      type: "string",
-                      example: "60d0fe4f5311236168a109ca",
-                    },
-                    createdAt: {
-                      type: "string",
-                      format: "date-time",
-                      example: "2021-06-23T18:25:43.511Z",
-                    },
-                  },
-                },
+              "400": {
+                "description": "Bad Request"
               },
-            },
-            "400": {
-              description: "Bad Request",
-            },
-            "401": {
-              description: "Unauthorized",
-            },
-            "500": {
-              description: "Internal server error",
-            },
-          },
+              "401": {
+                "description": "Unauthorized"
+              },
+              "404": {
+                "description": "User not found"
+              },
+              "500": {
+                "description": "Internal server error"
+              }
+            }
+          }
         },
-      },
+        "/api/chats/messages": {
+          "get": {
+            "summary": "Get all messages",
+            "tags": ["Chat"],
+            "security": [{ "bearerAuth": [] }],
+            "responses": {
+              "200": {
+                "description": "A list of all messages",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "example": "60d21b8667d0d8992e610c85"
+                          },
+                          "content": {
+                            "type": "string",
+                            "example": "hello"
+                          },
+                          "userId": {
+                            "type": "string",
+                            "example": "60d0fe4f5311236168a109ca"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2021-06-23T18:25:43.511Z"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "400": {
+                "description": "Bad Request"
+              },
+              "401": {
+                "description": "Unauthorized"
+              },
+              "500": {
+                "description": "Internal server error"
+              }
+            }
+          },
+          "delete": {
+            "summary": "Delete all messages",
+            "tags": ["Chat"],
+            "security": [{ "bearerAuth": [] }],
+            "responses": {
+              "200": {
+                "description": "All messages deleted successfully"
+              },
+              "400": {
+                "description": "Bad Request"
+              },
+              "401": {
+                "description": "Unauthorized"
+              },
+              "500": {
+                "description": "Internal server error"
+              }
+            }
+          }
+        },
+        "/api/chats/messages/{id}": {
+          "delete": {
+            "summary": "Delete a single message",
+            "tags": ["Chat"],
+            "security": [{ "bearerAuth": [] }],
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                },
+                "description": "ID of the message to delete"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Message deleted successfully"
+              },
+              "400": {
+                "description": "Bad Request"
+              },
+              "401": {
+                "description": "Unauthorized"
+              },
+              "404": {
+                "description": "Message not found"
+              },
+              "500": {
+                "description": "Internal server error"
+              
+            
+          }
+        },
+      
+      
       "/api/stats": {
         get: {
           summary: 'Get Product Statistics',
