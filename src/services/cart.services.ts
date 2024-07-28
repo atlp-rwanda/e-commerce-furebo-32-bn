@@ -74,25 +74,23 @@ export class CartService {
       items: cartItems,
     };
   }
-  static async updateCartItem(
-    userId: string,
-    productId: string,
-    quantity: number
-  ) {
+
+  
+  static async updateCartItem(userId: string, productId: string, quantity: number) {
     try {
       console.log(`Finding cart for userId: ${userId}`);
       const cart = await Cart.findOne({ where: { userId } });
       if (!cart) {
         throw new Error("Cart not found");
       }
-
+  
       console.log(`Cart found: ${JSON.stringify(cart)}`);
-
+  
       // Check if the cart has items property and if it's an array
       if (!Array.isArray(cart.items)) {
         throw new Error("Invalid cart items format");
       }
-
+  
       // Find the index of the product in the cart items
       const itemIndex = cart.items.findIndex(
         (item) => item.productId === productId
@@ -100,37 +98,43 @@ export class CartService {
       if (itemIndex === -1) {
         throw new Error("Product not found in cart");
       }
-
-      cart.items[itemIndex].quantity = quantity;
-      const updatedItems = await Promise.all(
-        cart.items.map(async (item) => {
-          const product = await Product.findByPk(item.productId);
-          if (!product) {
-            throw new Error(`Product with ID ${item.productId} not found`);
-          }
-          return {
-            productId: item.productId,
-            quantity: item.quantity,
-            productPrice: product.price,
-            total: item.quantity * product.price,
-          };
-        })
+  
+      // Get the product details
+      const product = await Product.findByPk(productId);
+      if (!product) {
+        throw new Error(`Product with ID ${productId} not found`);
+      }
+  
+      // Create a new array of items with updated quantity
+      const updatedItems = cart.items.map((item) =>
+        item.productId === productId
+          ? { ...item, quantity }
+          : item
       );
-      cart.total = updatedItems.reduce((total, item) => total + item.total, 0);
-      cart.items = updatedItems.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-      }));
-
+  
+      // Calculate the new total price
+      let total = 0;
+      for (const item of updatedItems) {
+        const itemProduct = await Product.findByPk(item.productId);
+        if (itemProduct) {
+          total += item.quantity * itemProduct.price;
+        }
+      }
+  
       // Save the updated cart
-      const updatedCart = await cart.save();
-
-      return updatedCart;
+      cart.items = updatedItems;
+      cart.total = total;
+      await cart.save();
+  
+      return cart;
     } catch (error: any) {
       console.error("Error updating cart item:", error.message);
       throw error;
     }
   }
+  
+  
+  
 
   static async clearCart(userId: string) {
     const cart = await Cart.findOne({ where: { userId } });
