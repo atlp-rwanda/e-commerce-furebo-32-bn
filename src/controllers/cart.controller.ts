@@ -90,7 +90,7 @@ export class CartController {
     const { productId } = req.params;
 
     try {
-      const cart = await CartService.removeCartItem(userId, productId);
+      const cart = await CartService.removeItemFromCart(userId, productId);
       return res.status(200).json({
         message: "Item removed from cart successfully",
         cart,

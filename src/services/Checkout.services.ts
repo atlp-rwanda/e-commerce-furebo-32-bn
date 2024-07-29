@@ -25,12 +25,12 @@ export class CheckoutPaymentService {
 
           return({
           price_data: {
-            currency: "rwf",
+            currency: "usd",
             product_data: {
               name: element.productName,
               images:[element.image]
             },
-            unit_amount: Math.floor(element.price * 1000),
+            unit_amount: Math.floor(element.price),
           },
           quantity: element.quantity,
         })}
