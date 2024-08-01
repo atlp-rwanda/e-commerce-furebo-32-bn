@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { UserSignupAttributes } from "../types/user.types";
 import { UserService } from "../services/user.services";
-import { generateToken,decodeToken } from "../utils/tokenGenerator.utils";
+import { generateToken, decodeToken } from "../utils/tokenGenerator.utils";
 // import { sendEmaill } from "../utils/email.utils";
 import { hashPassword, comparePassword } from "../utils/password.utils";
 import { sendEmail } from "../utils/email.utils";
@@ -10,7 +10,7 @@ import { sendOTP } from "../middlewares/otp.middleware";
 import { AccountStatusMessages } from "../utils/variable.utils";
 import { sendReasonEmail } from "../utils/sendReason.util";
 import { addToBlacklist } from "../utils/tokenBlacklist";
-import { passwordEventEmitter } from '../events/passwordEvents.event';
+import { passwordEventEmitter } from "../events/passwordEvents.event";
 
 export const userSignup = async (req: Request, res: Response) => {
   try {
@@ -40,7 +40,7 @@ export const userSignup = async (req: Request, res: Response) => {
     sendEmail(user.email, subject, text, html);
 
     //Emitting the password event when password is updated
-    passwordEventEmitter.emit('passwordUpdated', user.id);
+    passwordEventEmitter.emit("passwordUpdated", user.id);
 
     const userWithoutPassword = { ...createdUser.dataValues };
     delete userWithoutPassword.password;
@@ -238,10 +238,9 @@ export const changeAccountStatus = async (req: Request, res: Response) => {
   });
 };
 
-
 export const updatePassword = async (req: Request, res: Response) => {
   try {
-    const { oldPassword, newPassword} = req.body;
+    const { oldPassword, newPassword } = req.body;
     const id = req.params.id;
 
     // Fetch the user by ID
@@ -262,13 +261,12 @@ export const updatePassword = async (req: Request, res: Response) => {
       });
     }
 
-
     const hashedPassword = await hashPassword(newPassword);
     user.password = hashedPassword;
     await user.save();
     //Emitting the password event when password is updated
-    passwordEventEmitter.emit('passwordUpdated', user.id);
-  
+    passwordEventEmitter.emit("passwordUpdated", user.id);
+
     return res.status(200).json({
       status: "success",
       message: "Password updated successfully",
@@ -282,30 +280,30 @@ export const updatePassword = async (req: Request, res: Response) => {
   }
 };
 
-export const LoginViaGoogle=async (req:Request,res:Response)=>{
+export const LoginViaGoogle = async (req: Request, res: Response) => {
   const user = req.user as UserSignupAttributes;
   try {
-      const token = await generateToken(user);
-      res.status(200).json({ token });
-  } 
-  catch (error) {
-      res.status(400).json({message:'Error while generating token'});}
-}
+    const token = await generateToken(user);
+    res.redirect(`http://localhost:3001?token=${token}`);
+  } catch (error) {
+    res.status(400).json({ message: "Error while generating token" });
+  }
+};
 
-export const googleRedirect= function(){
- return passport.authenticate('google',{
-    successRedirect:'/api/google/token',
-    failureRedirect:'/api/google/failure'
-  })
-}
+export const googleRedirect = function () {
+  return passport.authenticate("google", {
+    successRedirect: "/api/google/token",
+    failureRedirect: "/api/google/failure",
+  });
+};
 
-export const googleAuthenticate=function(){
-    return passport.authenticate('google',{scope:['email','profile']})
-}
+export const googleAuthenticate = function () {
+  return passport.authenticate("google", { scope: ["email", "profile"] });
+};
 
-export const googleAuthFailed=function(_req:Request,res:Response){
-  res.status(400).json({message:"Authentication failed"})
-}
+export const googleAuthFailed = function (_req: Request, res: Response) {
+  res.status(400).json({ message: "Authentication failed" });
+};
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
   try {
@@ -331,7 +329,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     return res.status(200).json({
       status: "success",
       message: "Password reset email sent",
-      data: { token: resetToken }
+      data: { token: resetToken },
     });
   } catch (error) {
     console.error("Error requesting password reset:", error);
@@ -348,7 +346,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const token = req.query.token as string;
     const decoded: any = decodeToken(token);
     const user = await UserService.getUserByid(decoded.id);
-   
+
     if (!user) {
       return res.status(404).json({
         status: "fail",
@@ -395,4 +393,3 @@ export const getAllUsers = async (_req: Request, res: Response) => {
     });
   }
 };
-
