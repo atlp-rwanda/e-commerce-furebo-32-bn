@@ -30,7 +30,7 @@ export class CheckoutPaymentService {
               name: element.productName,
               images:[element.image]
             },
-            unit_amount: Math.floor(element.price),
+            unit_amount: Math.floor(element.price*100),
           },
           quantity: element.quantity,
         })}
