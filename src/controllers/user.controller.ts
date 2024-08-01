@@ -284,7 +284,9 @@ export const LoginViaGoogle = async (req: Request, res: Response) => {
   const user = req.user as UserSignupAttributes;
   try {
     const token = await generateToken(user);
-    res.redirect(`http://localhost:3001?token=${token}`);
+    res.redirect(
+      `https://endearing-cannoli-8d5726.netlify.app/?token=${token}`
+    );
   } catch (error) {
     res.status(400).json({ message: "Error while generating token" });
   }
